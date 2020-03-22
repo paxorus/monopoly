@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html><head><title>Monopoly Game</title><style>
+body{background-size:cover;font-size:15px;color:black;font-family:Verdana;}
+
+
+#board{position:absolute;width:700px;height:680px;left:50%;margin-left:-350px;}
+.location{width:68px;height:66px;position:absolute;text-align:center;background-color:rgb(213,232,212);border:2px #020 solid;}
+.circ{float:left;width:22px;height:22px;display:block;}
+.circ:hover{background-color:#08F;}
+.dashboard{height:450px;background-color:rgb(213,232,212);}
+.head{font-size:24px;background-color:#BBB;border-radius:5px 5px 0 0;color:#333}
+.button{font-size:15px;background-color:#08C;padding:5px;color:white;}
+.button:hover{background-color:#0AF;}
+.button:active{background-color:#E80;}
+
+.left{right:700px;}
+.right{right:0;}
+.top{top:0;}
+.bottom{top:680px;}
+.vertical{position:absolute;width:66.7%;height:66px;text-align:center;float:left;}
+.horizontal{position:absolute;width:68px;height:66.7%;text-align:center;float:left;}
+</style>
+<script src="jquery.js" ></script>
+<script src="startup.js"></script>
+<script src="main.js"></script>
+<script src="action.js"></script>
+</head>
+
+<body>
+
+<div id="board"></div>
+<!--<div style="position:absolute;right:5%;width:45%;top:9%;height:81%;background-color:#AAA;display:none"></div>-->
+
+
+
+<div style="position:absolute;width:225px;left:50%;margin-left:-112px;top:350px;text-align:center">
+<div class="head" id="propname"></div>
+<center id="card" style="background-color:rgb(213,232,212);display:none">
+    Price: <span id="price"></span>
+    <table>
+        <tr id="rent0"></tr>
+        <tr id="rent1"></tr>
+        <tr id="rent2"></tr>
+        <tr id="rent3"></tr>
+        <tr id="rent4"></tr>
+        <tr id="rent5"></tr>
+    </table>
+    </center>
+</div>
+
+
+<div style="position:absolute;width:250px;top:20%;left:45%">
+    <span id="turn"></span>'s dice roll: <span id="roll"></span>
+    <div id="mess"><div class="button" onclick="handle()" id="ram">Next Turn</div></div>
+    <div id="exmess" style="display:none"></div>
+    <br />
+    <div  class="button" onclick="transaction()">Side Transaction</div>
+    <div  class="button" onclick="$('#card').css('display','none');$('#propname').css('display','none')">Hide Card</div>
+</div>
+
+
+
+<div style="position:absolute;left:30px;top:10px;width:450px" id="heads"></div>
+
+
+</body></html>
