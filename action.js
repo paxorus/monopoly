@@ -1,13 +1,6 @@
-/**
-n cycles through players[],handle depletes jail[] or calls on rollMove
-rollMove may call action,action/react will call rollMove
-
-Display ids are bal/loc/ploc
-*/
-
-const mess = document.getElementById("mess");
-const ram = document.getElementById("ram");
-const exmess = document.getElementById("exmess");
+const mess = document.getElementById("mess");// Message box.
+const ram = document.getElementById("ram");// "Next Turn" roll-and-move button.
+const exmess = document.getElementById("exmess");// Where to hide buttons.
 
 
 function showCard(placeIdxString) {
@@ -24,9 +17,10 @@ function showCard(placeIdxString) {
     $("#propname").css("backgroundColor", place.cardColor || place.col);
     $("#propname").css("display", "block");
 
-    const b = document.getElementById("card").style;
-    b.display = (place.p === 0) ? "none" : "block";// Hide price and rents for non-properties.
-    
+    // Hide price and rents for non-properties.
+    $("#card").css("display", (place.p === 0) ? "none" : "block");
+
+    // Populate price and rents.    
     switch (placeIdx) {
         case 5: case 15: case 25: case 35:
             // Display railroad rents.
@@ -61,12 +55,12 @@ function showCard(placeIdxString) {
     }
 }
 
-function upB() {
-    // Update the view with the current user's balance.
-    $("#bal" + mover.num).text("$" + mover.bal);
+function updateBalance(player) {
+    // Update the view with the player's balance.
+    $("#bal" + player.num).text("$" + player.bal);
 }
 
-function upL() {
+function updateLocation(mover) {
     // Update the view with the current user's location.
     $("#loc" + mover.num).text(places[mover.locnum].name);
     //$("#board div:eq("+(mover.locnum+1)+")").append($("#marker"+mover.num));
@@ -77,130 +71,184 @@ function upL() {
     }
 }
 
-function rand() {
+function rollDice() {
     return Math.ceil(6 * Math.random());
 }
 
-var roll1;
-var roll2;
-var rollnum;
-var mover;
-
-function handle(){
-    mover = players[n];
-    n ++;
-    n %= players.length;
+function handle() {
+    // Advance to next player.
+    GlobalState.currentPlayer = players[(GlobalState.currentPlayer.num + 1) % players.length];
+    const mover = GlobalState.currentPlayer;
     
     $("#turn").text(mover.name);
     $("#exmess").append($("#ram"));
-    mess.textContent="";
-    $("#roll").text("");
-    if (mover.injail>0) {
-        roll1=rand();roll2=rand();
-        $("#roll").text(roll1+" "+roll2);
-        if (roll1==roll2) {mess.textContent+="A double! You're free!\n";getOutofJail()}
-        else {
-            mover.injail--;
-            if (mover.injail===0) {getOutofJail();}
-            else {mess.textContent+="No double..." + mover.name + ", you have "+mover.injail+" turn(s) remaining on your sentence.\n";}
+    mess.textContent = "";
+
+    if (mover.injail > 0) {
+        const roll1 = rollDice();
+        const roll2 = rollDice();
+        mess.textContent += "You rolled a " + roll1 + " and a " + roll2 + ".\n";
+        if (roll1 === roll2) {
+            mess.textContent += "A double! You're free!\n";
+            getOutofJail();
+        } else {
+            // No need to roll if 1 day left, turn's up anyways.
+            mover.injail --;
+            if (mover.injail === 0) {
+                getOutofJail();
+            } else {
+                mess.textContent += "No double..." + mover.name + ", you have " + mover.injail + " turn(s) remaining on your sentence.\n";
+            }
         }
-        $("#mess").append($("#ram"));
-    }
-    else {
-        rollnum=0;//count to 3
-        if(mover.injail===0){rollMove()}
+        $("#mess").append($("#ram"));// Turn is done.
+    } else {
+        GlobalState.rollNumber = 0;// Limited to 3 by jail.
+        rollMove(mover);
     }
 }
 
-function goAgain(){
-    if(roll1!=roll2){$("#mess").append($("#ram"));return false}
-    else if(rollnum==3){mess.textContent+="A 3rd double! Troll alert! You're going to jail.\n";goToJail();$("#mess").append($("#ram"));return false}
-    else if(mover.injail>0){$("#mess").append($("#ram"));return false}
+function shouldRollAgain(mover) {
+    const [roll1, roll2] = GlobalState.currentRoll;
+    const rollNumber = GlobalState.rollNumber;
+
+    if (roll1 != roll2) {
+        $("#mess").append($("#ram"));
+        return false;
+    } else if (rollNumber == 3) {
+        mess.textContent += "A 3rd double! Troll alert! You're going to jail.\n";
+        goToJail();
+        $("#mess").append($("#ram"));
+        return false;
+    } else if (mover.injail > 0) {
+        $("#mess").append($("#ram"));
+        return false;
+    }
     return true;
 }
 
-function rollMove() {
-    roll1=rand();roll2=rand();
-    $("#roll").text($("#roll").text()+roll1+" "+roll2+" ");
-    console.log(roll1+" "+roll2);
-    mover.locnum+=roll1+roll2;
-    if (mover.locnum>39) {mover.locnum-=40;mover.bal+=200;}
-    mess.textContent+="You landed on "+places[mover.locnum].name+".\n";
-    upB();upL();
-    rollnum++;
-    action();
+function rollMove(mover) {
+    const roll1 = rollDice();
+    const roll2 = rollDice();
+    mess.textContent += "You rolled a " + roll1 + " and a " + roll2 + ".\n";
+
+    mover.locnum += roll1 + roll2;
+    if (mover.locnum > 39) {
+        // Pass Go.
+        mover.locnum -= 40;
+        mover.bal += 200;
+    }
+
+    mess.textContent += "You landed on " + places[mover.locnum].name + ".\n";
+    updateLocation(mover);
+    GlobalState.currentRoll = [roll1, roll2];
+    GlobalState.rollNumber ++;
+    action(mover, roll1, roll2);
 }
 
-
-/**
-If buyable+unowned-->ask and react
-If buyable+owned-->pay rent if not you
-If chance/com chest/tax/parking/jail-->settle
-*/
-
-function react(ifbuy){
+function react(ifBuy) {
+    // Hide the Buy/No buttons.
     mess.removeChild(mess.getElementsByClassName("button")[0]);
     mess.removeChild(mess.getElementsByClassName("button")[0]);    
-    if (ifbuy) {
-        mover.bal-=places[mover.locnum].p;upB();
+
+    const mover = GlobalState.currentPlayer;
+
+    if (ifBuy) {
+        mover.bal -= places[mover.locnum].p;
+        updateBalance(mover);
         $("#ploc"+mover.num).append("<br>"+places[mover.locnum].name);
         places[mover.locnum].own=mover.num;
-        mess.textContent+="Congratulations, "+mover.name+"! You now own "+places[mover.locnum].name+"!\n";
+        mess.textContent += "Congratulations, " + mover.name + "! You now own " + places[mover.locnum].name + "!\n";
+    } else {
+        mess.textContent += places[mover.locnum].name + " went unsold.\n"
     }
-    else{mess.textContent+=places[mover.locnum].name+" went unsold.\n"}
-    if(goAgain()){mess.innerText+="A double!\n";rollMove()}
+    if (shouldRollAgain(mover)) {
+        mess.innerText += "A double!\n";
+        rollMove(mover);
+    }
 }
 
-function pay(guy,rent){
-    mover.bal-=rent;upB();
-    guy.bal+=rent;$("#bal"+guy.num).text("$"+guy.bal);
-    mess.textContent+="You paid $"+rent+" in rent to "+guy.name+".\n";
+function pay(mover, owner, rent){
+    mover.bal-=rent;
+    updateBalance(mover);
+    owner.bal += rent;
+    updateBalance(owner);
+    mess.textContent += "You paid $" + rent + " in rent to " + owner.name + ".\n";
 }
 
-var waitForReact;
-function action() {//properties or non-properties
-    waitForReact=false;
-    if (places[mover.locnum].p!==0) {//properties
-        var place=places[mover.locnum];
-        if (place.own==-1) {
-            mess.textContent+=mover.name+", would you like to buy " + place.name + " for $" + place.p + "?\n";
-            mess.innerHTML+="<div class='button' onclick='react(true)'>Buy "+place.name+"</div><div class='button' onclick='react(false)'>No</div>";
-            waitForReact=true;
-        }
-        else if (place.own!=mover.num) {//rent for prop,train,or utility
-            var guy=players[place.own];
-            var rent;
-            switch(mover.locnum){
-                case 12:case 28:rent=4*(roll1+roll2);break;
+function action(mover, roll1, roll2) {
+    let waitForReact = false;
+    const place = places[mover.locnum];
+    if (place.p !== 0) {// Landed on a property.
+        if (place.own === -1) {
+            // Unowned: offer the property to the user.
+            mess.textContent += mover.name + ", would you like to buy " + place.name + " for $" + place.p + "?\n";
+            mess.innerHTML += "<div class='button' onclick='react(true)'>Buy " + place.name + "</div><div class='button' onclick='react(false)'>No</div>";
+            waitForReact = true;
+        } else if (place.own != mover.num) {
+            // Owned: pay rent to the owner.
+            const owner = players[place.own];
+            let rent;
+            switch (mover.locnum) {
+                case 12: case 28:// Utilities
+                    rent = 4 * (roll1 + roll2);
+                    break;
                 //case 5:case 15:case 25:case 35:rent=;break;
-                default:rent=place.re0;
+                default:
+                    rent = place.re0;
             }
-            pay(guy,rent);
+            pay(mover, owner, rent);
         }
-    }
-    else {//non-properties
+    } else {// Landed on a non-property.
         switch(mover.locnum){
-            case 7:case 22:case 36:chance(mover);break;
-            case 2:case 17:case 33:comChest(mover);break;
-            case 4:mover.bal-=200;tax+=200;upB();mess.textContent+="You paid $200 income tax.\n";$("#alltax").text("$ " + tax);break;
-            case 38:mover.bal-=100;tax+=100;upB();mess.textContent+="You paid $100 luxury tax.\n";$("#alltax").html("$ " + tax);break;
-            case 20:mover.bal+=tax;tax=0;$("#alltax").text("$0");upB();break;
-            case 30:goToJail();break;
+            case 7:case 22:case 36:
+                chance(mover);
+                break;
+            case 2:case 17:case 33:
+                comChest(mover);
+                break;
+            case 4:// Income tax
+                mover.bal -= 200;
+                GlobalState.tax += 200;
+                updateBalance(mover);
+                mess.textContent += "You paid $200 income tax.\n";
+                $("#alltax").text("$ " + GlobalState.tax);
+                break;
+            case 38:// Luxury tax
+                mover.bal -= 100;
+                GlobalState.tax += 100;
+                updateBalance(mover);
+                mess.textContent += "You paid $100 luxury tax.\n";
+                $("#alltax").html("$ " + GlobalState.tax);
+                break;
+            case 20:// Free parking
+                const tax = GlobalState.tax;
+                mover.bal += tax;
+                GlobalState.tax = 0;
+                $("#alltax").text("$0");
+                updateBalance(mover);
+                mess.textContent += "You collected $" + tax + " from free parking!\n";
+                break;
+            case 30:// Go to jail
+                goToJail();
+                break;
         }
     }
     
-    if(!waitForReact && goAgain()){mess.innerText+="A double!\n";rollMove()}
+    if (!waitForReact && shouldRollAgain(mover)) {
+        mess.innerText += "A double!\n";
+        rollMove(mover);
+    }
 }
 
 function chance(mover) {
     var newl=true;//new-line 
     mess.textContent+="Chance: ";
     switch(Math.floor(Math.random()*16)) {
-    case 0:mess.textContent+="Advance to Boardwalk.";mover.locnum=39;upL();action();break;
+    case 0:mess.textContent+="Advance to Boardwalk.";mover.locnum=39;updateLocation(mover);action();break;
     case 1:mess.textContent+='Advance to "Go". (Collect $200)';mover.locnum=0;mover.bal+=200;break;
     case 2:mess.textContent+="Make general repairs on all your property: For each house pay $25, for each hotel pay $100.";break;
-    case 3:mess.textContent+="Speeding fine $15.";mover.locnum-=15;upL();action();break;
-    case 4:mess.textContent+='Advance to St. Charles Place. If you pass "Go" collect $200.';if (mover.locnum>11) {mover.bal+=200;upB()}mover.locnum=11;action();break;
+    case 3:mess.textContent+="Speeding fine $15.";mover.locnum-=15;updateLocation(mover);action();break;
+    case 4:mess.textContent+='Advance to St. Charles Place. If you pass "Go" collect $200.';if (mover.locnum>11) {mover.bal+=200;updateBalance(mover)}mover.locnum=11;action();break;
     case 5:mess.textContent+="Your building loan matures. Collect $150.";mover.bal+=150;break;
     case 6:mess.textContent+="Go back three spaces.";mover.locnum-=3;action();break;
     case 7:mess.textContent+="GET OUT OF JAIL FREE. This card may be kept until needed or traded.";break;
@@ -229,7 +277,7 @@ function chance(mover) {
 
     }
     mess.innerHTML+="\n";
-    upB();if(mover.injail===0){upL()}
+    updateBalance(mover);if(mover.injail===0){updateLocation(mover)}
 }
 
 function comChest(mover) {
@@ -253,7 +301,7 @@ function comChest(mover) {
     case 15: mess.textContent+="Receive $25. Consultancy fee.";mover.bal+=25;break;
     }
     mess.textContent+="\n";
-    upB();if(mover.injail===0){upL()}
+    updateBalance(mover);if(mover.injail===0){updateLocation(mover)}
 }
 
 function goToJail() {

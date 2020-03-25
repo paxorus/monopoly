@@ -12,18 +12,32 @@ customizing (name/sprite)
 bring in Parse
 adjust number of players
 
+#### Linking
+Objective: The game lacks accessibility.
+
+* Show sprites on the card.
+* Hovering over the location on the card should highlight the board location.
+* Hovering a sprite on the board should.
+
+show player
+marker-->player name
+card/space-->owner
+
+
 #### Rent
 * property ownership (can't buy something twice)
 * utility/railroads different
 * monopoly doubles rent
 * houses/hotels change value
 
-Objective: The game lacks accessibility.
-show player
-marker-->player name
-card/space-->owner
-space-->location or at least color
+#### Code
+* updateBalance() and updateLocation() should move into a Player class.
 
+#### Other
+* Instead of a "Hide Card" button, just have an X or Close button on the card itself.
+* The Go indiv prevents hovering over the second row of sprites on Go.
+* Interactive elements should have a pointer cursor.
+* Chance and comm chest images.
 
 ## Rules
 Get into jail:

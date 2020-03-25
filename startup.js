@@ -126,13 +126,18 @@ function slide(user) {
     });
 }
 
+const randomPlayer = players[Math.floor(Math.random() * players.length)];
 
-var n = Math.ceil(Math.random() * players.length) - 1;
-var tax=0;
+const GlobalState = {
+    currentPlayer: randomPlayer,
+    currentRoll: null,
+    rollNumber: 0,
+    tax: 0
+}
 
 buildGameBoard();
 buildPlayerViews();
 buildPlayerDisplays();
 
-$("#turn").text(players[n].name);
-$("#loc").text(places[players[n].locnum].name);
+const nextPlayer = players[(GlobalState.currentPlayer.num + 1) % players.length];
+$("#turn").text(nextPlayer.name);
