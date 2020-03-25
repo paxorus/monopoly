@@ -10,61 +10,55 @@ const ram = document.getElementById("ram");
 const exmess = document.getElementById("exmess");
 
 
-function showCard(locnum) {
-var a;//text color,bg color
-$("#propname").text(places[locnum].name);
-switch(parseInt(locnum,10)){
-   case 5:case 15:case 25:case 35:a=["#000","white"];break;
-    case 1:case 3:a=["brown","white"];break;
-    case 6:case 8:case 9:a=["#CCF","black"];break;
-    case 11:case 13:case 14:a=["pink","black"];break;
-    case 16:case 18:case 19:a=["orange","black"];break;
-    case 21:case 23:case 24:a=["red","white"];break;
-    case 26:case 27:case 29:a=["yellow","black"];break;
-    case 31:case 32:case 34:a=["green","white"];break;
-    case 37:case 39:a=["blue","white"];break;
-    default:a=["#777","white"];break;
-}
+function showCard(placeIdxString) {
 
-var b=document.getElementById("card").style;
-switch(parseInt(locnum,10)){
-    case 0:case 2:case 4:case 7:case 10:case 17:case 20:case 22:case 30:case 33:case 36:case 38://non-property
-    b.display="none";
-    break;
-    case 5:case 15:case 25:case 35:
-    a=["#000","white"];
-    $("#price").text("$"+places[locnum].p);
-    $("#rent0").html("Rent: $"+places[locnum].re0);
-    $("#rent1").html("2 railroads $"+places[locnum].re1);
-    $("#rent2").html("3 railroads $"+places[locnum].re2);
-    $("#rent3").html("4 railroads $"+places[locnum].re3);
-    $("#rent4").text("");
-    $("#rent5").html("");
-    b.display="block";    
-    break;
-    case 12:case 28://utility
-    $("#price").text("$150");
-    $("#rent0").text("One Utility: 4 times roll");
-    $("#rent1").text("Both Utilities: 10 times roll");
-    $("#rent2").text("");
-    $("#rent3").text("");
-    $("#rent4").text("");
-    $("#rent5").text("");
-    b.display="block";
-    break;
-    default://houses
-    $("#price").text("$"+places[locnum].p);
-    $("#rent0").text("Rent: $"+places[locnum].re0);
-    $("#rent1").text("With 1 House: $"+places[locnum].re1);
-    $("#rent2").text("With 2 Houses: $"+places[locnum].re2);
-    $("#rent3").text("With 3 Houses: $"+places[locnum].re3);
-    $("#rent4").text("With 4 Houses: $"+places[locnum].re4);
-    $("#rent5").text("With HOTEL : $"+places[locnum].re5);
-    b.display="block";break;
-}
-$("#propname").css("color",a[1]);
-$("#propname").css("backgroundColor",places[locnum].col);
-$("#propname").css("display","block");
+    const placeIdx = parseInt(placeIdxString, 10);
+    const place = places[placeIdx];
+
+    // Update name.
+    $("#propname").text(place.name);
+
+    // Update text color.
+    $("#propname").css("color", BLACK_TEXT_COLORS.has(placeIdx) ? "black" : "white");
+
+    $("#propname").css("backgroundColor", place.cardColor || place.col);
+    $("#propname").css("display", "block");
+
+    const b = document.getElementById("card").style;
+    b.display = (place.p === 0) ? "none" : "block";// Hide price and rents for non-properties.
+    
+    switch (placeIdx) {
+        case 5: case 15: case 25: case 35:
+            // Display railroad rents.
+            $("#price").text("$" + place.p);
+            $("#rent0").html("Rent: $" + place.re0);
+            $("#rent1").html("2 railroads: $" + place.re1);
+            $("#rent2").html("3 railroads: $" + place.re2);
+            $("#rent3").html("4 railroads: $" + place.re3);
+            $("#rent4").text("");
+            $("#rent5").html("");
+            break;
+        case 12: case 28:
+            // Display utility rents.
+            $("#price").text("$" + place.p);
+            $("#rent0").text("One Utility: 4 times roll");
+            $("#rent1").text("Both Utilities: 10 times roll");
+            $("#rent2").text("");
+            $("#rent3").text("");
+            $("#rent4").text("");
+            $("#rent5").text("");
+            break;
+        default:
+            // Display house rents.
+            $("#price").text("$" + place.p);
+            $("#rent0").text("Rent: $" + place.re0);
+            $("#rent1").text("With 1 House: $" + place.re1);
+            $("#rent2").text("With 2 Houses: $" + place.re2);
+            $("#rent3").text("With 3 Houses: $" + place.re3);
+            $("#rent4").text("With 4 Houses: $" + place.re4);
+            $("#rent5").text("With HOTEL: $" + place.re5);
+            break;
+    }
 }
 
 function upB() {
