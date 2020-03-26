@@ -23,7 +23,7 @@ class Player {
 
     goToJail() {
         mess.textContent += "You will be in jail for 3 turns!";
-        this.locnum = 10;
+        this.updateLocation(10);
         this.injail = 3;
         $("#loc" + this.num).text("Jail");
         $("#board div:nth-child(10)").append($("#marker" + this.num));
