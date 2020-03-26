@@ -1,11 +1,10 @@
 function action(mover) {
     // On location change (from a roll, chance card, or comm chest card), follow the rules of that square.
-    let waitForUserResponse = false;
+    GlobalState.waitingForUserResponse = false;
     const place = places[mover.locnum];
     if (place.p !== 0) {
         if (place.own === -1) {
             offerUnownedProperty(mover, place);
-            waitForUserResponse = true;
         } else if (place.own != mover.num) {
             // Owned: pay rent to the owner.
             const owner = players[place.own];
@@ -16,7 +15,7 @@ function action(mover) {
         obeySpecialSquare(mover);
     }
     
-    if (!waitForUserResponse && shouldRollAgain(mover)) {
+    if (!GlobalState.waitingForUserResponse && shouldRollAgain(mover)) {
         rollMove(mover);
     }
 }
@@ -34,6 +33,7 @@ function determineRent(mover, owner, place) {
 function offerUnownedProperty(mover, place) {
     mess.textContent += mover.name + ", would you like to buy " + place.name + " for $" + place.p + "?\n";
     mess.innerHTML += "<div class='button' onclick='react(true)'>Buy " + place.name + "</div><div class='button' onclick='react(false)'>No</div>";
+    GlobalState.waitingForUserResponse = true;
 }
 
 function obeySpecialSquare(mover) {
@@ -71,7 +71,8 @@ function obeySpecialSquare(mover) {
 
 function obeyChanceSquare(mover) {
     mess.textContent += "Chance: ";
-    switch(Math.floor(Math.random() * 16)) {
+
+    switch (Math.floor(Math.random() * 16)) {
         case 0:
             mess.textContent += "Advance to Boardwalk.";
             mover.updateLocation(39);
@@ -136,7 +137,7 @@ function obeyChanceSquare(mover) {
             break;
         case 12:
             mess.textContent += "Advance to the nearest utility. If Unowned, you may buy it from the bank. If Owned, pay owner a total ten times amount thrown on dice.";
-            if (mover.locnum > 12 && mover.locnum < 28) {
+            if (mover.locnum >= 12 && mover.locnum < 28) {
                 mover.updateLocation(28);
             } else {
                 mover.updateLocation(12);
@@ -145,6 +146,7 @@ function obeyChanceSquare(mover) {
                 action(mover);
             } else if (places[mover.locnum].own != mover.num) {
                 const owner = players[places[mover.locnum].own];
+                const [roll1, roll2] = mover.latestRoll;
                 pay(mover, owner, 10 * (roll1 + roll2));
             }
             break;
@@ -157,7 +159,9 @@ function obeyChanceSquare(mover) {
             break;
         case 14: case 15:
             mess.textContent += "Advance to the nearest railroad. If Unowned, you may buy it from the bank. If Owned, pay owner twice the rental to which they are otherwise entitled.";
-            const nearestRailroadIdx = Math.floor(mover.locnum / 5);// Round to nearest railroad.
+            const rangeIdx = Math.floor((mover.locnum + 5) % 40 / 10);// What side of the board are we on if we step forward 5?
+            const nearestRailroadIdx = 10 * rangeIdx + 5;// Map that side to its railroad.
+
             mover.updateLocation(nearestRailroadIdx);
             const railroad = places[nearestRailroadIdx];
             if (railroad.own === -1) {
