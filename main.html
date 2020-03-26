@@ -3,22 +3,76 @@
 body{background-size:cover;font-size:15px;color:black;font-family:Verdana;}
 
 
-#board{position:absolute;width:700px;height:680px;left:50%;margin-left:-350px;}
-.location{width:68px;height:66px;position:absolute;text-align:center;background-color:rgb(213,232,212);border:2px #020 solid;}
+#board{position:absolute;width:700px;height:680px;top:0;left:0;}
+.location {
+    width: 68px;
+    height: 66px;
+    position: absolute;
+    text-align: center;
+    background-color: rgb(213,232,212);
+    border:2px #020 solid;
+    cursor: pointer;
+}
 .circ{float:left;width:22px;height:22px;display:block;}
 .circ:hover{background-color:#08F;}
 .dashboard{height:450px;background-color:rgb(213,232,212);}
-.head{font-size:24px;background-color:#BBB;border-radius:5px 5px 0 0;color:#333}
-.button{font-size:15px;background-color:#08C;padding:5px;color:white;}
+.head {
+    font-size: 24px;
+    background-color: #BBB;
+    border-radius: 5px 5px 0 0;
+    color: #333;
+    cursor: pointer;
+}
+.button{font-size:15px;background-color:#08C;padding:5px;color:white;cursor: pointer;}
 .button:hover{background-color:#0AF;}
 .button:active{background-color:#E80;}
 
-.left{right:700px;}
-.right{right:0;}
-.top{top:0;}
-.bottom{top:680px;}
+.left {}
+.right {left: 700px;}
+.top {}
+.bottom {top:680px;}
 .vertical{position:absolute;width:66.7%;height:66px;text-align:center;float:left;}
 .horizontal{position:absolute;width:68px;height:66.7%;text-align:center;float:left;}
+
+/* Player displays */
+#heads {
+    position: absolute;
+    left: 772px;
+    margin-left: 10px;
+    top: 0;
+    width: 400px;
+}
+.player-display-head {
+    font-size: 18px;
+    background-color: #BBB;
+    padding: 5px 10px;
+    color: #333;
+    cursor: pointer;
+}
+.display-sprite {
+    height: 18px;
+    margin-right: 5px;
+}
+
+#interactive {
+    position: absolute;
+    top: 250px;
+    left: 240px;
+
+    width: 250px;
+    margin-left: -125px;
+}
+
+#location-card {
+    position: absolute;
+    top: 270px;
+    left: 540px;
+
+    width: 225px;
+    margin-left: -112px;
+    text-align: center;
+    display: none;
+}
 </style>
 </head>
 
@@ -29,7 +83,7 @@ body{background-size:cover;font-size:15px;color:black;font-family:Verdana;}
 
 
 
-<div id="location-card" style="position:absolute;width:225px;left:50%;margin-left:-112px;top:350px;text-align:center;display:none">
+<div id="location-card">
 <div class="head" id="propname"></div>
 <center>
     <div id="rent-table" style="background-color:rgb(213,232,212)">
@@ -43,12 +97,12 @@ body{background-size:cover;font-size:15px;color:black;font-family:Verdana;}
             <tr id="rent5"></tr>
         </table>
     </div>
-    <div class="button" onclick="hideLocationCard()">Hide Card</div>
+    <div class="button" onclick="hideLocationCard()">Close</div>
 </center>
 </div>
 
 
-<div style="position:absolute;width:250px;top:20%;left:45%">
+<div id="interactive">
     It's <span id="turn"></span>'s turn.
     <div id="messageBox"><div class="button" onclick="executeTurn()" id="executeTurn">Next Turn</div></div>
     <div id="exmess" style="display:none"></div>
@@ -58,7 +112,7 @@ body{background-size:cover;font-size:15px;color:black;font-family:Verdana;}
 
 
 
-<div style="position:absolute;left:30px;top:10px;width:300px" id="heads"></div>
+<div id="heads"></div>
 
 <script src="javascripts/jquery.js" ></script>
 <script src="javascripts/location-configs.js"></script>

@@ -38,7 +38,7 @@ function buildGameBoard() {
         switch (Math.floor(i / 10)) {
             case 0:
                 newdiv.className = "location bottom";
-                newdiv.style.right = 70 * i + "px";
+                newdiv.style.left = 70 * (10 - i) + "px";
                 indiv.style.bottom = 0;
                 indiv.className = "horizontal";
                 break;
@@ -50,7 +50,7 @@ function buildGameBoard() {
                 break;
             case 2:
                 newdiv.className = "location top";
-                newdiv.style.right = 700 - 70 * (i - 20) + "px";
+                newdiv.style.left = 70 * (i - 20) + "px";
                 indiv.style.top = 0;
                 indiv.className = "horizontal";
                 break;
@@ -61,12 +61,14 @@ function buildGameBoard() {
                 indiv.className = "vertical";
                 break;
         }
-        newdiv.appendChild(indiv);
+        if (places[i].ho) {
+            newdiv.appendChild(indiv);
+        }
         board.appendChild(newdiv);
     }
 
     // Free Parking: add #alltax
-    board.childNodes[20].firstChild.id = "alltax";
+    board.childNodes[20].id = "alltax";
 
     // Go: set image
     board.childNodes[0].style.background = "url('images/go.svg') no-repeat";
@@ -96,15 +98,17 @@ function buildPlayerViews() {
         board.childNodes[0].appendChild(circ);
 
         const heads = document.getElementById("heads");
-        heads.innerHTML+="<div id='head" + i + "' class='head'></div><div style='background-color:" + player.color + ";height:5px'></div>";
-        heads.innerHTML+="<div class='dashboard' id='user" + i + "' style='display:none'><span id='ploc" + i + "'></span></div>";
+        heads.innerHTML += "<div id='head" + i + "' class='player-display-head'></div>";
+        heads.innerHTML += "<div style='background-color:rgb(68, 136, 204);height:5px'></div>";
+        heads.innerHTML += "<div class='dashboard' id='user" + i + "' style='display:none'><span id='ploc" + i + "'></span></div>";
     });
 }
 
 function buildPlayerDisplays() {
     // Set up the HUD for each player: name, location, and balance.
     players.forEach((player, i) => {
-        $("#head" + i).html(player.name+": <span id='loc" + i + "'>Go</span><div style='float:right' id='bal" + i + "'>$1500</div>");    
+        const sprite = "<img class='display-sprite' src='http://veekun.com/dex/media/pokemon/dream-world/" + player.spriteId + ".svg'>";
+        $("#head" + i).html(sprite + player.name + ": <span id='loc" + i + "'>Go</span><div style='float:right' id='bal" + i + "'>$1500</div>");    
 
         // Expand HUD on click.
         $("#head" + i).click(function() {

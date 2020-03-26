@@ -48,19 +48,16 @@ function obeySpecialSquare(mover) {
             mover.updateBalance(-200);
             GlobalState.tax += 200;
             mess.textContent += "You paid $200 income tax.\n";
-            $("#alltax").text("$ " + GlobalState.tax);
             break;
         case 38:// Luxury tax
             mover.updateBalance(-100);
             GlobalState.tax += 100;
             mess.textContent += "You paid $100 luxury tax.\n";
-            $("#alltax").html("$ " + GlobalState.tax);
             break;
         case 20:// Free parking
             const tax = GlobalState.tax;
             mover.updateBalance(tax);
             GlobalState.tax = 0;
-            $("#alltax").text("$0");
             mess.textContent += "You collected $" + tax + " from free parking!\n";
             break;
         case 30:// Go to jail

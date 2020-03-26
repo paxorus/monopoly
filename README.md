@@ -28,14 +28,8 @@ Objective: The game lacks accessibility.
 * houses/hotels change value
 * building houses
 
-#### Code
-* updateBalance() and updateLocation() should move into a Player class.
-* As should the "roll" global state, it's too difficult to call now from commchest.
-
 #### Other
-* Instead of a "Hide Card" button, just have an X or Close button on the card itself.
 * The Go indiv prevents hovering over the second row of sprites on Go.
-* Interactive elements should have a pointer cursor.
 * Chance and comm chest images.
 
 ## Rules
