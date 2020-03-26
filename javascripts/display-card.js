@@ -10,26 +10,59 @@ function showCard(placeIdxString) {
     $("#propname").css("color", BLACK_TEXT_COLORS.has(placeIdx) ? "black" : "white");
 
     $("#propname").css("backgroundColor", place.cardColor || place.col);
-    $("#propname").css("display", "block");
 
-    // Hide price and rents for non-properties.
-    $("#card").css("display", (place.p === 0) ? "none" : "block");
-
-    // Populate price and rents.    
+    let shouldShowRentTable = true;
+    // Populate price and rents.
     switch (placeIdx) {
+        case 4:// Income tax
+            $("#price").text("Tax: $100");
+            $("#rent0").text("");
+            $("#rent1").text("");
+            $("#rent2").text("");
+            $("#rent3").text("");
+            $("#rent4").text("");
+            $("#rent5").text("");
+            break;
+        case 38:// Luxury tax.
+            $("#price").text("Tax: $200");
+            $("#rent0").text("");
+            $("#rent1").text("");
+            $("#rent2").text("");
+            $("#rent3").text("");
+            $("#rent4").text("");
+            $("#rent5").text("");
+            break;
+
+        case 20:
+            $("#price").text("Cash pool: $" + GlobalState.tax);
+            $("#rent0").text("");
+            $("#rent1").text("");
+            $("#rent2").text("");
+            $("#rent3").text("");
+            $("#rent4").text("");
+            $("#rent5").text("");
+            break;
+
+        case 0:// Go
+        case 10:// Jail
+        case 2: case 17: case 33:// Community Chest
+        case 7: case 22: case 36:// Chance
+            shouldShowRentTable = false;
+            break;
+
         case 5: case 15: case 25: case 35:
             // Display railroad rents.
-            $("#price").text("$" + place.p);
-            $("#rent0").html("Rent: $" + place.re0);
-            $("#rent1").html("2 railroads: $" + place.re1);
-            $("#rent2").html("3 railroads: $" + place.re2);
-            $("#rent3").html("4 railroads: $" + place.re3);
+            $("#price").text("Price: $" + place.p);
+            $("#rent0").text("Rent: $" + place.re0);
+            $("#rent1").text("2 railroads: $" + place.re1);
+            $("#rent2").text("3 railroads: $" + place.re2);
+            $("#rent3").text("4 railroads: $" + place.re3);
             $("#rent4").text("");
-            $("#rent5").html("");
+            $("#rent5").text("");
             break;
         case 12: case 28:
             // Display utility rents.
-            $("#price").text("$" + place.p);
+            $("#price").text("Price: $" + place.p);
             $("#rent0").text("One Utility: 4 times roll");
             $("#rent1").text("Both Utilities: 10 times roll");
             $("#rent2").text("");
@@ -39,7 +72,7 @@ function showCard(placeIdxString) {
             break;
         default:
             // Display house rents.
-            $("#price").text("$" + place.p);
+            $("#price").text("Price: $" + place.p);
             $("#rent0").text("Rent: $" + place.re0);
             $("#rent1").text("With 1 House: $" + place.re1);
             $("#rent2").text("With 2 Houses: $" + place.re2);
@@ -48,4 +81,13 @@ function showCard(placeIdxString) {
             $("#rent5").text("With HOTEL: $" + place.re5);
             break;
     }
+
+    // Hide price and rents for non-properties.
+    $("#rent-table").css("display", shouldShowRentTable ? "block" : "none");
+
+    $("#location-card").css("display", "block");
+}
+
+function hideLocationCard() {
+    $("#location-card").css("display", "none");
 }

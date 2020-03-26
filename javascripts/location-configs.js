@@ -62,5 +62,5 @@ const places = [
 	{name: "Chance", p: 0, col: "#A6A"},
 	{name: "Park Place", p: 350, re0: 35, re1: 175, re2: 500, re3: 1100, re4: 1300, re5: 1500, ho: 200, own: -1, col: Colors.DEEP_BLUE},
 	{name: "Luxury Tax", p: 0, col: Colors.TAX},
-	{name: "Boardwalk", p: 700000000000, re0: 50, re1: 200, re2: 600, re3: 1400, re4: 1700, re5: 2000, ho: 200, own: -1, col: Colors.DEEP_BLUE}
+	{name: "Boardwalk", p: 400, re0: 50, re1: 200, re2: 600, re3: 1400, re4: 1700, re5: 2000, ho: 200, own: -1, col: Colors.DEEP_BLUE}
 ];

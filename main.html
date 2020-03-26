@@ -29,19 +29,22 @@ body{background-size:cover;font-size:15px;color:black;font-family:Verdana;}
 
 
 
-<div style="position:absolute;width:225px;left:50%;margin-left:-112px;top:350px;text-align:center">
+<div id="location-card" style="position:absolute;width:225px;left:50%;margin-left:-112px;top:350px;text-align:center;display:none">
 <div class="head" id="propname"></div>
-<center id="card" style="background-color:rgb(213,232,212);display:none">
-    Price: <span id="price"></span>
-    <table>
-        <tr id="rent0"></tr>
-        <tr id="rent1"></tr>
-        <tr id="rent2"></tr>
-        <tr id="rent3"></tr>
-        <tr id="rent4"></tr>
-        <tr id="rent5"></tr>
-    </table>
-    </center>
+<center>
+    <div id="rent-table" style="background-color:rgb(213,232,212)">
+        <span id="price"></span>
+        <table>
+            <tr id="rent0"></tr>
+            <tr id="rent1"></tr>
+            <tr id="rent2"></tr>
+            <tr id="rent3"></tr>
+            <tr id="rent4"></tr>
+            <tr id="rent5"></tr>
+        </table>
+    </div>
+    <div class="button" onclick="hideLocationCard()">Hide Card</div>
+</center>
 </div>
 
 
@@ -50,8 +53,7 @@ body{background-size:cover;font-size:15px;color:black;font-family:Verdana;}
     <div id="messageBox"><div class="button" onclick="executeTurn()" id="executeTurn">Next Turn</div></div>
     <div id="exmess" style="display:none"></div>
     <br />
-    <div  class="button" onclick="transaction()">Side Transaction</div>
-    <div  class="button" onclick="$('#card').css('display','none');$('#propname').css('display','none')">Hide Card</div>
+    <div class="button" onclick="transaction()">Side Transaction</div>
 </div>
 
 
