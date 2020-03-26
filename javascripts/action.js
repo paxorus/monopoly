@@ -18,20 +18,20 @@ function executeTurn() {
     $("#exmess").append($("#executeTurn"));
     mess.textContent = "";
 
-    if (mover.injail > 0) {
+    if (mover.jailDays > 0) {
         const roll1 = rollDice();
         const roll2 = rollDice();
-        mess.textContent += "You rolled a " + roll1 + " and a " + roll2 + ".\n";
+        mess.textContent += "You rolled " + roll1 + " and " + roll2 + ".\n";
         if (roll1 === roll2) {
             mess.textContent += "A double! You're free!\n";
             mover.getOutofJail();
         } else {
             // No need to roll if 1 day left, turn's up anyways.
-            mover.injail --;
-            if (mover.injail === 0) {
+            mover.jailDays --;
+            if (mover.jailDays === 0) {
                 mover.getOutofJail();
             } else {
-                mess.textContent += "No double..." + mover.name + ", you have " + mover.injail + " turn(s) remaining on your sentence.\n";
+                mess.textContent += "No double..." + mover.name + ", you have " + mover.jailDays + " turn(s) remaining on your sentence.\n";
             }
         }
         concludeTurn();
@@ -52,10 +52,12 @@ function shouldRollAgain(mover) {
         mover.goToJail();
         concludeTurn();
         return false;
-    } else if (mover.injail > 0) {
+    } else if (mover.jailDays > 0) {
         concludeTurn();
         return false;
     }
+
+    mess.innerText += "A double!\n";
     return true;
 }
 
@@ -93,7 +95,6 @@ function react(ifBuy) {
         mess.textContent += places[mover.locnum].name + " went unsold.\n"
     }
     if (shouldRollAgain(mover)) {
-        mess.innerText += "A double!\n";
         rollMove(mover);
     }
 }
@@ -110,20 +111,20 @@ function transaction() {
     var giver=prompt("Enter the sender.");
     
     switch(recip){
-        case players[0].name:players[0].bal+=parseInt(amount,10);break;
-        case players[1].name:players[1].bal+=parseInt(amount,10);break;
-        case players[2].name:players[2].bal+=parseInt(amount,10);break;
+        case players[0].name:players[0].balance+=parseInt(amount,10);break;
+        case players[1].name:players[1].balance+=parseInt(amount,10);break;
+        case players[2].name:players[2].balance+=parseInt(amount,10);break;
         default:mess.textContent+="Transaction error! Invalid recipient!";giver="anything invalid";
     }
     
     switch(giver){
-        case players[0].name:players[0].bal-=amount;break;
-        case players[1].name:players[1].bal-=amount;break;
-        case players[2].name:players[2].bal-=amount;break;
+        case players[0].name:players[0].balance-=amount;break;
+        case players[1].name:players[1].balance-=amount;break;
+        case players[2].name:players[2].balance-=amount;break;
         case "anything invalid":break;
         default:mess.textContent+="Transaction error! Invalid sender!";
     }
-    $("#bal0").text("$"+players[0].bal);
-    $("#bal1").text("$"+players[1].bal);
-    $("#bal2").text("$"+players[2].bal);
+    $("#bal0").text("$"+players[0].balance);
+    $("#bal1").text("$"+players[1].balance);
+    $("#bal2").text("$"+players[2].balance);
 }

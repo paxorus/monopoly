@@ -1,11 +1,11 @@
 function action(mover) {
     // On location change (from a roll, chance card, or comm chest card), follow the rules of that square.
-    let waitForReact = false;
+    let waitForUserResponse = false;
     const place = places[mover.locnum];
     if (place.p !== 0) {
         if (place.own === -1) {
             offerUnownedProperty(mover, place);
-            waitForReact = true;
+            waitForUserResponse = true;
         } else if (place.own != mover.num) {
             // Owned: pay rent to the owner.
             const owner = players[place.own];
@@ -16,8 +16,7 @@ function action(mover) {
         obeySpecialSquare(mover);
     }
     
-    if (!waitForReact && shouldRollAgain(mover)) {
-        mess.innerText += "A double!\n";
+    if (!waitForUserResponse && shouldRollAgain(mover)) {
         rollMove(mover);
     }
 }
@@ -40,10 +39,10 @@ function offerUnownedProperty(mover, place) {
 function obeySpecialSquare(mover) {
     switch (mover.locnum) {
         case 7: case 22: case 36:
-            chance(mover);
+            obeyChanceSquare(mover);
             break;
         case 2: case 17: case 33:
-            comChest(mover);
+            obeyCommunityChestSquare(mover);
             break;
         case 4:// Income tax
             mover.updateBalance(-200);
@@ -70,7 +69,7 @@ function obeySpecialSquare(mover) {
     }
 }
 
-function chance(mover) {
+function obeyChanceSquare(mover) {
     mess.textContent += "Chance: ";
     switch(Math.floor(Math.random() * 16)) {
         case 0:
@@ -173,7 +172,7 @@ function chance(mover) {
     mess.innerHTML += "\n";
 }
 
-function comChest(mover) {
+function obeyCommunityChestSquare(mover) {
     mess.textContent += "Community Chest: ";
     switch (Math.floor(Math.random() * 16)) {
         case 0:

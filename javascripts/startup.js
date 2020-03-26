@@ -14,9 +14,9 @@ class Player {
         this.color = color;// needed?
         this.spriteId = spriteId;
 
-        this.bal = 1500;// balance
+        this.balance = 1500;
         this.locnum = 0;// placeIdx
-        this.injail = 0;// jailTime
+        this.jailDays = 0;
         this.latestRoll = null;
         this.rollCount = 0;
     }
@@ -24,21 +24,21 @@ class Player {
     goToJail() {
         mess.textContent += "You will be in jail for 3 turns!";
         this.updateLocation(10);
-        this.injail = 3;
+        this.jailDays = 3;
         $("#loc" + this.num).text("Jail");
         $("#board div:nth-child(10)").append($("#marker" + this.num));
     }
 
     getOutofJail() {
         this.textContent += "You are now out of jail!";
-        this.injail = 0;
+        this.jailDays = 0;
         $("#loc" + this.name).text("Just Visiting");
     }
 
     updateBalance(income) {
         // Update the view with the player's balance.
-        this.bal += income;
-        $("#bal" + this.num).text("$" + this.bal);
+        this.balance += income;
+        $("#bal" + this.num).text("$" + this.balance);
     }
 
     updateLocation(newLocation) {
