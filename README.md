@@ -1,37 +1,36 @@
 http://veekun.com/dex/media/pokemon/dream-world/
 
+
+
 ## Tasks
 #### Enable mortgage
 Keep your GOOJF card or trade
-Market properties for market fee
-Loan with interest
+Auction?
+Trades?
 
 show actual faces of dice
-fix sprites
 customizing (name/sprite)
-bring in Parse
 adjust number of players
 
 #### Linking
 Objective: The game lacks accessibility.
 
-* Show sprites on the card.
-* Hovering over the location on the card should highlight the board location.
-* Hovering a sprite on the board should.
-
-show player
-marker-->player name
-card/space-->owner
-
+* Show sprites on the player display.
+* Show property colors on the player display.
+* Hovering over the location on the player display should highlight the board location.
+* Hovering a sprite on the board should expand the player display.
+* Show the owner on the property card.
 
 #### Rent
 * property ownership (can't buy something twice)
 * utility/railroads different
 * monopoly doubles rent
 * houses/hotels change value
+* building houses
 
 #### Code
 * updateBalance() and updateLocation() should move into a Player class.
+* As should the "roll" global state, it's too difficult to call now from commchest.
 
 #### Other
 * Instead of a "Hide Card" button, just have an X or Close button on the card itself.

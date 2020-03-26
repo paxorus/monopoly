@@ -7,12 +7,59 @@ const Sprite = {
     CHARIZARD: 6
 }
 
+class Player {
+    constructor(name, num, color, spriteId) {
+        this.name = name;
+        this.num = num;
+        this.color = color;// needed?
+        this.spriteId = spriteId;
+
+        this.bal = 1500;// balance
+        this.locnum = 0;// placeIdx
+        this.injail = 0;// jailTime
+        this.latestRoll = null;
+        this.rollCount = 0;
+    }
+
+    goToJail() {
+        mess.textContent += "You will be in jail for 3 turns!";
+        this.locnum = 10;
+        this.injail = 3;
+        $("#loc" + this.num).text("Jail");
+        $("#board div:nth-child(10)").append($("#marker" + this.num));
+    }
+
+    getOutofJail() {
+        this.textContent += "You are now out of jail!";
+        this.injail = 0;
+        $("#loc" + this.name).text("Just Visiting");
+    }
+
+    updateBalance(income) {
+        // Update the view with the player's balance.
+        this.bal += income;
+        $("#bal" + this.num).text("$" + this.bal);
+    }
+
+    updateLocation(newLocation) {
+        this.locnum = newLocation;
+        // Update the view with the current user's location.
+        $("#loc" + this.num).text(places[this.locnum].name);
+        //$("#board div:eq("+(mover.locnum+1)+")").append($("#marker"+mover.num));
+        if (places[this.locnum].ho) {
+            $("#board").children().eq(this.locnum).children().first().append($("#marker" + this.num));
+        } else{
+            $("#board").children().eq(this.locnum).append($("#marker" + this.num));
+        }
+    }
+}
+
 const players = [
-    {name: "Prateek", bal: 1500, locnum: 0, injail: 0, num: 0, color: "#E80", spriteId: Sprite.BLAZIKEN},
-    {name: "Prakhar", bal: 1500, locnum: 0, injail: 0, num: 1, color: "#0C0", spriteId: Sprite.SCEPTILE},
-    {name: "Willy", bal: 1500, locnum: 0, injail: 0, num: 2, color: "#08F", spriteId: Sprite.SWAMPERT},
-    {name: "Troy", bal: 1500, locnum: 0, injail: 0, num: 3, color: "#FFF", spriteId: Sprite.VENUSAUR},
-    {name: "Poop", bal: 1500, locnum: 0, injail: 0, num: 4, color: "#000", spriteId: Sprite.CHARIZARD}
+    new Player("Prakhar", 0, "#E80", Sprite.BLAZIKEN),
+    new Player("Kanav", 1, "#0C0", Sprite.SCEPTILE),
+    new Player("Jerry", 2, "#08F", Sprite.SWAMPERT),
+    new Player("Ashwin", 3, "#FFF", Sprite.VENUSAUR),
+    new Player("Michael", 4, "#000", Sprite.CHARIZARD)
 ];
 
 // Prefer images to text for special locations.
@@ -130,8 +177,6 @@ const randomPlayer = players[Math.floor(Math.random() * players.length)];
 
 const GlobalState = {
     currentPlayer: randomPlayer,
-    currentRoll: null,
-    rollNumber: 0,
     tax: 0
 }
 
