@@ -2,62 +2,71 @@ function action(mover) {
     // On location change (from a roll, chance card, or comm chest card), follow the rules of that square.
     let waitForReact = false;
     const place = places[mover.locnum];
-    if (place.p !== 0) {// Landed on a property.
+    if (place.p !== 0) {
         if (place.own === -1) {
-            // Unowned: offer the property to the user.
-            mess.textContent += mover.name + ", would you like to buy " + place.name + " for $" + place.p + "?\n";
-            mess.innerHTML += "<div class='button' onclick='react(true)'>Buy " + place.name + "</div><div class='button' onclick='react(false)'>No</div>";
+            offerUnownedProperty(mover, place);
             waitForReact = true;
         } else if (place.own != mover.num) {
             // Owned: pay rent to the owner.
             const owner = players[place.own];
-            let rent;
-            switch (mover.locnum) {
-                case 12: case 28:// Utilities
-                    rent = 4 * (mover.latestRoll[0] + mover.latestRoll[1]);
-                    break;
-                //case 5:case 15:case 25:case 35:rent=;break;
-                default:
-                    rent = place.re0;
-            }
+            const rent = determineRent(mover, owner, place);
             pay(mover, owner, rent);
         }
-    } else {// Landed on a non-property.
-        switch (mover.locnum) {
-            case 7: case 22: case 36:
-                chance(mover);
-                break;
-            case 2: case 17: case 33:
-                comChest(mover);
-                break;
-            case 4:// Income tax
-                mover.updateBalance(-200);
-                GlobalState.tax += 200;
-                mess.textContent += "You paid $200 income tax.\n";
-                $("#alltax").text("$ " + GlobalState.tax);
-                break;
-            case 38:// Luxury tax
-                mover.updateBalance(-100);
-                GlobalState.tax += 100;
-                mess.textContent += "You paid $100 luxury tax.\n";
-                $("#alltax").html("$ " + GlobalState.tax);
-                break;
-            case 20:// Free parking
-                const tax = GlobalState.tax;
-                mover.updateBalance(tax);
-                GlobalState.tax = 0;
-                $("#alltax").text("$0");
-                mess.textContent += "You collected $" + tax + " from free parking!\n";
-                break;
-            case 30:// Go to jail
-                mover.goToJail();
-                break;
-        }
+    } else {
+        obeySpecialSquare(mover);
     }
     
     if (!waitForReact && shouldRollAgain(mover)) {
         mess.innerText += "A double!\n";
         rollMove(mover);
+    }
+}
+
+function determineRent(mover, owner, place) {
+    switch (mover.locnum) {
+        case 12: case 28:// Utilities
+            return 4 * (mover.latestRoll[0] + mover.latestRoll[1]);
+        //case 5:case 15:case 25:case 35:rent=;break;
+        default:
+            return place.re0;
+    }
+}
+
+function offerUnownedProperty(mover, place) {
+    mess.textContent += mover.name + ", would you like to buy " + place.name + " for $" + place.p + "?\n";
+    mess.innerHTML += "<div class='button' onclick='react(true)'>Buy " + place.name + "</div><div class='button' onclick='react(false)'>No</div>";
+}
+
+function obeySpecialSquare(mover) {
+    switch (mover.locnum) {
+        case 7: case 22: case 36:
+            chance(mover);
+            break;
+        case 2: case 17: case 33:
+            comChest(mover);
+            break;
+        case 4:// Income tax
+            mover.updateBalance(-200);
+            GlobalState.tax += 200;
+            mess.textContent += "You paid $200 income tax.\n";
+            $("#alltax").text("$ " + GlobalState.tax);
+            break;
+        case 38:// Luxury tax
+            mover.updateBalance(-100);
+            GlobalState.tax += 100;
+            mess.textContent += "You paid $100 luxury tax.\n";
+            $("#alltax").html("$ " + GlobalState.tax);
+            break;
+        case 20:// Free parking
+            const tax = GlobalState.tax;
+            mover.updateBalance(tax);
+            GlobalState.tax = 0;
+            $("#alltax").text("$0");
+            mess.textContent += "You collected $" + tax + " from free parking!\n";
+            break;
+        case 30:// Go to jail
+            mover.goToJail();
+            break;
     }
 }
 

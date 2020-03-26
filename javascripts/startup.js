@@ -116,12 +116,12 @@ function buildGameBoard() {
     board.childNodes[20].firstChild.id = "alltax";
 
     // Go: set image
-    board.childNodes[0].style.background = "url('go.svg') no-repeat";
+    board.childNodes[0].style.background = "url('images/go.svg') no-repeat";
 
     // Railroads: set images
     for(let i = 5; i <= 35; i += 10) {
         const railroad = board.childNodes[i];
-        railroad.style.background = "url('rr.svg') no-repeat";
+        railroad.style.background = "url('images/rr.svg') no-repeat";
         railroad.style.backgroundSize = "68px 66px";
     }
 
