@@ -85,6 +85,15 @@ function showCard(placeIdxString) {
     // Hide price and rents for non-properties.
     $("#rent-table").css("display", shouldShowRentTable ? "block" : "none");
 
+    if (place.p === 0) {// Unbuyable
+        $("#owner-name").text("");
+    } else if (place.own === -1) {
+        $("#owner-name").text("Unowned");
+    } else {
+        const ownerName = players[place.own].name;
+        $("#owner-name").text("Owner: " + ownerName);
+    }
+
     $("#location-card").css("display", "block");
 }
 

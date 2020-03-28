@@ -113,7 +113,7 @@ function buildPlayerViews() {
         const heads = document.getElementById("heads");
         heads.innerHTML += "<div id='head" + i + "' class='player-display-head'></div>";
         heads.innerHTML += "<div style='background-color:rgb(68, 136, 204);height:5px'></div>";
-        heads.innerHTML += "<div class='dashboard' id='user" + i + "' style='display:none'><span id='ploc" + i + "'></span></div>";
+        heads.innerHTML += "<div class='dashboard' id='user" + i + "' style='display:none'><span id='property-list" + i + "'></span></div>";
     });
 }
 
@@ -148,20 +148,22 @@ function toggleHighlightedProperties(userId, shouldShow) {
         .map((place, placeId) => [placeId, place.own])
         .filter(([placeId, owner]) => owner === userId);
 
-    ownedProperties.forEach(([placeId, ]) => {
-        const jqLocation = $(".location:eq(" + placeId + ")");
-        if (jqLocation.has(".walkway").length) {
-            jqLocation.children(".walkway").toggleClass("location-highlighted", shouldShow);
-        } else {
-            jqLocation.toggleClass("location-highlighted", shouldShow);
-        }
-    });
+    ownedProperties.forEach(([placeId, ]) => highlightProperty(placeId, shouldShow));
+}
+
+function highlightProperty(placeId, shouldShow) {
+    const jqLocation = $(".location:eq(" + placeId + ")");
+    if (jqLocation.has(".walkway").length) {
+        jqLocation.children(".walkway").toggleClass("location-highlighted", shouldShow);
+    } else {
+        jqLocation.toggleClass("location-highlighted", shouldShow);
+    }    
 }
 
 const randomPlayer = players[Math.floor(Math.random() * players.length)];
 
 const GlobalState = {
-    currentPlayer: randomPlayer,
+    currentPlayer: players[4],
     tax: 0,
     waitingForUserResponse: undefined
 }

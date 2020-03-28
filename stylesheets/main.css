@@ -43,6 +43,36 @@ body {
     height: 450px;
     background-color: rgb(213, 232, 212);
 }
+.house-icon {
+    width: 20px;
+    display: inline-block;
+    line-height: 20px;
+}
+.house-button {
+    height: 20px;
+    width: 33px;
+    display: inline-block;
+    user-select: none;
+
+    margin-left: 5px;
+}
+.house-adder {
+    color: black;
+    font-size: 15px;
+    font-weight: 600;
+
+    position: relative;
+    top: -6px;
+    left: -3px;
+}
+.house-remover {
+    color: black;
+    font-size: 15px;
+    font-weight: 600;
+
+    position: relative;
+    top: -6px;
+}
 
 /* Display card header */
 .head {
@@ -61,10 +91,36 @@ body {
     cursor: pointer;
 }
 .button:hover {
-    background-color: #0AF;
+    filter: saturate(125%);
 }
 .button:active {
-    background-color: #E80;
+    /*background-color: #E80;*/
+    filter: saturate(75%);
+}
+
+.button-negative {
+    font-size: 15px;
+    background-color: #E63;
+    padding: 5px;
+    color: white;
+    cursor: pointer;
+}
+.button-negative:hover {
+    filter: saturate(125%);
+}
+.button-negative:active {
+    filter: saturate(75%);
+}
+
+.button-disabled {
+    filter: saturate(0%);
+    cursor: not-allowed;
+}
+.button-disabled:hover {
+    filter: saturate(0%);
+}
+.button-disabled:active {
+    filter: saturate(0%);
 }
 
 .left {}

@@ -9,7 +9,7 @@ function action(mover) {
             // Owned: pay rent to the owner.
             const owner = players[place.own];
             const rent = determineRent(mover, owner, place);
-            pay(mover, owner, rent);
+            payRent(mover, owner, rent);
         }
     } else {
         obeySpecialSquare(mover);
@@ -32,7 +32,8 @@ function determineRent(mover, owner, place) {
 
 function offerUnownedProperty(mover, place) {
     mess.textContent += mover.name + ", would you like to buy " + place.name + " for $" + place.p + "?\n";
-    mess.innerHTML += "<div class='button' onclick='react(true)'>Buy " + place.name + "</div><div class='button' onclick='react(false)'>No</div>";
+    mess.innerHTML += "<div class='button' onclick='react(true)'>Buy " + place.name + "</div>";
+    mess.innerHTML += "<div class='button-negative' onclick='react(false)'>No Thanks</div>";
     GlobalState.waitingForUserResponse = true;
 }
 
@@ -144,7 +145,7 @@ function obeyChanceSquare(mover) {
             } else if (places[mover.locnum].own != mover.num) {
                 const owner = players[places[mover.locnum].own];
                 const [roll1, roll2] = mover.latestRoll;
-                pay(mover, owner, 10 * (roll1 + roll2));
+                payRent(mover, owner, 10 * (roll1 + roll2));
             }
             break;
         case 13:
@@ -165,7 +166,7 @@ function obeyChanceSquare(mover) {
                 action(mover);
             } else if (players[railroad.own] != mover) {
                 // Control the rent properly.
-                pay(players[place.own], 2 * railroad.re0);
+                payRent(players[place.own], 2 * railroad.re0);
             }
             break;
     }

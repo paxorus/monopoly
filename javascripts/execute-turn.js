@@ -65,8 +65,8 @@ function shouldRollAgain(mover) {
 }
 
 function rollMove(mover) {
-    const roll1 = rollDice();
-    const roll2 = rollDice();
+    const roll1 = 1// rollDice();
+    const roll2 = 2 //rollDice();
     mover.latestRoll = [roll1, roll2];
     mover.rollCount ++;
     mess.textContent += "You rolled a " + roll1 + " and a " + roll2 + ".\n";
@@ -86,27 +86,67 @@ function rollMove(mover) {
 function react(ifBuy) {
     // Hide the Buy/No buttons.
     mess.removeChild(mess.getElementsByClassName("button")[0]);
-    mess.removeChild(mess.getElementsByClassName("button")[0]);    
+    mess.removeChild(mess.getElementsByClassName("button-negative")[0]);    
 
     const mover = GlobalState.currentPlayer;
 
     if (ifBuy) {
-        mover.updateBalance(-places[mover.locnum].p);
-        $("#ploc" + mover.num).append("<br>" + places[mover.locnum].name);
-        places[mover.locnum].own = mover.num;
-        mess.textContent += "Congratulations, " + mover.name + "! You now own " + places[mover.locnum].name + "!\n";
+        purchaseProperty(mover, mover.locnum);
     } else {
-        mess.textContent += places[mover.locnum].name + " went unsold.\n"
+        mess.textContent += places[mover.locnum].name + " went unsold.\n";
     }
     if (shouldRollAgain(mover)) {
         rollMove(mover);
     }
 }
 
-function pay(mover, owner, rent) {
+function payRent(mover, owner, rent) {
     mover.updateBalance(-rent);
     owner.updateBalance(rent);
     mess.textContent += "You paid $" + rent + " in rent to " + owner.name + ".\n";
+}
+
+function purchaseProperty(mover, placeIdx) {
+    const place = places[placeIdx];
+
+    mover.updateBalance(-place.p);
+    place.own = mover.num;
+    mess.textContent += "Congratulations, " + mover.name + "! You now own " + place.name + "!\n";
+
+    $("#property-list" + mover.num).append("<br><div id='hud-property" + placeIdx + "'>" + place.name + "</div>");
+
+    // Check for a new monopoly.
+    const monopoly = MONOPOLIES.find(monopoly => monopoly.includes(placeIdx));
+    if (monopoly !== undefined && monopoly.every(placeIdx => places[placeIdx].own === mover.num)) {
+        const propertyNames = monopoly.map(placeIdx => places[placeIdx].name);
+        mess.textContent += "Monopoly! You may now build houses on " + concatenatePropertyNames(propertyNames)
+            + ", and their rents have doubled.";
+        monopoly.forEach(placeIdx => {
+            const [adder, remover] = buildHouseButtons();
+            $("#hud-property" + placeIdx).append(adder);
+            $("#hud-property" + placeIdx).append(remover);
+        });
+    }
+}
+
+function concatenatePropertyNames(names) {
+    if (names.length === 3) {
+        return names[0] + ", " + names[1] + ", and " + names[2];
+    } else {
+        return names[0] + " and " + names[1];
+    }
+}
+
+function buildHouseButtons() {
+    const adder = document.createElement("div");
+    adder.className = "button house-button";
+    $(adder).append("<img class='house-icon' src='images/house.svg'><sup class='house-adder'>+</sup>");
+
+    const remover = document.createElement("div");
+    remover.className = "button-negative button-disabled house-button";
+    $(remover).append("<img class='house-icon' src='images/house.svg'><sup class='house-remover'>-</sup>");
+
+    return [adder, remover];
 }
 
 // function transaction() {

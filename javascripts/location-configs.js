@@ -24,7 +24,7 @@ const BLACK_TEXT_COLORS = new Set([
 
 const places = [
 	{name: "Go", p: 0, col: "rgb(213, 232, 212)", cardColor: Colors.GRAY},
-	{name: "Mediterranean Avenue", p: 60, re0: 2, re1: 10, re2: 30, re3: 90, re4: 160, re5: 250, ho: 50, own: -1, col: Colors.BROWN},
+	{name: "Mediterranean Avenue", p: 60, re0: 2, re1: 10, re2: 30, re3: 90, re4: 160, re5: 250, ho: 50, own: 0, col: Colors.BROWN},
 	{name: "Community Chest", p: 0, col: "#48C"},
 	{name: "Baltic Avenue", p: 60, re0: 4, re1: 20, re2: 60, re3: 180, re4: 320, re5: 450, ho: 50, own: -1, col: Colors.BROWN},
 	{name: "Income Tax", p: 0, col: Colors.TAX},
@@ -63,4 +63,15 @@ const places = [
 	{name: "Park Place", p: 350, re0: 35, re1: 175, re2: 500, re3: 1100, re4: 1300, re5: 1500, ho: 200, own: -1, col: Colors.DEEP_BLUE},
 	{name: "Luxury Tax", p: 0, col: Colors.TAX},
 	{name: "Boardwalk", p: 400, re0: 50, re1: 200, re2: 600, re3: 1400, re4: 1700, re5: 2000, ho: 200, own: -1, col: Colors.DEEP_BLUE}
+];
+
+const MONOPOLIES = [
+	[1, 3],
+	[6, 8, 9],
+	[11, 13, 14],
+	[16, 18, 19],
+	[21, 23, 24],
+	[26, 27, 29],
+	[31, 32, 34],
+	[37, 39]
 ];
