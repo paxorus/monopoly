@@ -13,7 +13,9 @@ function executeTurn() {
     // Advance to next player.
     GlobalState.currentPlayer = players[(GlobalState.currentPlayer.num + 1) % players.length];
     const mover = GlobalState.currentPlayer;
-    
+
+    $("#initial-interactive").css("display", "none");
+    $("#interactive").css("display", "block");
     $("#turn").text(mover.name);
     $("#exmess").append($("#executeTurn"));
     mess.textContent = "";
@@ -47,7 +49,7 @@ function shouldRollAgain(mover) {
     if (roll1 != roll2) {
         concludeTurn();
         return false;
-    } else if (mover.rollNumber == 3) {
+    } else if (mover.rollCount == 3) {
         mess.textContent += "A 3rd double! Troll alert! You're going to jail.\n";
         mover.goToJail();
         concludeTurn();
@@ -68,14 +70,16 @@ function rollMove(mover) {
     mover.rollCount ++;
     mess.textContent += "You rolled a " + roll1 + " and a " + roll2 + ".\n";
 
-    mover.updateLocation(mover.locnum + roll1 + roll2);
-    if (mover.locnum > 39) {
+    const newLocation = mover.locnum + roll1 + roll2;
+    if (newLocation > 39) {
         // Pass Go.
-        mover.updateLocation(mover.locnum - 40);
+        mover.updateLocation(newLocation - 40);
         mover.updateBalance(200);
+    } else {
+        mover.updateLocation(newLocation);
     }
 
-    mess.textContent += "You landed on " + places[mover.locnum].name + ".\n";
+    mess.textContent += "You landed on " + places[newLocation].name + ".\n";
     action(mover);
 }
 

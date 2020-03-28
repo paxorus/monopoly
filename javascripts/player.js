@@ -17,7 +17,7 @@ class Player {
         this.updateLocation(10);
         this.jailDays = 3;
         $("#loc" + this.num).text("Jail");
-        $("#board div:nth-child(10)").append($("#marker" + this.num));
+        $("#board .location:nth-child(11)").append($("#marker" + this.num));
     }
 
     getOutofJail() {

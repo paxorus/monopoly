@@ -31,36 +31,35 @@ function buildGameBoard() {
         newdiv.dataset.no = i;
         const indiv = document.createElement("div");
         newdiv.style.backgroundColor = places[i].col;
-        if (places[i].ho) { // Color walkway neutral for house-able properties.
-            indiv.style.backgroundColor = "rgb(213,232,212)";
-        }
         
         switch (Math.floor(i / 10)) {
             case 0:
                 newdiv.className = "location bottom";
                 newdiv.style.left = 70 * (10 - i) + "px";
                 indiv.style.bottom = 0;
-                indiv.className = "horizontal";
+                indiv.className = "walkway horizontal";
                 break;
             case 1:
                 newdiv.className = "location left";
                 newdiv.style.top = 680 - 68 * (i - 10) + "px";
                 indiv.style.left = 0;
-                indiv.className = "vertical";
+                indiv.className = "walkway vertical";
                 break;
             case 2:
                 newdiv.className = "location top";
                 newdiv.style.left = 70 * (i - 20) + "px";
                 indiv.style.top = 0;
-                indiv.className = "horizontal";
+                indiv.className = "walkway horizontal";
                 break;
             case 3:
                 newdiv.className = "location right";
                 newdiv.style.top = 68 * (i - 30) + "px";
                 indiv.style.right = 0;
-                indiv.className = "vertical";
+                indiv.className = "walkway vertical";
                 break;
         }
+
+        // Add a neutral-colored walkway for house-able properties.
         if (places[i].ho) {
             newdiv.appendChild(indiv);
         }
@@ -78,6 +77,7 @@ function buildGameBoard() {
         const railroad = board.childNodes[i];
         railroad.style.background = "url('images/rr.svg') no-repeat";
         railroad.style.backgroundSize = "68px 66px";
+        railroad.style.backgroundColor = "";
     }
 
     $(".location").click(function() {
@@ -95,6 +95,17 @@ function buildPlayerViews() {
         circ.id = "marker" + i;
         circ.className = "circ";
         circ.src = "http://veekun.com/dex/media/pokemon/dream-world/" + player.spriteId + ".svg";
+        circ.addEventListener("click", event => {
+            slide(i);
+            event.stopPropagation();
+        });
+        circ.addEventListener("mouseover", event => {
+            toggleHighlightedProperties(i, true);
+        });
+        circ.addEventListener("mouseout", event => {
+            toggleHighlightedProperties(i, false);
+        });
+
         board.childNodes[0].appendChild(circ);
 
         const heads = document.getElementById("heads");
@@ -130,6 +141,21 @@ function slide(user) {
     });
 }
 
+function toggleHighlightedProperties(userId, shouldShow) {
+    const ownedProperties = places
+        .map((place, placeId) => [placeId, place.own])
+        .filter(([placeId, owner]) => owner === userId);
+
+    ownedProperties.forEach(([placeId, ]) => {
+        const jqLocation = $(".location:eq(" + placeId + ")");
+        if (jqLocation.has(".walkway").length) {
+            jqLocation.children(".walkway").toggleClass("location-highlighted", shouldShow);
+        } else {
+            jqLocation.toggleClass("location-highlighted", shouldShow);
+        }
+    });
+}
+
 const randomPlayer = players[Math.floor(Math.random() * players.length)];
 
 const GlobalState = {
@@ -143,4 +169,4 @@ buildPlayerViews();
 buildPlayerDisplays();
 
 const nextPlayer = players[(GlobalState.currentPlayer.num + 1) % players.length];
-$("#turn").text(nextPlayer.name);
+$("#initial-turn").text(nextPlayer.name);

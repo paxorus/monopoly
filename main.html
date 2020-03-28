@@ -5,13 +5,13 @@
 
 <body>
 
+<!-- Game board -->
 <div id="board"></div>
 
 <!-- Fill center of board. -->
 <!-- <div style="position:absolute;right:5%;width:45%;top:9%;height:81%;background-color:#AAA"></div> -->
 
-
-
+<!-- Property description card -->
 <div id="location-card">
 <div class="head" id="propname"></div>
 <center>
@@ -31,16 +31,22 @@
 </div>
 
 
-<div id="interactive">
+<div id="initial-interactive" class="interactive">
+    <span id="initial-turn"></span> will go first.
+    <div class="button" onclick="executeTurn()">Start Game</div>
+</div>
+
+<div id="interactive" class="interactive">
     It's <span id="turn"></span>'s turn.
-    <div id="messageBox"><div class="button" onclick="executeTurn()" id="executeTurn">Next Turn</div></div>
+    <div id="messageBox">
+        <div class="button" onclick="executeTurn()" id="executeTurn">Next Turn</div>
+    </div>
     <div id="exmess" style="display:none"></div>
     <br />
     <!-- <div class="button" onclick="transaction()">Side Transaction</div> -->
 </div>
 
-
-
+<!-- Player HUDs -->
 <div id="heads"></div>
 
 <script src="javascripts/third-party/jquery.js" ></script>

@@ -21,19 +21,25 @@ body {
     border: 2px #020 solid;
     cursor: pointer;
 }
+.walkway {
+    background-color: rgb(213, 232, 212);
+}
+.location-highlighted {
+    background-color: rgb(142, 193, 139);
+}
 
 /* Player sprites */
-.circ{
+.circ {
     float: left;
     width: 22px;
     height: 22px;
     display: block;
 }
-.circ: hover{
+.circ:hover {
     background-color: #08F;
 }
 
-.dashboard{
+.dashboard {
     height: 450px;
     background-color: rgb(213, 232, 212);
 }
@@ -44,21 +50,20 @@ body {
     background-color: #BBB;
     border-radius: 5px 5px 0 0;
     color: #333;
-    cursor: pointer;
 }
 
 /* General buttons */
-.button{
+.button {
     font-size: 15px;
     background-color: #08C;
     padding: 5px;
     color: white;
     cursor: pointer;
 }
-.button: hover{
+.button:hover {
     background-color: #0AF;
 }
-.button: active{
+.button:active {
     background-color: #E80;
 }
 
@@ -70,14 +75,14 @@ body {
 .bottom {
     top: 680px;
 }
-.vertical{
+.vertical {
     position: absolute;
     width: 66.7%;
     height: 66px;
     text-align: center;
     float: left;
 }
-.horizontal{
+.horizontal {
     position: absolute;
     width: 68px;
     height: 66.7%;
@@ -105,13 +110,17 @@ body {
     margin-right: 5px;
 }
 
-#interactive {
+.interactive {
     position: absolute;
     top: 250px;
     left: 240px;
 
     width: 250px;
     margin-left: -125px;
+}
+
+#interactive {
+    display: none;
 }
 
 #location-card {
