@@ -105,26 +105,26 @@ function pay(mover, owner, rent) {
     mess.textContent += "You paid $" + rent + " in rent to " + owner.name + ".\n";
 }
 
-function transaction() {
-    var amount=prompt("Enter the volume of the transaction below.");
-    var recip=prompt("Enter the recipient.");
-    var giver=prompt("Enter the sender.");
+// function transaction() {
+//     var amount=prompt("Enter the volume of the transaction below.");
+//     var recip=prompt("Enter the recipient.");
+//     var giver=prompt("Enter the sender.");
     
-    switch(recip){
-        case players[0].name:players[0].balance+=parseInt(amount,10);break;
-        case players[1].name:players[1].balance+=parseInt(amount,10);break;
-        case players[2].name:players[2].balance+=parseInt(amount,10);break;
-        default:mess.textContent+="Transaction error! Invalid recipient!";giver="anything invalid";
-    }
+//     switch(recip){
+//         case players[0].name:players[0].balance+=parseInt(amount,10);break;
+//         case players[1].name:players[1].balance+=parseInt(amount,10);break;
+//         case players[2].name:players[2].balance+=parseInt(amount,10);break;
+//         default:mess.textContent+="Transaction error! Invalid recipient!";giver="anything invalid";
+//     }
     
-    switch(giver){
-        case players[0].name:players[0].balance-=amount;break;
-        case players[1].name:players[1].balance-=amount;break;
-        case players[2].name:players[2].balance-=amount;break;
-        case "anything invalid":break;
-        default:mess.textContent+="Transaction error! Invalid sender!";
-    }
-    $("#bal0").text("$"+players[0].balance);
-    $("#bal1").text("$"+players[1].balance);
-    $("#bal2").text("$"+players[2].balance);
-}
+//     switch(giver){
+//         case players[0].name:players[0].balance-=amount;break;
+//         case players[1].name:players[1].balance-=amount;break;
+//         case players[2].name:players[2].balance-=amount;break;
+//         case "anything invalid":break;
+//         default:mess.textContent+="Transaction error! Invalid sender!";
+//     }
+//     $("#bal0").text("$"+players[0].balance);
+//     $("#bal1").text("$"+players[1].balance);
+//     $("#bal2").text("$"+players[2].balance);
+// }
