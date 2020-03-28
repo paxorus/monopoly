@@ -1,9 +1,8 @@
 class Player {
-    constructor(name, num, color, spriteId) {
+    constructor(name, num, spriteFileName) {
         this.name = name;
         this.num = num;
-        this.color = color;// needed?
-        this.spriteId = spriteId;
+        this.spriteFileName = spriteFileName;
 
         this.balance = 1500;
         this.locnum = 0;// placeIdx

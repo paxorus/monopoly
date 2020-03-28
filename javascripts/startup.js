@@ -1,25 +1,27 @@
 // Players are hard-coded for now.
 const Sprite = {
-    BLAZIKEN: 257,
-    SCEPTILE: 254,
-    SWAMPERT: 260,
-    VENUSAUR: 3,
-    CHARIZARD: 6
+    SWAMPERT_MEGA: "/9/98/260Swampert-Mega.png",
+    BLAZIKEN_MEGA: "/f/fa/257Blaziken-Mega.png",
+    SCEPTILE_MEGA: "/6/67/254Sceptile-Mega.png",
+    CHARIZARD_MEGA_Y: "/f/fd/006Charizard-Mega_Y.png",
+    SALAMENCE_MEGA: "/f/f3/373Salamence-Mega.png",
+
+    KYOGRE_PRIMAL: "/f/f1/382Kyogre-Primal.png",
+    GROUDON_PRIMAL: "/9/9d/383Groudon-Primal.png",
+    RAYQUAZA_MEGA: "/5/58/384Rayquaza-Mega.png",
+    DIALGA: "/8/8a/483Dialga.png",
+    ZEKROM: "/8/81/644Zekrom.png",
 }
 
-const players = [
-    new Player("Prakhar", 0, "#E80", Sprite.BLAZIKEN),
-    new Player("Kanav", 1, "#0C0", Sprite.SCEPTILE),
-    new Player("Jerry", 2, "#08F", Sprite.SWAMPERT),
-    new Player("Ashwin", 3, "#FFF", Sprite.VENUSAUR),
-    new Player("Michael", 4, "#000", Sprite.CHARIZARD)
-];
+const LEGENDARY_MODE = false;
 
-// Prefer images to text for special locations.
-/*var locText=[" ","","CC","","Tax"," ","","?","","",
-            "Just Visiting","","","",""," ","","CC","","",
-            "$ 0","","?","",""," ","","","","",
-            "To Jail","","","CC",""," ","?",""," "];*/
+const players = [
+    new Player("Prakhar", 0, LEGENDARY_MODE ? Sprite.KYOGRE_PRIMAL : Sprite.SWAMPERT_MEGA),
+    new Player("Jerry", 1, LEGENDARY_MODE ? Sprite.GROUDON_PRIMAL : Sprite.BLAZIKEN_MEGA),
+    new Player("Kanav", 2, LEGENDARY_MODE ? Sprite.RAYQUAZA_MEGA : Sprite.SCEPTILE_MEGA),
+    new Player("Ashwin", 3, LEGENDARY_MODE ? Sprite.DIALGA : Sprite.CHARIZARD_MEGA_Y),
+    new Player("Michael", 4, LEGENDARY_MODE ? Sprite.ZEKROM : Sprite.SALAMENCE_MEGA)
+];
 
 function buildGameBoard() {
     // Build and place all board locations on DOM.
@@ -94,7 +96,7 @@ function buildPlayerViews() {
         const circ = document.createElement("img");    
         circ.id = "marker" + i;
         circ.className = "circ";
-        circ.src = "http://veekun.com/dex/media/pokemon/dream-world/" + player.spriteId + ".svg";
+        circ.src = "https://cdn.bulbagarden.net/upload" + player.spriteFileName;
         circ.addEventListener("click", event => {
             slide(i);
             event.stopPropagation();
@@ -118,7 +120,7 @@ function buildPlayerViews() {
 function buildPlayerDisplays() {
     // Set up the HUD for each player: name, location, and balance.
     players.forEach((player, i) => {
-        const sprite = "<img class='display-sprite' src='http://veekun.com/dex/media/pokemon/dream-world/" + player.spriteId + ".svg'>";
+        const sprite = "<img class='display-sprite' src='https://cdn.bulbagarden.net/upload" + player.spriteFileName + "'>";
         $("#head" + i).html(sprite + player.name + ": <span id='loc" + i + "'>Go</span><div style='float:right' id='bal" + i + "'>$1500</div>");    
 
         // Expand HUD on click.

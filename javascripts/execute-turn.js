@@ -33,7 +33,8 @@ function executeTurn() {
             if (mover.jailDays === 0) {
                 mover.getOutofJail();
             } else {
-                mess.textContent += "No double..." + mover.name + ", you have " + mover.jailDays + " turn(s) remaining on your sentence.\n";
+                const turns = (mover.jailDays > 1) ? "turns" : "turn";
+                mess.textContent += "No double... " + mover.name + ", you have " + mover.jailDays + " " + turns + " remaining on your sentence.\n";
             }
         }
         concludeTurn();
@@ -70,14 +71,13 @@ function rollMove(mover) {
     mover.rollCount ++;
     mess.textContent += "You rolled a " + roll1 + " and a " + roll2 + ".\n";
 
-    const newLocation = mover.locnum + roll1 + roll2;
+    let newLocation = mover.locnum + roll1 + roll2;
     if (newLocation > 39) {
         // Pass Go.
-        mover.updateLocation(newLocation - 40);
+        newLocation -= 40;
         mover.updateBalance(200);
-    } else {
-        mover.updateLocation(newLocation);
     }
+    mover.updateLocation(newLocation);
 
     mess.textContent += "You landed on " + places[newLocation].name + ".\n";
     action(mover);

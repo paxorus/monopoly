@@ -1,6 +1,6 @@
 # Online Monopoly
 ===
-The Pokemon sprites are loaded from: http://veekun.com/dex/media/pokemon/dream-world/
+The Pokemon sprites are loaded from Bulbapedia.
 
 ## Official Features
 #### Enable houses
@@ -12,10 +12,11 @@ The Pokemon sprites are loaded from: http://veekun.com/dex/media/pokemon/dream-w
 #### Other
 * Keep your GOOJF card or trade
 * Pay $50 to get out of jail on the next turn.
+* Going broke, being forced to sell.
 
 ## Improvements
 #### Cosmetics
-* Chance, Comm Chest, Tax, and Go images.
+* Images for: Go, Chance, Comm Chest, Tax, Just Visiting/Jail, Go to Jail.
 * show actual faces of dice
 * customizing (name/sprite)
 * adjust number of players
