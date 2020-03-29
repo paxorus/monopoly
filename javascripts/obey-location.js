@@ -21,12 +21,23 @@ function action(mover) {
 }
 
 function determineRent(mover, owner, place) {
+    const propertyGroup = MONOPOLIES.find(group => group.includes(mover.locnum));
+    const ownershipCount = propertyGroup.filter(placeIdx => places[placeIdx].own === owner.num).length;
+
     switch (mover.locnum) {
         case 12: case 28:// Utilities
-            return 4 * (mover.latestRoll[0] + mover.latestRoll[1]);
-        //case 5:case 15:case 25:case 35:rent=;break;
-        default:
-            return place.re0;
+            const multiplier = (ownershipCount === 1) ? 4 : 10;
+            return multiplier * (mover.latestRoll[0] + mover.latestRoll[1]);
+        case 5: case 15: case 25: case 35:// Railroads
+            return [place.re0, place.re1, place.re2, place.re3][ownershipCount - 1];
+        default:// Colored property
+            if (ownershipCount < propertyGroup.length) {
+                return place.re0;
+            }
+            if (place.houseCount === 0) {
+                return 2 * place.re0;
+            }
+            return place["re" + place.houseCount];// e.g. 3 houses -> place.re3
     }
 }
 
