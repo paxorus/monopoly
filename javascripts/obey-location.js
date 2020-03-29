@@ -42,9 +42,9 @@ function determineRent(mover, owner, place) {
 }
 
 function offerUnownedProperty(mover, place) {
-    mess.textContent += mover.name + ", would you like to buy " + place.name + " for $" + place.p + "?\n";
-    mess.innerHTML += "<div class='button' onclick='react(true)'>Buy " + place.name + "</div>";
-    mess.innerHTML += "<div class='button-negative' onclick='react(false)'>No Thanks</div>";
+    log(mover.name + ", would you like to buy " + place.name + " for $" + place.p + "?");
+    $("#button-box").append("<div class='button' onclick='react(true)'>Buy " + place.name + "</div>");
+    $("#button-box").append("<div class='button-negative' onclick='react(false)'>No Thanks</div>");
     GlobalState.waitingForUserResponse = true;
 }
 
@@ -59,18 +59,18 @@ function obeySpecialSquare(mover) {
         case 4:// Income tax
             mover.updateBalance(-200);
             GlobalState.tax += 200;
-            mess.textContent += "You paid $200 income tax.\n";
+            log("You paid $200 income tax.");
             break;
         case 38:// Luxury tax
             mover.updateBalance(-100);
             GlobalState.tax += 100;
-            mess.textContent += "You paid $100 luxury tax.\n";
+            log("You paid $100 luxury tax.");
             break;
         case 20:// Free parking
             const tax = GlobalState.tax;
             mover.updateBalance(tax);
             GlobalState.tax = 0;
-            mess.textContent += "You collected $" + tax + " from free parking!\n";
+            log("You collected $" + tax + " from free parking!");
             break;
         case 30:// Go to jail
             mover.goToJail();
@@ -79,32 +79,32 @@ function obeySpecialSquare(mover) {
 }
 
 function obeyChanceSquare(mover) {
-    mess.textContent += "Chance: ";
+    log("Chance: ");
 
     switch (Math.floor(Math.random() * 16)) {
         case 0:
-            mess.textContent += "Advance to Boardwalk.";
+            log("Advance to Boardwalk.");
             mover.updateLocation(39);
             action(mover);
             break;
         case 1:
-            mess.textContent += 'Advance to "Go". (Collect $200)';
+            log('Advance to "Go". (Collect $200)');
             mover.updateLocation(0);
             mover.updateBalance(200);
             break;
         case 2:
-            mess.textContent += "Make general repairs on all your property: For each house pay $25, for each hotel pay $100.";
+            log("Make general repairs on all your property: For each house pay $25, for each hotel pay $100.");
             const {houses, hotels} = countOwnedBuildings(mover);
             const total = 25 * houses + 100 * hotels;
-            mess.textContent += "Paid $" + total + ".";
+            log("Paid $" + total + ".");
             mover.updateBalance(-total);
             break;
         case 3:
-            mess.textContent += "Speeding fine $15.";
+            log("Speeding fine $15.");
             mover.updateBalance(-15);
             break;
         case 4:
-            mess.textContent += 'Advance to St. Charles Place. If you pass "Go" collect $200.';
+            log('Advance to St. Charles Place. If you pass "Go" collect $200.');
             if (mover.locnum > 11) {
                 mover.updateBalance(200);
             }
@@ -112,24 +112,24 @@ function obeyChanceSquare(mover) {
             action(mover);
             break;
         case 5:
-            mess.textContent += "Your building loan matures. Collect $150.";
+            log("Your building loan matures. Collect $150.");
             mover.updateBalance(150);
             break;
         case 6:
-            mess.textContent += "Go back three spaces.";
+            log("Go back three spaces.");
             mover.updateLocation(mover.locnum - 3);
             action(mover);
             break;
         case 7:
-            mess.textContent += "GET OUT OF JAIL FREE. This card may be kept until needed or traded.";
+            log("GET OUT OF JAIL FREE. This card may be kept until needed or traded.");
             throw Error("Not implemented");
             break;
         case 8:
-            mess.textContent += "Bank pays you dividend of $50.";
+            log("Bank pays you dividend of $50.");
             mover.updateBalance(50);
             break;
         case 9:
-            mess.textContent += 'Advance to Illinois Avenue. If you pass "Go" collect $200.';
+            log('Advance to Illinois Avenue. If you pass "Go" collect $200.');
             if (mover.locnum > 24) {
                 mover.updateBalance(200);
             }
@@ -137,18 +137,18 @@ function obeyChanceSquare(mover) {
             action(mover);
             break;
         case 10:
-            mess.textContent += "You have been elected chairman of the board. Pay each player $50.";
+            log("You have been elected chairman of the board. Pay each player $50.");
             players.forEach(player => {
                 player.updateBalance(50);
             });
             mover.updateBalance(-50 * players.length);
             break;
         case 11:
-            mess.textContent += 'Go to jail. Go directly to jail, do not pass "Go", do not collect $200.';
+            log('Go to jail. Go directly to jail, do not pass "Go", do not collect $200.');
             mover.goToJail();
             break;
         case 12:
-            mess.textContent += "Advance to the nearest utility. If Unowned, you may buy it from the bank. If Owned, pay owner a total ten times amount thrown on dice.";
+            log("Advance to the nearest utility. If Unowned, you may buy it from the bank. If Owned, pay owner a total ten times amount thrown on dice.");
             if (mover.locnum >= 12 && mover.locnum < 28) {
                 mover.updateLocation(28);
             } else {
@@ -163,14 +163,14 @@ function obeyChanceSquare(mover) {
             }
             break;
         case 13:
-            mess.textContent += 'Take a trip to Reading Railroad. If you pass "Go" collect $200.';
+            log('Take a trip to Reading Railroad. If you pass "Go" collect $200.');
             if (mover.locnum > 5) {
                 mover.updateBalance(200);
             }
             mover.setLocation(5);
             break;
         case 14: case 15:
-            mess.textContent += "Advance to the nearest railroad. If Unowned, you may buy it from the bank. If Owned, pay owner twice the rental to which they are otherwise entitled.";
+            log("Advance to the nearest railroad. If Unowned, you may buy it from the bank. If Owned, pay owner twice the rental to which they are otherwise entitled.");
             const rangeIdx = Math.floor((mover.locnum + 5) % 40 / 10);// What side of the board are we on if we step forward 5?
             const nearestRailroadIdx = 10 * rangeIdx + 5;// Map that side to its railroad.
 
@@ -184,87 +184,83 @@ function obeyChanceSquare(mover) {
             }
             break;
     }
-
-    mess.innerHTML += "\n";
 }
 
 function obeyCommunityChestSquare(mover) {
-    mess.textContent += "Community Chest: ";
+    log("Community Chest: ");
     switch (Math.floor(Math.random() * 16)) {
         case 0:
-            mess.textContent += "GET OUT OF JAIL FREE. This card may be kept until needed or traded.";
+            log("GET OUT OF JAIL FREE. This card may be kept until needed or traded.");
             throw Error("Not implemented");
             break;
         case 1:
-            mess.textContent += "You have won second prize in a beauty contest. Collect $10.";
+            log("You have won second prize in a beauty contest. Collect $10.");
             mover.updateBalance(10);
             break;
         case 2:
-            mess.textContent += "Holiday fund matures. Receive $100.";
+            log("Holiday fund matures. Receive $100.");
             mover.updateBalance(100);
             break;
         case 3:
-            mess.textContent += "Bank error in your favor. Collect $200.";
+            log("Bank error in your favor. Collect $200.");
             mover.updateBalance(200);
             break;
         case 4:
-            mess.textContent += 'Go to jail. Go directly to jail, do not pass "Go", do not collect $200.';
+            log('Go to jail. Go directly to jail, do not pass "Go", do not collect $200.');
             mover.goToJail();
             break;
         case 5:
-            mess.textContent += "It is your birthday. Collect $10 from every player.";
+            log("It is your birthday. Collect $10 from every player.");
             mover.updateBalance(10 * players.length);
             players.forEach(player => {
                 player.updateBalance(-10);
             });
             break;
         case 6:
-            mess.textContent += "Doctor's fees. Pay $50.";
+            log("Doctor's fees. Pay $50.");
             mover.updateBalance(-50);
             break;
         case 7:
-            mess.textContent += "Pay hospital fees of $100.";
+            log("Pay hospital fees of $100.");
             mover.updateBalance(-100);
             break;
         case 8:
-            mess.textContent += "You inherit $100.";
+            log("You inherit $100.");
             mover.updateBalance(100);
             break;
         case 9:
-            mess.textContent += "From sale of stock you get $50.";
+            log("From sale of stock you get $50.");
             mover.updateBalance(50);
             break;
         case 10:
-            mess.textContent += "You are assessed for street repairs: $40 per house, $115 per hotel.";
+            log("You are assessed for street repairs: $40 per house, $115 per hotel.");
             const {houses, hotels} = countOwnedBuildings(mover);
             const total = 40 * houses + 115 * hotels;
-            mess.textContent += "Paid $" + total + ".";
+            log("Paid $" + total + ".");
             mover.updateBalance(-total);
             break;
         case 11:
-            mess.textContent += 'Advance to "Go". (Collect $200)';
+            log('Advance to "Go". (Collect $200)');
             mover.updateLocation(0);
             mover.updateBalance(200);
             break;
         case 12:
-            mess.textContent += "Income tax refund. Collect $20.";
+            log("Income tax refund. Collect $20.");
             mover.updateBalance(20);
             break; 
         case 13:
-            mess.textContent += "Pay school fees of $50.";
+            log("Pay school fees of $50.");
             mover.updateBalance(-50);
             break;
         case 14:
-            mess.textContent += "Life insurance matures. Collect $100.";
+            log("Life insurance matures. Collect $100.");
             mover.updateBalance(100);
             break; 
         case 15:
-            mess.textContent += "Receive $25. Consultancy fee.";
+            log("Receive $25. Consultancy fee.");
             mover.updateBalance(25);
             break;
     }
-
-    mess.textContent += "\n";
 }
 
 function countOwnedBuildings(owner) {

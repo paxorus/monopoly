@@ -127,6 +127,7 @@ body {
     filter: saturate(0%);
 }
 
+/* Location squares */
 .left {}
 .right {
     left: 700px;
@@ -135,6 +136,7 @@ body {
 .bottom {
     top: 680px;
 }
+/* Walkways */
 .vertical {
     position: absolute;
     width: 66.7%;
@@ -181,6 +183,11 @@ body {
 
 #interactive {
     display: none;
+}
+
+#message-box {
+    overflow-y: auto;
+    max-height: 400px;
 }
 
 #location-card {

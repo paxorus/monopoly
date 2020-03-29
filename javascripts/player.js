@@ -12,7 +12,7 @@ class Player {
     }
 
     goToJail() {
-        mess.textContent += "You will be in jail for 3 turns!";
+        log("You will be in jail for 3 turns!");
         this.updateLocation(10);
         this.jailDays = 3;
         $("#loc" + this.num).text("Jail");
@@ -20,7 +20,7 @@ class Player {
     }
 
     getOutofJail() {
-        this.textContent += "You are now out of jail!";
+        log("You are now out of jail!");
         this.jailDays = 0;
         $("#loc" + this.name).text("Just Visiting");
     }
