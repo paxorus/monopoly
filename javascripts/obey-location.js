@@ -94,7 +94,10 @@ function obeyChanceSquare(mover) {
             break;
         case 2:
             mess.textContent += "Make general repairs on all your property: For each house pay $25, for each hotel pay $100.";
-            throw Error("Not implemented.");
+            const {houses, hotels} = countOwnedBuildings(mover);
+            const total = 25 * houses + 100 * hotels;
+            mess.textContent += "Paid $" + total + ".";
+            mover.updateBalance(-total);
             break;
         case 3:
             mess.textContent += "Speeding fine $15.";
@@ -233,7 +236,10 @@ function obeyCommunityChestSquare(mover) {
             break;
         case 10:
             mess.textContent += "You are assessed for street repairs: $40 per house, $115 per hotel.";
-            throw Error("Not implemented");
+            const {houses, hotels} = countOwnedBuildings(mover);
+            const total = 40 * houses + 115 * hotels;
+            mess.textContent += "Paid $" + total + ".";
+            mover.updateBalance(-total);
             break;
         case 11:
             mess.textContent += 'Advance to "Go". (Collect $200)';
@@ -259,4 +265,19 @@ function obeyCommunityChestSquare(mover) {
     }
 
     mess.textContent += "\n";
+}
+
+function countOwnedBuildings(owner) {
+    return places.filter(place => place.own === owner.num)
+        .reduce(({houses, hotels}, place) => {
+            const houseCount = place.houseCount;
+            if (houseCount === 5) {
+                return {houses, hotels: hotels + 1};
+            } else {
+                return {houses: houses + houseCount, hotels};
+            }
+        }, {
+            houses: 0,
+            hotels: 0
+        });
 }
