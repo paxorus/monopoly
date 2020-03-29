@@ -39,6 +39,10 @@ body {
     background-color: #08F;
 }
 
+.placed-house {
+    width: 17px;
+}
+
 .dashboard {
     height: 450px;
     background-color: rgb(213, 232, 212);
@@ -56,7 +60,7 @@ body {
 
     margin-left: 5px;
 }
-.house-adder {
+.house-plus-sign {
     color: black;
     font-size: 15px;
     font-weight: 600;
@@ -65,7 +69,7 @@ body {
     top: -6px;
     left: -3px;
 }
-.house-remover {
+.house-minus-sign {
     color: black;
     font-size: 15px;
     font-weight: 600;

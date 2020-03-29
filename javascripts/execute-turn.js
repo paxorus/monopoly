@@ -122,7 +122,7 @@ function purchaseProperty(mover, placeIdx) {
         mess.textContent += "Monopoly! You may now build houses on " + concatenatePropertyNames(propertyNames)
             + ", and their rents have doubled.";
         monopoly.forEach(placeIdx => {
-            const [adder, remover] = buildHouseButtons();
+            const [adder, remover] = buildHouseButtons(mover, placeIdx);
             $("#hud-property" + placeIdx).append(adder);
             $("#hud-property" + placeIdx).append(remover);
         });
@@ -137,16 +137,86 @@ function concatenatePropertyNames(names) {
     }
 }
 
-function buildHouseButtons() {
+function buildHouseButtons(owner, placeIdx) {
     const adder = document.createElement("div");
-    adder.className = "button house-button";
-    $(adder).append("<img class='house-icon' src='images/house.svg'><sup class='house-adder'>+</sup>");
+    adder.className = "button house-button house-adder";
+    $(adder).append("<img class='house-icon' src='images/house.svg'><sup class='house-plus-sign'>+</sup>");
+    adder.addEventListener("click", event => buyHouse(owner, placeIdx));
 
     const remover = document.createElement("div");
-    remover.className = "button-negative button-disabled house-button";
-    $(remover).append("<img class='house-icon' src='images/house.svg'><sup class='house-remover'>-</sup>");
+    remover.className = "button-negative button-disabled house-button house-remover";
+    $(remover).append("<img class='house-icon' src='images/house.svg'><sup class='house-minus-sign'>-</sup>");
+    remover.addEventListener("click", event => sellHouse(owner, placeIdx));
 
     return [adder, remover];
+}
+
+function buyHouse(owner, placeIdx) {
+    const place = places[placeIdx];
+
+    if (place.houseCount === 5) {
+        return;
+    }
+
+    owner.updateBalance(-place.ho);
+    place.houseCount ++;
+
+    // Enable the - button.
+    $("#hud-property" + placeIdx + " > .house-remover").toggleClass("button-disabled", false);
+
+    if (place.houseCount === 5) {
+        $("#hud-property" + placeIdx + " > .house-adder").toggleClass("button-disabled", true);
+        repeat(4, () => removeBuildingIcon(placeIdx));
+        addBuildingIcon(placeIdx, "hotel");
+        mess.textContent += "Upgraded to a hotel on " + place.name + ".\n";
+    } else {
+        addBuildingIcon(placeIdx, "house");
+        mess.textContent += "Built a house on " + place.name + ".\n";
+    }
+}
+
+function sellHouse(owner, placeIdx) {
+    const place = places[placeIdx];
+
+    if (place.houseCount === 0) {
+        return;
+    }
+
+    // Selling a house only returns half the cost.
+    owner.updateBalance(place.ho / 2);
+    place.houseCount --;
+
+    // Enable the + button.
+    $("#hud-property" + placeIdx + " > .house-adder").toggleClass("button-disabled", false);
+
+    if (place.houseCount === 4) {
+        repeat(4, () => addBuildingIcon(placeIdx, "house"));
+        removeBuildingIcon(placeIdx);
+        mess.textContent += "Downgraded from a hotel on " + place.name + ".\n";
+        return;
+    }
+
+    if (place.houseCount === 0) {
+        $("#hud-property" + placeIdx + " > .house-remover").toggleClass("button-disabled", true);
+    }
+
+    mess.textContent += "Removed a house from " + place.name + ".\n";
+    removeBuildingIcon(placeIdx);
+}
+
+function addBuildingIcon(placeIdx, buildingType) {
+    const houseImage = document.createElement("img");
+    houseImage.src = "images/" + buildingType + ".svg";
+    houseImage.className = "placed-house";
+    $("#board").children().eq(placeIdx).append(houseImage);
+}
+
+function removeBuildingIcon(placeIdx) {
+    $("#board").children().eq(placeIdx).children("img:nth-of-type(1)").remove();
+}
+
+function repeat(n, func) {
+    new Array(n).fill(null).map(_ => func());
 }
 
 // function transaction() {

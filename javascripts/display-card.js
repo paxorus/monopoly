@@ -45,6 +45,7 @@ function showCard(placeIdxString) {
 
         case 0:// Go
         case 10:// Jail
+        case 30:// Go to Jail
         case 2: case 17: case 33:// Community Chest
         case 7: case 22: case 36:// Chance
             shouldShowRentTable = false;
