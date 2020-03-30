@@ -21,6 +21,10 @@ function action(mover) {
 }
 
 function determineRent(mover, owner, place) {
+    if (place.isMortgaged) {
+        return 0;
+    }
+
     const propertyGroup = MONOPOLIES.find(group => group.includes(mover.locnum));
     const ownershipCount = propertyGroup.filter(placeIdx => places[placeIdx].own === owner.num).length;
 
@@ -180,7 +184,9 @@ function obeyChanceSquare(mover) {
                 action(mover);
             } else if (players[railroad.own] != mover) {
                 // Control the rent properly.
-                payRent(players[place.own], 2 * railroad.re0);
+                const owner = players[railroad.own];
+                const rent = determineRent(mover, owner, place);
+                payRent(owner, 2 * rent);
             }
             break;
     }

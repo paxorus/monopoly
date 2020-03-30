@@ -101,6 +101,9 @@ function react(ifBuy) {
 }
 
 function payRent(mover, owner, rent) {
+    if (rent === 0) {// Due to mortgaging.
+        return;
+    }
     mover.updateBalance(-rent);
     owner.updateBalance(rent);
     log("You paid $" + rent + " in rent to " + owner.name + ".");
@@ -122,9 +125,10 @@ function purchaseProperty(mover, placeIdx) {
         log("Monopoly! You may now build houses on " + concatenatePropertyNames(propertyNames)
             + ", and their rents have doubled.");
         monopoly.forEach(placeIdx => {
-            const [adder, remover] = buildHouseButtons(mover, placeIdx);
+            const [adder, remover, mortgager] = buildHouseButtons(mover, placeIdx);
             $("#hud-property" + placeIdx).append(adder);
             $("#hud-property" + placeIdx).append(remover);
+            $("#hud-property" + placeIdx).append(mortgager);
         });
     }
 }
@@ -140,21 +144,29 @@ function concatenatePropertyNames(names) {
 function buildHouseButtons(owner, placeIdx) {
     const adder = document.createElement("div");
     adder.className = "button house-button house-adder";
+    adder.title = "Buy a House";
     $(adder).append("<img class='house-icon' src='images/house.svg'><sup class='house-plus-sign'>+</sup>");
     adder.addEventListener("click", event => buyHouse(owner, placeIdx));
 
     const remover = document.createElement("div");
     remover.className = "button-negative button-disabled house-button house-remover";
+    remover.title = "Sell a House";
     $(remover).append("<img class='house-icon' src='images/house.svg'><sup class='house-minus-sign'>-</sup>");
     remover.addEventListener("click", event => sellHouse(owner, placeIdx));
 
-    return [adder, remover];
+    const mortgager = document.createElement("div");
+    mortgager.className = "button house-button property-mortgager";
+    mortgager.title = "Mortgage the Property";
+    $(mortgager).append("<img class='house-icon' src='images/mortgage.svg'><sup class='mortgage-symbol'>$</sup>");
+    mortgager.addEventListener("click", event => mortgageOrUnmortgageProperty(owner, placeIdx));
+
+    return [adder, remover, mortgager];
 }
 
 function buyHouse(owner, placeIdx) {
     const place = places[placeIdx];
 
-    if (place.houseCount === 5) {
+    if (place.houseCount === 5 || place.isMortgaged) {
         return;
     }
 
@@ -163,6 +175,9 @@ function buyHouse(owner, placeIdx) {
 
     // Enable the - button.
     $("#hud-property" + placeIdx + " > .house-remover").toggleClass("button-disabled", false);
+
+    // Disable the mortgage button.
+    $("#hud-property" + placeIdx + " > .property-mortgager").toggleClass("button-disabled", true);
 
     if (place.houseCount === 5) {
         $("#hud-property" + placeIdx + " > .house-adder").toggleClass("button-disabled", true);
@@ -198,6 +213,7 @@ function sellHouse(owner, placeIdx) {
 
     if (place.houseCount === 0) {
         $("#hud-property" + placeIdx + " > .house-remover").toggleClass("button-disabled", true);
+        $("#hud-property" + placeIdx + " > .property-mortgager").toggleClass("button-disabled", false);
     }
 
     log("Removed a house from " + place.name + ".");
@@ -217,6 +233,49 @@ function removeBuildingIcon(placeIdx) {
 
 function repeat(n, func) {
     new Array(n).fill(null).map(_ => func());
+}
+
+function mortgageOrUnmortgageProperty(owner, placeIdx) {
+    const place = places[placeIdx];
+    if (place.isMortgaged) {
+        unmortgageProperty(owner, placeIdx);
+        return;
+    }
+
+    if (place.houseCount > 0) {
+        return;
+    }
+
+    mortgageProperty(owner, placeIdx);
+}
+
+function mortgageProperty(owner, placeIdx) {
+    const place = places[placeIdx];
+    owner.updateBalance(place.p / 2);
+    place.isMortgaged = true;
+
+    const button = $("#hud-property" + placeIdx + " > .property-mortgager");
+    button.children(".mortgage-symbol").text("!");
+    button.toggleClass("button button-negative");
+    button.attr("title", "Unmortgage the Property");
+
+    $("#hud-property" + placeIdx + " > .house-adder").toggleClass("button-disabled", true);
+
+    log("Mortgaged " + place.name + "." );
+}
+
+function unmortgageProperty(owner, placeIdx) {
+    const place = places[placeIdx];
+    owner.updateBalance(- place.p / 2);
+    place.isMortgaged = false;
+
+    const button = $("#hud-property" + placeIdx + " > .property-mortgager");
+    button.children(".mortgage-symbol").text("$");
+    button.toggleClass("button button-negative");
+    button.attr("title", "Mortgage the Property");
+
+    $("#hud-property" + placeIdx + " > .house-adder").toggleClass("button-disabled", false);
+    log("Unmortgaged " + place.name + ".");
 }
 
 // function transaction() {

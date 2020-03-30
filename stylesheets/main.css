@@ -69,7 +69,7 @@ body {
     top: -6px;
     left: -3px;
 }
-.house-minus-sign {
+.house-minus-sign, .mortgage-symbol {
     color: black;
     font-size: 15px;
     font-weight: 600;

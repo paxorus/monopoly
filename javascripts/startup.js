@@ -28,7 +28,7 @@ function buildGameBoard() {
 
     const board = document.getElementById("board");
 
-    for (let i = 0; i <= 39; i ++){
+    for (let i = 0; i <= 39; i ++) {
         const newdiv = document.createElement("div");
         newdiv.dataset.no = i;
         const indiv = document.createElement("div");
