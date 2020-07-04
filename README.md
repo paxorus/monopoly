@@ -3,12 +3,6 @@
 The Pokemon sprites are loaded from Bulbapedia.
 
 ## Official Features
-#### Enable houses
-* Buying and placing
-* Varying rent (Monopoly doubles)
-* Selling
-* Mortgaging
-
 #### Other
 * Keep your GOOJF card or trade
 * Pay $50 to get out of jail on the next turn.

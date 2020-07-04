@@ -163,7 +163,7 @@ function highlightProperty(placeId, shouldShow) {
 const randomPlayer = players[Math.floor(Math.random() * players.length)];
 
 const GlobalState = {
-    currentPlayer: players[4],
+    currentPlayer: randomPlayer,
     tax: 0,
     waitingForUserResponse: undefined
 }

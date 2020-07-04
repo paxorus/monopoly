@@ -66,8 +66,8 @@ function shouldRollAgain(mover) {
 }
 
 function rollMove(mover) {
-    const roll1 = 1// rollDice();
-    const roll2 = 2 //rollDice();
+    const roll1 = rollDice();
+    const roll2 = rollDice();
     mover.latestRoll = [roll1, roll2];
     mover.rollCount ++;
     log("You rolled a " + roll1 + " and a " + roll2 + ".");
@@ -261,7 +261,7 @@ function mortgageProperty(owner, placeIdx) {
 
     $("#hud-property" + placeIdx + " > .house-adder").toggleClass("button-disabled", true);
 
-    log("Mortgaged " + place.name + "." );
+    log(`Mortgaged ${place.name} for $${place.p / 2}.`);
 }
 
 function unmortgageProperty(owner, placeIdx) {
@@ -275,7 +275,7 @@ function unmortgageProperty(owner, placeIdx) {
     button.attr("title", "Mortgage the Property");
 
     $("#hud-property" + placeIdx + " > .house-adder").toggleClass("button-disabled", false);
-    log("Unmortgaged " + place.name + ".");
+    log(`Unmortgaged ${place.name} for $${place.p / 2}.`);
 }
 
 // function transaction() {
