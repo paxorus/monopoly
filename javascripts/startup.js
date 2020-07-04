@@ -28,7 +28,7 @@ function buildGameBoard() {
 
     const board = document.getElementById("board");
 
-    for (let i = 0; i <= 39; i ++){
+    for (let i = 0; i <= 39; i ++) {
         const newdiv = document.createElement("div");
         newdiv.dataset.no = i;
         const indiv = document.createElement("div");
@@ -113,7 +113,7 @@ function buildPlayerViews() {
         const heads = document.getElementById("heads");
         heads.innerHTML += "<div id='head" + i + "' class='player-display-head'></div>";
         heads.innerHTML += "<div style='background-color:rgb(68, 136, 204);height:5px'></div>";
-        heads.innerHTML += "<div class='dashboard' id='user" + i + "' style='display:none'><span id='ploc" + i + "'></span></div>";
+        heads.innerHTML += "<div class='dashboard' id='user" + i + "' style='display:none'><span id='property-list" + i + "'></span></div>";
     });
 }
 
@@ -148,14 +148,16 @@ function toggleHighlightedProperties(userId, shouldShow) {
         .map((place, placeId) => [placeId, place.own])
         .filter(([placeId, owner]) => owner === userId);
 
-    ownedProperties.forEach(([placeId, ]) => {
-        const jqLocation = $(".location:eq(" + placeId + ")");
-        if (jqLocation.has(".walkway").length) {
-            jqLocation.children(".walkway").toggleClass("location-highlighted", shouldShow);
-        } else {
-            jqLocation.toggleClass("location-highlighted", shouldShow);
-        }
-    });
+    ownedProperties.forEach(([placeId, ]) => highlightProperty(placeId, shouldShow));
+}
+
+function highlightProperty(placeId, shouldShow) {
+    const jqLocation = $(".location:eq(" + placeId + ")");
+    if (jqLocation.has(".walkway").length) {
+        jqLocation.children(".walkway").toggleClass("location-highlighted", shouldShow);
+    } else {
+        jqLocation.toggleClass("location-highlighted", shouldShow);
+    }    
 }
 
 const randomPlayer = players[Math.floor(Math.random() * players.length)];
@@ -172,3 +174,20 @@ buildPlayerDisplays();
 
 const nextPlayer = players[(GlobalState.currentPlayer.num + 1) % players.length];
 $("#initial-turn").text(nextPlayer.name);
+
+class MessageBoxSingleton {
+    constructor() {
+        this.dom = document.getElementById("message-box");
+    }
+
+    clear() {
+        this.dom.innerHTML = "";
+    }
+
+    log(message) {
+        this.dom.innerHTML += message + "<br />";
+    }
+}
+
+const MessageBox = new MessageBoxSingleton();
+const log = message => MessageBox.log(message);

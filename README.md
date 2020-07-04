@@ -3,12 +3,6 @@
 The Pokemon sprites are loaded from Bulbapedia.
 
 ## Official Features
-#### Enable houses
-* Buying and placing
-* Varying rent (Monopoly doubles)
-* Selling
-* Mortgaging
-
 #### Other
 * Keep your GOOJF card or trade
 * Pay $50 to get out of jail on the next turn.
@@ -22,10 +16,13 @@ The Pokemon sprites are loaded from Bulbapedia.
 * adjust number of players
 
 #### Interconnectivity
-* Show property colors on the player display.
+* Show property colors on the player display, and sort them by location.
 * Hovering over the location on the player display should highlight the board location.
-* Show the owner on the property card.
+* Perhaps the card owner name should behave similar to the sprites.
+* Embolden the rent that is in effect on the display card.
 
 #### Extra features
 * Auction
 * Trades
+* Score cards such as inter-player rent and all tenants for a property.
+* Multiplayer, plus chat.
