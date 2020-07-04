@@ -126,6 +126,9 @@ body {
 .button-disabled:active {
     filter: saturate(0%);
 }
+.use-jail-card {
+    margin-left: 5px;
+}
 
 /* Location squares */
 .left {}

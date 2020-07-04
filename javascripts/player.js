@@ -9,6 +9,7 @@ class Player {
         this.jailDays = 0;
         this.latestRoll = null;
         this.rollCount = 0;
+        this.numJailCards = 0;
     }
 
     goToJail() {
@@ -17,12 +18,14 @@ class Player {
         this.jailDays = 3;
         $("#loc" + this.num).text("Jail");
         $("#board .location:nth-child(11)").append($("#marker" + this.num));
+        $(`#jail-card${this.num} > .use-jail-card`).toggleClass("button-disabled", false);
     }
 
-    getOutofJail() {
+    getOutOfJail() {
         log("You are now out of jail!");
         this.jailDays = 0;
-        $("#loc" + this.name).text("Just Visiting");
+        $("#loc" + this.num).text("Just Visiting");
+        $(`#jail-card${this.num} > .use-jail-card`).toggleClass("button-disabled", true);
     }
 
     updateBalance(income) {

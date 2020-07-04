@@ -126,7 +126,7 @@ function obeyChanceSquare(mover) {
             break;
         case 7:
             log("GET OUT OF JAIL FREE. This card may be kept until needed or traded.");
-            throw Error("Not implemented");
+            addGetOutOfJailFreeCard(mover);
             break;
         case 8:
             log("Bank pays you dividend of $50.");
@@ -171,7 +171,7 @@ function obeyChanceSquare(mover) {
             if (mover.locnum > 5) {
                 mover.updateBalance(200);
             }
-            mover.setLocation(5);
+            mover.updateLocation(5);
             break;
         case 14: case 15:
             log("Advance to the nearest railroad. If Unowned, you may buy it from the bank. If Owned, pay owner twice the rental to which they are otherwise entitled.");
@@ -197,7 +197,7 @@ function obeyCommunityChestSquare(mover) {
     switch (Math.floor(Math.random() * 16)) {
         case 0:
             log("GET OUT OF JAIL FREE. This card may be kept until needed or traded.");
-            throw Error("Not implemented");
+            addGetOutOfJailFreeCard(mover);
             break;
         case 1:
             log("You have won second prize in a beauty contest. Collect $10.");

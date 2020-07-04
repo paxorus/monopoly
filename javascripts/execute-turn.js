@@ -22,27 +22,39 @@ function executeTurn() {
     log("It's " + mover.name + "'s turn.");
 
     if (mover.jailDays > 0) {
-        const roll1 = rollDice();
-        const roll2 = rollDice();
-        log("You rolled " + roll1 + " and " + roll2 + ".");
-        if (roll1 === roll2) {
-            log("A double! You're free!");
-            mover.getOutofJail();
-        } else {
-            // No need to roll if 1 day left, turn's up anyways.
-            mover.jailDays --;
-            if (mover.jailDays === 0) {
-                mover.getOutofJail();
-            } else {
-                const turns = (mover.jailDays > 1) ? "turns" : "turn";
-                log("No double... " + mover.name + ", you have " + mover.jailDays + " " + turns + " remaining on your sentence.");
-            }
-        }
-        concludeTurn();
+        executeTurnInJail(mover);
     } else {
         mover.rollCount = 0;// Limited to 3 by jail.
         rollMove(mover);
     }
+}
+
+function executeTurnInJail(mover) { 
+    mover.jailDays --;
+
+    // No need to roll if 1 day left, turn's up anyways.
+    if (mover.jailDays === 0) {
+        mover.getOutOfJail();
+        log("Your jail sentence is up. You're free to go!")
+        concludeTurn();
+        return;
+    }
+
+    const roll1 = rollDice();
+    const roll2 = rollDice();
+    log("You rolled " + roll1 + " and " + roll2 + ".");
+    if (roll1 === roll2) {
+        log("A double! You're free!");
+        mover.getOutOfJail();
+        concludeTurn();
+        return;
+    }
+
+    const turns = (mover.jailDays > 1) ? "turns" : "turn";
+    log("No double... " + mover.name + ", you have " + mover.jailDays + " " + turns + " remaining on your sentence.");
+    log(mover.name + ", would you like to pay $50 to get out of jail?");
+    $("#button-box").append("<div class='button' onclick='respondPayOutOfJail(true)'>Pay $50</div>");
+    $("#button-box").append("<div class='button-negative' onclick='respondPayOutOfJail(false)'>No Thanks</div>");
 }
 
 function shouldRollAgain(mover) {
@@ -276,6 +288,44 @@ function unmortgageProperty(owner, placeIdx) {
 
     $("#hud-property" + placeIdx + " > .house-adder").toggleClass("button-disabled", false);
     log(`Unmortgaged ${place.name} for $${place.p / 2}.`);
+}
+
+function respondPayOutOfJail(hasAgreed) {
+    // Hide the Pay/No buttons.
+    $("#button-box").children().remove();
+
+    if (! hasAgreed) {
+        concludeTurn();
+        return;
+    }
+
+    const mover = GlobalState.currentPlayer;
+    mover.getOutOfJail();
+    mover.updateBalance(-50);
+    concludeTurn();
+}
+
+function addGetOutOfJailFreeCard(mover) {
+    mover.numJailCards ++;
+
+    if (mover.numJailCards === 1) {
+        const isUsageEnabled = mover.jailDays > 0 ? "" : "button-disabled";
+        $("#jail-card" + mover.num).append(`<br />Get Out of Jail Free<span id='jail-card-quantity${mover.num}'></span><span class='button ${isUsageEnabled} use-jail-card' onclick='useGetOutOfJailFreeCard(players[${mover.num}])'>Use Card</div>`);
+    } else {
+        $("#jail-card-quantity" + mover.num).text(" x" + mover.numJailCards);
+    }
+}
+
+function useGetOutOfJailFreeCard(player) {
+    player.getOutOfJail();
+    player.numJailCards --;
+
+    if (player.numJailCards === 0) {
+        $("#jail-card" + player.num).text("");
+    } else {
+        // e.g. Get Out of Jail Free x3
+        $("#jail-card-quantity" + player.num).text(" x" + player.numJailCards);
+    }
 }
 
 // function transaction() {

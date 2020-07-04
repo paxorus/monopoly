@@ -113,7 +113,7 @@ function buildPlayerViews() {
         const heads = document.getElementById("heads");
         heads.innerHTML += "<div id='head" + i + "' class='player-display-head'></div>";
         heads.innerHTML += "<div style='background-color:rgb(68, 136, 204);height:5px'></div>";
-        heads.innerHTML += "<div class='dashboard' id='user" + i + "' style='display:none'><span id='property-list" + i + "'></span></div>";
+        heads.innerHTML += `<div class='dashboard' id='user${i}' style='display:none'><span id='property-list${i}'></span><span id='jail-card${i}'></div>`;
     });
 }
 
@@ -191,3 +191,6 @@ class MessageBoxSingleton {
 
 const MessageBox = new MessageBoxSingleton();
 const log = message => MessageBox.log(message);
+
+// nextPlayer.goToJail();
+addGetOutOfJailFreeCard(nextPlayer);
