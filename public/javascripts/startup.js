@@ -184,7 +184,9 @@ function startUp() {
 
 export {
     GlobalState,
+    toggleHighlightedProperties,
     highlightProperty,
     players,
+    slide,
     startUp
 };

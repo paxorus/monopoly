@@ -1,5 +1,5 @@
 import {places, BLACK_TEXT_COLORS, Locations} from "./location-configs.js";
-import {players, GlobalState} from "./startup.js";
+import {players, slide, toggleHighlightedProperties, GlobalState} from "./startup.js";
 
 function showCard(placeIdx) {
 
@@ -82,11 +82,22 @@ function showCard(placeIdx) {
     } else if (place.own === -1) {
         $("#owner-name").text("Unowned");
     } else {
-        const ownerName = players[place.own].name;
-        $("#owner-name").text("Owner: " + ownerName);
+        const owner = players[place.own];
+        $("#owner-name").text("Owned by ");
+        $("#owner-name").append(buildOwnerNameDisplay(owner));
     }
 
     $("#location-card").css("display", "block");
+}
+
+function buildOwnerNameDisplay(owner) {
+    const ownerNameDisplay = document.createElement("span");
+    ownerNameDisplay.textContent = owner.name;
+    ownerNameDisplay.className = "owner-name-clickable";
+    ownerNameDisplay.addEventListener("mouseover", event => toggleHighlightedProperties(owner.num, true));
+    ownerNameDisplay.addEventListener("mouseout", event => toggleHighlightedProperties(owner.num, false));
+    ownerNameDisplay.addEventListener("click", event => slide(owner.num));
+    return ownerNameDisplay;
 }
 
 function hideLocationCard() {

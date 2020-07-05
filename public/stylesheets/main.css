@@ -74,12 +74,33 @@ body {
     top: -6px;
 }
 
-/* Display card header */
+/* Location card */
 .head {
-    font-size: 24px;
+    font-size: 20px;
+    padding: 5px;
     background-color: #BBB;
     border-radius: 5px 5px 0 0;
     color: #333;
+}
+#price {
+    padding-top: 5px;
+}
+#location-card {
+    position: absolute;
+    top: 200px;
+    left: 540px;
+
+    width: 225px;
+    margin-left: -112px;
+    text-align: center;
+    display: none;
+}
+.owner-name-clickable {
+    cursor: pointer;
+    color: #08F;
+}
+.owner-name-clickable:hover {
+    color: #2AF;
 }
 
 /* General buttons */
@@ -203,15 +224,4 @@ body {
 #message-box {
     overflow-y: auto;
     max-height: 400px;
-}
-
-#location-card {
-    position: absolute;
-    top: 270px;
-    left: 540px;
-
-    width: 225px;
-    margin-left: -112px;
-    text-align: center;
-    display: none;
 }
