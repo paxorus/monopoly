@@ -17,7 +17,7 @@ The Pokemon sprites are loaded from Bulbapedia.
 
 #### Interconnectivity
 * Show property colors on the player display, and sort them by location.
-* Hovering over the location on the player display should highlight the board location.
+* Hovering over the location on the player display should highlight the board location. Clicking it should open property card.
 * Perhaps the card owner name should behave similar to the sprites.
 * Embolden the rent that is in effect on the display card.
 

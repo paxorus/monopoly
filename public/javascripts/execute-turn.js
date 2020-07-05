@@ -1,3 +1,8 @@
+import {places, MONOPOLIES} from "./location-configs.js";
+import {log, MessageBox} from "./message-box.js";
+import {action} from "./obey-location.js";
+import {players, GlobalState} from "./startup.js";
+
 function rollDice() {
     return Math.ceil(6 * Math.random());
 }
@@ -129,6 +134,7 @@ function purchaseProperty(mover, placeIdx) {
     log("Congratulations, " + mover.name + "! You now own " + place.name + "!");
 
     $("#property-list" + mover.num).append("<br><div id='hud-property" + placeIdx + "'>" + place.name + "</div>");
+    $("#hud-property" + placeIdx).append(buildMortgageButton(mover, placeIdx));
 
     // Check for a new monopoly.
     const monopoly = MONOPOLIES.find(monopoly => monopoly.includes(placeIdx));
@@ -137,10 +143,9 @@ function purchaseProperty(mover, placeIdx) {
         log("Monopoly! You may now build houses on " + concatenatePropertyNames(propertyNames)
             + ", and their rents have doubled.");
         monopoly.forEach(placeIdx => {
-            const [adder, remover, mortgager] = buildHouseButtons(mover, placeIdx);
+            const [adder, remover] = buildHouseButtons(mover, placeIdx);
             $("#hud-property" + placeIdx).append(adder);
             $("#hud-property" + placeIdx).append(remover);
-            $("#hud-property" + placeIdx).append(mortgager);
         });
     }
 }
@@ -166,13 +171,16 @@ function buildHouseButtons(owner, placeIdx) {
     $(remover).append("<img class='house-icon' src='images/house.svg'><sup class='house-minus-sign'>-</sup>");
     remover.addEventListener("click", event => sellHouse(owner, placeIdx));
 
+    return [adder, remover];
+}
+
+function buildMortgageButton(owner, placeIdx) {
     const mortgager = document.createElement("div");
     mortgager.className = "button house-button property-mortgager";
     mortgager.title = "Mortgage the Property";
     $(mortgager).append("<img class='house-icon' src='images/mortgage.svg'><sup class='mortgage-symbol'>$</sup>");
     mortgager.addEventListener("click", event => mortgageOrUnmortgageProperty(owner, placeIdx));
-
-    return [adder, remover, mortgager];
+    return mortgager;
 }
 
 function buyHouse(owner, placeIdx) {
@@ -351,3 +359,12 @@ function useGetOutOfJailFreeCard(player) {
 //     $("#bal1").text("$"+players[1].balance);
 //     $("#bal2").text("$"+players[2].balance);
 // }
+
+export {
+    addGetOutOfJailFreeCard,
+    executeTurn,
+    payRent,
+    react,
+    rollMove,
+    shouldRollAgain
+};

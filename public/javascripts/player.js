@@ -1,4 +1,7 @@
-class Player {
+import {places} from "./location-configs.js";
+import {log} from "./message-box.js";
+
+export default class Player {
     constructor(name, num, spriteFileName) {
         this.name = name;
         this.num = num;

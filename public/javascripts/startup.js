@@ -1,3 +1,7 @@
+import Player from "./player.js";
+import {places} from "./location-configs.js";
+import {showCard} from "./display-card.js";
+
 // Players are hard-coded for now.
 const Sprite = {
     SWAMPERT_MEGA: "/9/98/260Swampert-Mega.png",
@@ -168,29 +172,17 @@ const GlobalState = {
     waitingForUserResponse: undefined
 }
 
-buildGameBoard();
-buildPlayerViews();
-buildPlayerDisplays();
+function startUp() {
+    buildGameBoard();
+    buildPlayerViews();
+    buildPlayerDisplays();
 
-const nextPlayer = players[(GlobalState.currentPlayer.num + 1) % players.length];
-$("#initial-turn").text(nextPlayer.name);
-
-class MessageBoxSingleton {
-    constructor() {
-        this.dom = document.getElementById("message-box");
-    }
-
-    clear() {
-        this.dom.innerHTML = "";
-    }
-
-    log(message) {
-        this.dom.innerHTML += message + "<br />";
-    }
+    const nextPlayer = players[(GlobalState.currentPlayer.num + 1) % players.length];
+    $("#initial-turn").text(nextPlayer.name);
 }
 
-const MessageBox = new MessageBoxSingleton();
-const log = message => MessageBox.log(message);
-
-// nextPlayer.goToJail();
-addGetOutOfJailFreeCard(nextPlayer);
+export {
+    GlobalState,
+    players,
+    startUp
+};

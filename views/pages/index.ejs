@@ -25,6 +25,8 @@
             <tr id="rent4"></tr>
             <tr id="rent5"></tr>
         </table>
+        <span id="mortgage-value"></span>
+        <div id="price-per-house"></div>
         <span id="owner-name"></span>
     </div>
     <div class="button-negative" onclick="hideLocationCard()">Close</div>
@@ -51,11 +53,19 @@
 <div id="heads"></div>
 
 <script src="javascripts/third-party/jquery.js"></script>
-<script src="javascripts/location-configs.js"></script>
-<script src="javascripts/player.js"></script>
-<script src="javascripts/obey-location.js"></script>
-<script src="javascripts/display-card.js"></script>
-<script src="javascripts/execute-turn.js"></script>
-<script src="javascripts/startup.js"></script>
+<script type="module" src="javascripts/display-card.js"></script>
+<script type="module" src="javascripts/execute-turn.js"></script>
+<script type="module" src="javascripts/startup.js"></script>
+<script type="module">
+import {executeTurn, react} from "/javascripts/execute-turn.js";
+window.executeTurn = executeTurn;
+window.react = react;
+
+import {startUp} from "/javascripts/startup.js";
+startUp();
+
+import {hideLocationCard} from "/javascripts/display-card.js";
+window.hideLocationCard = hideLocationCard;
+</script>
 
 </body></html>

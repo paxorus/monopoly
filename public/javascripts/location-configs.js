@@ -77,3 +77,9 @@ const MONOPOLIES = [
 	[5, 15, 25, 35], // Railroads
 	[12, 28] // Utilities
 ];
+
+export {
+	places,
+	BLACK_TEXT_COLORS,
+	MONOPOLIES
+};

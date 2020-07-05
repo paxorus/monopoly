@@ -1,3 +1,8 @@
+import {places, MONOPOLIES} from "./location-configs.js";
+import {log} from "./message-box.js";
+import {players, GlobalState} from "./startup.js";
+import {addGetOutOfJailFreeCard, payRent, rollMove, shouldRollAgain} from "./execute-turn.js";
+
 function action(mover) {
     // On location change (from a roll, chance card, or comm chest card), follow the rules of that square.
     GlobalState.waitingForUserResponse = false;
@@ -185,7 +190,7 @@ function obeyChanceSquare(mover) {
             } else if (players[railroad.own] != mover) {
                 // Control the rent properly.
                 const owner = players[railroad.own];
-                const rent = determineRent(mover, owner, place);
+                const rent = determineRent(mover, owner, railroad);
                 payRent(owner, 2 * rent);
             }
             break;
@@ -283,3 +288,7 @@ function countOwnedBuildings(owner) {
             hotels: 0
         });
 }
+
+export {
+    action
+};

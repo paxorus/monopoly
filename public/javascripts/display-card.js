@@ -1,3 +1,6 @@
+import {places, BLACK_TEXT_COLORS} from "./location-configs.js";
+import {players, GlobalState} from "./startup.js";
+
 function showCard(placeIdxString) {
 
     const placeIdx = parseInt(placeIdxString, 10);
@@ -22,6 +25,8 @@ function showCard(placeIdxString) {
             $("#rent3").text("");
             $("#rent4").text("");
             $("#rent5").text("");
+            $("#mortgage-value").text("");
+            $("#price-per-house").text("");
             break;
         case 38:// Luxury tax.
             $("#price").text("Tax: $200");
@@ -31,6 +36,8 @@ function showCard(placeIdxString) {
             $("#rent3").text("");
             $("#rent4").text("");
             $("#rent5").text("");
+            $("#mortgage-value").text("");
+            $("#price-per-house").text("");
             break;
 
         case 20:
@@ -41,6 +48,8 @@ function showCard(placeIdxString) {
             $("#rent3").text("");
             $("#rent4").text("");
             $("#rent5").text("");
+            $("#mortgage-value").text("");
+            $("#price-per-house").text("");
             break;
 
         case 0:// Go
@@ -60,6 +69,8 @@ function showCard(placeIdxString) {
             $("#rent3").text("4 railroads: $" + place.re3);
             $("#rent4").text("");
             $("#rent5").text("");
+            $("#mortgage-value").text("");
+            $("#price-per-house").text("");
             break;
         case 12: case 28:
             // Display utility rents.
@@ -70,6 +81,8 @@ function showCard(placeIdxString) {
             $("#rent3").text("");
             $("#rent4").text("");
             $("#rent5").text("");
+            $("#mortgage-value").text("");
+            $("#price-per-house").text("");
             break;
         default:
             // Display house rents.
@@ -80,6 +93,8 @@ function showCard(placeIdxString) {
             $("#rent3").text("With 3 Houses: $" + place.re3);
             $("#rent4").text("With 4 Houses: $" + place.re4);
             $("#rent5").text("With HOTEL: $" + place.re5);
+            $("#mortgage-value").text("Mortgage Value: $" + place.p / 2);
+            $("#price-per-house").text(`$${place.ho} Per House`);
             break;
     }
 
@@ -101,3 +116,8 @@ function showCard(placeIdxString) {
 function hideLocationCard() {
     $("#location-card").css("display", "none");
 }
+
+export {
+    showCard,
+    hideLocationCard
+};
