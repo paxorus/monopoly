@@ -1,9 +1,8 @@
-import {places, BLACK_TEXT_COLORS} from "./location-configs.js";
+import {places, BLACK_TEXT_COLORS, Locations} from "./location-configs.js";
 import {players, GlobalState} from "./startup.js";
 
-function showCard(placeIdxString) {
+function showCard(placeIdx) {
 
-    const placeIdx = parseInt(placeIdxString, 10);
     const place = places[placeIdx];
 
     // Update name.
@@ -14,42 +13,17 @@ function showCard(placeIdxString) {
 
     $("#propname").css("backgroundColor", place.cardColor || place.col);
 
-    let shouldShowRentTable = true;
     // Populate price and rents.
     switch (placeIdx) {
-        case 4:// Income tax
-            $("#price").text("Tax: $100");
-            $("#rent0").text("");
-            $("#rent1").text("");
-            $("#rent2").text("");
-            $("#rent3").text("");
-            $("#rent4").text("");
-            $("#rent5").text("");
-            $("#mortgage-value").text("");
-            $("#price-per-house").text("");
+        case Locations.IncomeTax:
+            $("#tax-info").text("Tax: $200");
             break;
-        case 38:// Luxury tax.
-            $("#price").text("Tax: $200");
-            $("#rent0").text("");
-            $("#rent1").text("");
-            $("#rent2").text("");
-            $("#rent3").text("");
-            $("#rent4").text("");
-            $("#rent5").text("");
-            $("#mortgage-value").text("");
-            $("#price-per-house").text("");
+        case Locations.LuxuryTax:
+            $("#tax-info").text("Tax: $100");
             break;
 
-        case 20:
-            $("#price").text("Cash pool: $" + GlobalState.tax);
-            $("#rent0").text("");
-            $("#rent1").text("");
-            $("#rent2").text("");
-            $("#rent3").text("");
-            $("#rent4").text("");
-            $("#rent5").text("");
-            $("#mortgage-value").text("");
-            $("#price-per-house").text("");
+        case Locations.FreeParking:
+            $("#tax-info").text("Cash pool: $" + GlobalState.tax);
             break;
 
         case 0:// Go
@@ -57,7 +31,6 @@ function showCard(placeIdxString) {
         case 30:// Go to Jail
         case 2: case 17: case 33:// Community Chest
         case 7: case 22: case 36:// Chance
-            shouldShowRentTable = false;
             break;
 
         case 5: case 15: case 25: case 35:
@@ -99,7 +72,10 @@ function showCard(placeIdxString) {
     }
 
     // Hide price and rents for non-properties.
-    $("#rent-table").css("display", shouldShowRentTable ? "block" : "none");
+    $("#rent-table").css("display", place.p > 0 ? "block" : "none");
+
+    const shouldShowTaxLine = [Locations.IncomeTax, Locations.LuxuryTax, Locations.FreeParking].includes(placeIdx);
+    $("#tax-info").css("display", shouldShowTaxLine ? "block" : "none");
 
     if (place.p === 0) {// Unbuyable
         $("#owner-name").text("");

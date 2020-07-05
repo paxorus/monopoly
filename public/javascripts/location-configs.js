@@ -65,6 +65,12 @@ const places = [
 	{name: "Boardwalk", p: 400, re0: 50, re1: 200, re2: 600, re3: 1400, re4: 1700, re5: 2000, ho: 200, own: -1, houseCount: 0, isMortgaged: false, col: Colors.DEEP_BLUE}
 ];
 
+const Locations = {
+	IncomeTax: 4,
+	LuxuryTax: 38,
+	FreeParking: 20
+};
+
 const MONOPOLIES = [
 	[1, 3],
 	[6, 8, 9],
@@ -81,5 +87,6 @@ const MONOPOLIES = [
 export {
 	places,
 	BLACK_TEXT_COLORS,
+	Locations,
 	MONOPOLIES
 };

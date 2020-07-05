@@ -43,10 +43,6 @@ body {
     width: 17px;
 }
 
-.dashboard {
-    height: 450px;
-    background-color: rgb(213, 232, 212);
-}
 .house-icon {
     width: 20px;
     display: inline-block;
@@ -163,6 +159,10 @@ body {
     top: 0;
     width: 400px;
 }
+.dashboard {
+    height: 450px;
+    background-color: rgb(213, 232, 212);
+}
 .player-display-head {
     font-size: 18px;
     background-color: #BBB;
@@ -174,7 +174,19 @@ body {
     height: 18px;
     margin-right: 5px;
 }
+.hud-property-name {
+    cursor: pointer;
+    margin-left: 20px;
+}
+.hud-property {
+    padding: 5px 0;
+}
+.hud-property:hover {
+    background-color: rgb(213, 232, 212);
+    filter: brightness(0.9);
+}
 
+/* Interactive message box */
 .interactive {
     position: absolute;
     top: 250px;

@@ -87,7 +87,8 @@ function buildGameBoard() {
     }
 
     $(".location").click(function() {
-        showCard(this.dataset.no);
+        const placeIdx = parseInt(this.dataset.no);
+        showCard(placeIdx);
     });
 }
 
@@ -183,6 +184,7 @@ function startUp() {
 
 export {
     GlobalState,
+    highlightProperty,
     players,
     startUp
 };

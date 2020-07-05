@@ -1,7 +1,8 @@
+import {showCard} from "./display-card.js";
 import {places, MONOPOLIES} from "./location-configs.js";
 import {log, MessageBox} from "./message-box.js";
 import {action} from "./obey-location.js";
-import {players, GlobalState} from "./startup.js";
+import {highlightProperty, players, GlobalState} from "./startup.js";
 
 function rollDice() {
     return Math.ceil(6 * Math.random());
@@ -133,7 +134,18 @@ function purchaseProperty(mover, placeIdx) {
     place.own = mover.num;
     log("Congratulations, " + mover.name + "! You now own " + place.name + "!");
 
-    $("#property-list" + mover.num).append("<br><div id='hud-property" + placeIdx + "'>" + place.name + "</div>");
+    const propertyListing = document.createElement("div");
+    propertyListing.id = "hud-property" + placeIdx;
+    propertyListing.className = "hud-property";
+    const propertyName = document.createElement("span");
+    propertyName.className = "hud-property-name";
+    propertyName.textContent = place.name;
+    propertyName.addEventListener("mouseover", event => highlightProperty(placeIdx, true));
+    propertyName.addEventListener("mouseout", event => highlightProperty(placeIdx, false));
+    propertyName.addEventListener("click", event => showCard(placeIdx));
+    propertyListing.appendChild(propertyName);
+
+    $("#property-list" + mover.num).append(propertyListing)
     $("#hud-property" + placeIdx).append(buildMortgageButton(mover, placeIdx));
 
     // Check for a new monopoly.
