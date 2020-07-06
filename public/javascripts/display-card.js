@@ -66,7 +66,9 @@ function showCard(placeIdx) {
             $("#rent3").text("With 3 Houses: $" + place.re3);
             $("#rent4").text("With 4 Houses: $" + place.re4);
             $("#rent5").text("With HOTEL: $" + place.re5);
-            $("#mortgage-value").text("Mortgage Value: $" + place.p / 2);
+
+            const mortgageStatus = place.isMortgaged ? "Unmortgage" : "Mortgage";
+            $("#mortgage-value").text(`${mortgageStatus} Value: $${place.p / 2}`);
             $("#price-per-house").text(`$${place.ho} Per House`);
             break;
     }
@@ -76,6 +78,8 @@ function showCard(placeIdx) {
 
     const shouldShowTaxLine = [Locations.IncomeTax, Locations.LuxuryTax, Locations.FreeParking].includes(placeIdx);
     $("#tax-info").css("display", shouldShowTaxLine ? "block" : "none");
+
+    $("#mortgage-margin").css("display", place.ho ? "block" : "none");
 
     if (place.p === 0) {// Unbuyable
         $("#owner-name").text("");

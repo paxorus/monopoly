@@ -71,6 +71,9 @@ const Locations = {
 	FreeParking: 20
 };
 
+const Railroads = [5, 15, 25, 35];
+const Utilities = [12, 28];
+
 const MONOPOLIES = [
 	[1, 3],
 	[6, 8, 9],
@@ -80,12 +83,31 @@ const MONOPOLIES = [
 	[26, 27, 29],
 	[31, 32, 34],
 	[37, 39],
-	[5, 15, 25, 35], // Railroads
-	[12, 28] // Utilities
+	Railroads,
+	Utilities
 ];
+
+/**
+ * Helps order properties by their group, when they appear in a list.
+ */
+function propertyComparator(idx1, idx2) {
+	function _computeWeight(idx) {
+		// Order: properties by location, then utilities, then railroads.
+		if (Railroads.includes(idx)) {
+			return idx + 200;
+		}
+		if (Utilities.includes(idx)) {
+			return idx + 100;
+		}
+		return idx;
+	}
+
+	return _computeWeight(idx1) - _computeWeight(idx2);
+}
 
 export {
 	places,
+	propertyComparator,
 	BLACK_TEXT_COLORS,
 	Locations,
 	MONOPOLIES

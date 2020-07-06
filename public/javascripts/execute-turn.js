@@ -1,5 +1,5 @@
 import {showCard} from "./display-card.js";
-import {places, MONOPOLIES} from "./location-configs.js";
+import {places, propertyComparator, MONOPOLIES} from "./location-configs.js";
 import {log, MessageBox} from "./message-box.js";
 import {action} from "./obey-location.js";
 import {highlightProperty, players, GlobalState} from "./startup.js";
@@ -137,6 +137,12 @@ function purchaseProperty(mover, placeIdx) {
     const propertyListing = document.createElement("div");
     propertyListing.id = "hud-property" + placeIdx;
     propertyListing.className = "hud-property";
+
+    const propertyColor = document.createElement("div");
+    propertyColor.className = "hud-property-color";
+    propertyColor.style.backgroundColor = place.col;
+    propertyListing.appendChild(propertyColor);
+
     const propertyName = document.createElement("span");
     propertyName.className = "hud-property-name";
     propertyName.textContent = place.name;
@@ -145,8 +151,19 @@ function purchaseProperty(mover, placeIdx) {
     propertyName.addEventListener("click", event => showCard(placeIdx));
     propertyListing.appendChild(propertyName);
 
-    $("#property-list" + mover.num).append(propertyListing)
-    $("#hud-property" + placeIdx).append(buildMortgageButton(mover, placeIdx));
+    propertyListing.appendChild(buildMortgageButton(mover, placeIdx));
+
+    const propertyList = document.getElementById("property-list" + mover.num);
+
+    const nextElement = [...propertyList.children].find(listing => {
+        const otherPlaceIdx = parseInt(listing.id.substring("hud-property".length), 10);
+        return propertyComparator(placeIdx, otherPlaceIdx) < 0;
+    });
+    if (nextElement !== undefined) {
+        propertyList.insertBefore(propertyListing, nextElement);
+    } else {
+        propertyList.appendChild(propertyListing);
+    }
 
     // Check for a new monopoly.
     const monopoly = MONOPOLIES.find(monopoly => monopoly.includes(placeIdx));
@@ -377,6 +394,7 @@ export {
     executeTurn,
     payRent,
     react,
+    respondPayOutOfJail,
     rollMove,
     shouldRollAgain
 };

@@ -29,5 +29,4 @@ The Pokemon sprites are loaded from Bulbapedia.
 * Adjust number of players
 
 #### Interconnectivity
-* Show property colors on the player display, and sort them by location.
 * Embolden the rent that is in effect on the display card.

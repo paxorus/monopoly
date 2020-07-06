@@ -28,8 +28,8 @@
             <tr id="rent4"></tr>
             <tr id="rent5"></tr>
         </table>
-        <br />
-        <span id="mortgage-value"></span>
+        <br id="mortgage-margin" />
+        <div id="mortgage-value"></div>
         <div id="price-per-house"></div>
     </div>
     <div class="button-negative" onclick="hideLocationCard()">Close</div>
@@ -60,9 +60,10 @@
 <script type="module" src="javascripts/execute-turn.js"></script>
 <script type="module" src="javascripts/startup.js"></script>
 <script type="module">
-import {executeTurn, react} from "/javascripts/execute-turn.js";
+import {executeTurn, react, respondPayOutOfJail} from "/javascripts/execute-turn.js";
 window.executeTurn = executeTurn;
 window.react = react;
+window.respondPayOutOfJail = respondPayOutOfJail;
 
 import {startUp} from "/javascripts/startup.js";
 startUp();
