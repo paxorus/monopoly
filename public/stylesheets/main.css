@@ -27,6 +27,28 @@ body {
 .location-highlighted {
     background-color: rgb(142, 193, 139);
 }
+#jail {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 44px;
+    height: 44px;
+    background-image: url('/images/in-jail.svg');
+    background-size: 44px 44px;
+}
+#jail-vertical-walkway {
+    position: absolute;
+    left: 0;
+    width: 24px; /* location.width - jail.width */
+    height: 66px;
+}
+#jail-horizontal-walkway {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 44px; /* jail.width */
+    height: 22px; /* location.height - jail.height */
+}
 
 /* Player sprites */
 .circ {

@@ -79,7 +79,11 @@ function obeySpecialSquare(mover) {
             const tax = GlobalState.tax;
             mover.updateBalance(tax);
             GlobalState.tax = 0;
-            log("You collected $" + tax + " from free parking!");
+            if (tax > 0) {
+                log("You collected $" + tax + " from free parking!");
+            } else {
+                log("Sorry, there was no money to collect.");
+            }
             break;
         case 30:// Go to jail
             mover.goToJail();

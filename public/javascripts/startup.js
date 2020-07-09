@@ -27,6 +27,8 @@ const players = [
     new Player("Michael", 4, LEGENDARY_MODE ? Sprite.ZEKROM : Sprite.SALAMENCE_MEGA)
 ];
 
+const JAIL_VERTICAL_WALKWAY_CAPACITY = 3;
+
 function buildGameBoard() {
     // Build and place all board locations on DOM.
 
@@ -77,14 +79,70 @@ function buildGameBoard() {
 
     // Go: set image
     board.childNodes[0].style.background = "url('images/go.svg') no-repeat";
+    board.childNodes[0].style.backgroundColor = "";
+    board.childNodes[0].style.backgroundSize = "68px 66px";
 
     // Railroads: set images
     for(let i = 5; i <= 35; i += 10) {
         const railroad = board.childNodes[i];
-        railroad.style.background = "url('images/rr.svg') no-repeat";
+        railroad.style.background = "url('images/railroad.svg') no-repeat";
         railroad.style.backgroundSize = "68px 66px";
         railroad.style.backgroundColor = "";
     }
+
+    board.childNodes[12].style.background = "url('images/electric-company.svg') no-repeat";
+    board.childNodes[12].style.backgroundColor = "";
+    board.childNodes[12].style.backgroundSize = "68px 66px";
+
+    board.childNodes[28].style.background = "url('images/water-works.svg') no-repeat";
+    board.childNodes[28].style.backgroundColor = "";
+    board.childNodes[28].style.backgroundSize = "68px 66px";
+
+    board.childNodes[7].style.background = "url('images/chance-pink.svg') no-repeat";
+    board.childNodes[7].style.backgroundColor = "";
+    board.childNodes[7].style.backgroundSize = "68px 66px";
+
+    board.childNodes[22].style.background = "url('images/chance-blue.svg') no-repeat";
+    board.childNodes[22].style.backgroundColor = "";
+    board.childNodes[22].style.backgroundSize = "68px 66px";
+
+    board.childNodes[36].style.background = "url('images/chance-orange.svg') no-repeat";
+    board.childNodes[36].style.backgroundColor = "";
+    board.childNodes[36].style.backgroundSize = "68px 66px";
+
+    board.childNodes[38].style.background = "url('images/luxury-tax.svg') no-repeat";
+    board.childNodes[38].style.backgroundColor = "";
+    board.childNodes[38].style.backgroundSize = "68px 66px";
+
+    [2, 17, 33].forEach(placeIdx => {
+        board.childNodes[placeIdx].style.background = "url('images/community-chest.svg') no-repeat";
+        board.childNodes[placeIdx].style.backgroundColor = "";
+        board.childNodes[placeIdx].style.backgroundSize = "68px 66px";
+    });
+
+    board.childNodes[30].style.background = "url('images/go-to-jail.svg') no-repeat";
+    board.childNodes[30].style.backgroundColor = "";
+    board.childNodes[30].style.backgroundSize = "68px 66px";
+
+    board.childNodes[20].style.background = "url('images/free-parking.svg') no-repeat";
+    board.childNodes[20].style.backgroundColor = "";
+    board.childNodes[20].style.backgroundSize = "68px 66px";
+
+    // board.childNodes[10].style.background = "url('images/in-jail.svg') no-repeat";
+    // board.childNodes[10].style.backgroundColor = "";
+    // board.childNodes[10].style.backgroundSize = "68px 66px";
+
+    const jail = document.createElement("div");
+    jail.id = "jail";
+    board.childNodes[10].appendChild(jail);
+
+    const jailVerticalWalkway = document.createElement("div");
+    jailVerticalWalkway.id = "jail-vertical-walkway";
+    board.childNodes[10].appendChild(jailVerticalWalkway);
+
+    const jailHorizontalWalkway = document.createElement("div");
+    jailHorizontalWalkway.id = "jail-horizontal-walkway";
+    board.childNodes[10].appendChild(jailHorizontalWalkway);
 
     $(".location").click(function() {
         const placeIdx = parseInt(this.dataset.no);
@@ -184,6 +242,7 @@ function startUp() {
 
 export {
     GlobalState,
+    JAIL_VERTICAL_WALKWAY_CAPACITY,
     toggleHighlightedProperties,
     highlightProperty,
     players,

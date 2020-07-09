@@ -23,7 +23,6 @@ The Pokemon sprites are loaded from Bulbapedia.
 
 ## Improvements
 #### Cosmetics
-* Images for: Go, Chance, Comm Chest, Tax, Just Visiting/Jail, Go to Jail.
 * Show actual faces of dice?
 * Customizing (name/sprite)
 * Adjust number of players
