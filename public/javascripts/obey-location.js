@@ -3,10 +3,10 @@ import {log} from "./message-box.js";
 import {players, GlobalState} from "./startup.js";
 import {addGetOutOfJailFreeCard, payRent, rollMove, shouldRollAgain} from "./execute-turn.js";
 
-function action(mover) {
+function obeyLocation(mover) {
     // On location change (from a roll, chance card, or comm chest card), follow the rules of that square.
     GlobalState.waitingForUserResponse = false;
-    const place = places[mover.locnum];
+    const place = places[mover.placeIdx];
     if (place.p !== 0) {
         if (place.own === -1) {
             offerUnownedProperty(mover, place);
@@ -30,10 +30,10 @@ function determineRent(mover, owner, place) {
         return 0;
     }
 
-    const propertyGroup = MONOPOLIES.find(group => group.includes(mover.locnum));
+    const propertyGroup = MONOPOLIES.find(group => group.includes(mover.placeIdx));
     const ownershipCount = propertyGroup.filter(placeIdx => places[placeIdx].own === owner.num).length;
 
-    switch (mover.locnum) {
+    switch (mover.placeIdx) {
         case 12: case 28:// Utilities
             const multiplier = (ownershipCount === 1) ? 4 : 10;
             return multiplier * (mover.latestRoll[0] + mover.latestRoll[1]);
@@ -52,13 +52,13 @@ function determineRent(mover, owner, place) {
 
 function offerUnownedProperty(mover, place) {
     log(mover.name + ", would you like to buy " + place.name + " for $" + place.p + "?");
-    $("#button-box").append("<div class='button' onclick='react(true)'>Buy " + place.name + "</div>");
-    $("#button-box").append("<div class='button-negative' onclick='react(false)'>No Thanks</div>");
+    $("#button-box").append("<div class='button' onclick='respondToBuyOffer(true)'>Buy " + place.name + "</div>");
+    $("#button-box").append("<div class='button-negative' onclick='respondToBuyOffer(false)'>No Thanks</div>");
     GlobalState.waitingForUserResponse = true;
 }
 
 function obeySpecialSquare(mover) {
-    switch (mover.locnum) {
+    switch (mover.placeIdx) {
         case 7: case 22: case 36:
             obeyChanceSquare(mover);
             break;
@@ -98,7 +98,7 @@ function obeyChanceSquare(mover) {
         case 0:
             log("Advance to Boardwalk.");
             mover.updateLocation(39);
-            action(mover);
+            obeyLocation(mover);
             break;
         case 1:
             log('Advance to "Go". (Collect $200)');
@@ -118,11 +118,11 @@ function obeyChanceSquare(mover) {
             break;
         case 4:
             log('Advance to St. Charles Place. If you pass "Go" collect $200.');
-            if (mover.locnum > 11) {
+            if (mover.placeIdx > 11) {
                 mover.updateBalance(200);
             }
             mover.updateLocation(11);
-            action(mover);
+            obeyLocation(mover);
             break;
         case 5:
             log("Your building loan matures. Collect $150.");
@@ -130,8 +130,8 @@ function obeyChanceSquare(mover) {
             break;
         case 6:
             log("Go back three spaces.");
-            mover.updateLocation(mover.locnum - 3);
-            action(mover);
+            mover.updateLocation(mover.placeIdx - 3);
+            obeyLocation(mover);
             break;
         case 7:
             log("GET OUT OF JAIL FREE. This card may be kept until needed or traded.");
@@ -143,11 +143,11 @@ function obeyChanceSquare(mover) {
             break;
         case 9:
             log('Advance to Illinois Avenue. If you pass "Go" collect $200.');
-            if (mover.locnum > 24) {
+            if (mover.placeIdx > 24) {
                 mover.updateBalance(200);
             }
             mover.updateLocation(24);
-            action(mover);
+            obeyLocation(mover);
             break;
         case 10:
             log("You have been elected chairman of the board. Pay each player $50.");
@@ -162,35 +162,35 @@ function obeyChanceSquare(mover) {
             break;
         case 12:
             log("Advance to the nearest utility. If Unowned, you may buy it from the bank. If Owned, pay owner a total ten times amount thrown on dice.");
-            if (mover.locnum >= 12 && mover.locnum < 28) {
+            if (mover.placeIdx >= 12 && mover.placeIdx < 28) {
                 mover.updateLocation(28);
             } else {
                 mover.updateLocation(12);
             }
-            if (places[mover.locnum].own === -1) {
-                action(mover);
-            } else if (places[mover.locnum].own != mover.num) {
-                const owner = players[places[mover.locnum].own];
+            if (places[mover.placeIdx].own === -1) {
+                obeyLocation(mover);
+            } else if (places[mover.placeIdx].own != mover.num) {
+                const owner = players[places[mover.placeIdx].own];
                 const [roll1, roll2] = mover.latestRoll;
                 payRent(mover, owner, 10 * (roll1 + roll2));
             }
             break;
         case 13:
             log('Take a trip to Reading Railroad. If you pass "Go" collect $200.');
-            if (mover.locnum > 5) {
+            if (mover.placeIdx > 5) {
                 mover.updateBalance(200);
             }
             mover.updateLocation(5);
             break;
         case 14: case 15:
             log("Advance to the nearest railroad. If Unowned, you may buy it from the bank. If Owned, pay owner twice the rental to which they are otherwise entitled.");
-            const rangeIdx = Math.floor((mover.locnum + 5) % 40 / 10);// What side of the board are we on if we step forward 5?
+            const rangeIdx = Math.floor((mover.placeIdx + 5) % 40 / 10);// What side of the board are we on if we step forward 5?
             const nearestRailroadIdx = 10 * rangeIdx + 5;// Map that side to its railroad.
 
             mover.updateLocation(nearestRailroadIdx);
             const railroad = places[nearestRailroadIdx];
             if (railroad.own === -1) {
-                action(mover);
+                obeyLocation(mover);
             } else if (players[railroad.own] != mover) {
                 // Control the rent properly.
                 const owner = players[railroad.own];
@@ -294,5 +294,5 @@ function countOwnedBuildings(owner) {
 }
 
 export {
-    action
+    obeyLocation
 };

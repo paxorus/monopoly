@@ -1,7 +1,7 @@
 import {showCard} from "./display-card.js";
 import {places, propertyComparator, MONOPOLIES} from "./location-configs.js";
 import {log, MessageBox} from "./message-box.js";
-import {action} from "./obey-location.js";
+import {obeyLocation} from "./obey-location.js";
 import {highlightProperty, players, GlobalState} from "./startup.js";
 
 function rollDice() {
@@ -90,7 +90,7 @@ function rollMove(mover) {
     mover.rollCount ++;
     log("You rolled a " + roll1 + " and a " + roll2 + ".");
 
-    let newLocation = mover.locnum + roll1 + roll2;
+    let newLocation = mover.placeIdx + roll1 + roll2;
     if (newLocation > 39) {
         // Pass Go.
         newLocation -= 40;
@@ -99,19 +99,19 @@ function rollMove(mover) {
     mover.updateLocation(newLocation);
 
     log("You landed on " + places[newLocation].name + ".");
-    action(mover);
+    obeyLocation(mover);
 }
 
-function react(ifBuy) {
+function respondToBuyOffer(ifBuy) {
     // Hide the Buy/No buttons.
     $("#button-box").children().remove();
 
     const mover = GlobalState.currentPlayer;
 
     if (ifBuy) {
-        purchaseProperty(mover, mover.locnum);
+        purchaseProperty(mover, mover.placeIdx);
     } else {
-        log(places[mover.locnum].name + " went unsold.");
+        log(places[mover.placeIdx].name + " went unsold.");
     }
     if (shouldRollAgain(mover)) {
         rollMove(mover);
@@ -393,7 +393,7 @@ export {
     addGetOutOfJailFreeCard,
     executeTurn,
     payRent,
-    react,
+    respondToBuyOffer,
     respondPayOutOfJail,
     rollMove,
     shouldRollAgain

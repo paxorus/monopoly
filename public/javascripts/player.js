@@ -9,7 +9,7 @@ export default class Player {
         this.spriteFileName = spriteFileName;
 
         this.balance = 1500;
-        this.locnum = 0;// placeIdx
+        this.placeIdx = 0;
         this.jailDays = 0;
         this.latestRoll = null;
         this.rollCount = 0;
@@ -40,17 +40,17 @@ export default class Player {
     }
 
     updateLocation(newLocation) {
-        const oldLocation = this.locnum;
-        this.locnum = newLocation;
+        const oldLocation = this.placeIdx;
+        this.placeIdx = newLocation;
 
         // Update the view with the current user's location.
-        $("#loc" + this.num).text(places[this.locnum].name);
-        if (places[this.locnum].ho) {
-            $("#board").children().eq(this.locnum).children().first().append($("#marker" + this.num));
-        } else if (this.locnum === 10) {
+        $("#loc" + this.num).text(places[this.placeIdx].name);
+        if (places[this.placeIdx].ho) {
+            $("#board").children().eq(this.placeIdx).children().first().append($("#marker" + this.num));
+        } else if (this.placeIdx === 10) {
             this.moveToJustVisiting();
         } else {
-            $("#board").children().eq(this.locnum).append($("#marker" + this.num));
+            $("#board").children().eq(this.placeIdx).append($("#marker" + this.num));
         }
 
         if (oldLocation === 10) {

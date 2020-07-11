@@ -34,120 +34,79 @@ function buildGameBoard() {
 
     const board = document.getElementById("board");
 
-    for (let i = 0; i <= 39; i ++) {
+    places.forEach((place, placeIdx) => {
         const newdiv = document.createElement("div");
-        newdiv.dataset.no = i;
+        newdiv.dataset.no = placeIdx;
         const indiv = document.createElement("div");
-        newdiv.style.backgroundColor = places[i].col;
+        newdiv.style.backgroundColor = place.col;
         
-        switch (Math.floor(i / 10)) {
+        switch (Math.floor(placeIdx / 10)) {
             case 0:
                 newdiv.className = "location bottom";
-                newdiv.style.left = 70 * (10 - i) + "px";
+                newdiv.style.left = 70 * (10 - placeIdx) + "px";
                 indiv.style.bottom = 0;
                 indiv.className = "walkway horizontal";
                 break;
             case 1:
                 newdiv.className = "location left";
-                newdiv.style.top = 680 - 68 * (i - 10) + "px";
+                newdiv.style.top = 680 - 68 * (placeIdx - 10) + "px";
                 indiv.style.left = 0;
                 indiv.className = "walkway vertical";
                 break;
             case 2:
                 newdiv.className = "location top";
-                newdiv.style.left = 70 * (i - 20) + "px";
+                newdiv.style.left = 70 * (placeIdx - 20) + "px";
                 indiv.style.top = 0;
                 indiv.className = "walkway horizontal";
                 break;
             case 3:
                 newdiv.className = "location right";
-                newdiv.style.top = 68 * (i - 30) + "px";
+                newdiv.style.top = 68 * (placeIdx - 30) + "px";
                 indiv.style.right = 0;
                 indiv.className = "walkway vertical";
                 break;
         }
 
+        if (place.imageName) {
+            setLocationImage(newdiv, place.imageName);
+        }
+
         // Add a neutral-colored walkway for house-able properties.
-        if (places[i].ho) {
+        if (place.ho) {
             newdiv.appendChild(indiv);
         }
         board.appendChild(newdiv);
-    }
+    });
 
     // Free Parking: add #alltax
     board.childNodes[20].id = "alltax";
 
-    // Go: set image
-    board.childNodes[0].style.background = "url('images/go.svg') no-repeat";
-    board.childNodes[0].style.backgroundColor = "";
-    board.childNodes[0].style.backgroundSize = "68px 66px";
-
-    // Railroads: set images
-    for(let i = 5; i <= 35; i += 10) {
-        const railroad = board.childNodes[i];
-        railroad.style.background = "url('images/railroad.svg') no-repeat";
-        railroad.style.backgroundSize = "68px 66px";
-        railroad.style.backgroundColor = "";
-    }
-
-    board.childNodes[12].style.background = "url('images/electric-company.svg') no-repeat";
-    board.childNodes[12].style.backgroundColor = "";
-    board.childNodes[12].style.backgroundSize = "68px 66px";
-
-    board.childNodes[28].style.background = "url('images/water-works.svg') no-repeat";
-    board.childNodes[28].style.backgroundColor = "";
-    board.childNodes[28].style.backgroundSize = "68px 66px";
-
-    board.childNodes[7].style.background = "url('images/chance-pink.svg') no-repeat";
-    board.childNodes[7].style.backgroundColor = "";
-    board.childNodes[7].style.backgroundSize = "68px 66px";
-
-    board.childNodes[22].style.background = "url('images/chance-blue.svg') no-repeat";
-    board.childNodes[22].style.backgroundColor = "";
-    board.childNodes[22].style.backgroundSize = "68px 66px";
-
-    board.childNodes[36].style.background = "url('images/chance-orange.svg') no-repeat";
-    board.childNodes[36].style.backgroundColor = "";
-    board.childNodes[36].style.backgroundSize = "68px 66px";
-
-    board.childNodes[38].style.background = "url('images/luxury-tax.svg') no-repeat";
-    board.childNodes[38].style.backgroundColor = "";
-    board.childNodes[38].style.backgroundSize = "68px 66px";
-
-    [2, 17, 33].forEach(placeIdx => {
-        board.childNodes[placeIdx].style.background = "url('images/community-chest.svg') no-repeat";
-        board.childNodes[placeIdx].style.backgroundColor = "";
-        board.childNodes[placeIdx].style.backgroundSize = "68px 66px";
-    });
-
-    board.childNodes[30].style.background = "url('images/go-to-jail.svg') no-repeat";
-    board.childNodes[30].style.backgroundColor = "";
-    board.childNodes[30].style.backgroundSize = "68px 66px";
-
-    board.childNodes[20].style.background = "url('images/free-parking.svg') no-repeat";
-    board.childNodes[20].style.backgroundColor = "";
-    board.childNodes[20].style.backgroundSize = "68px 66px";
-
-    // board.childNodes[10].style.background = "url('images/in-jail.svg') no-repeat";
-    // board.childNodes[10].style.backgroundColor = "";
-    // board.childNodes[10].style.backgroundSize = "68px 66px";
-
-    const jail = document.createElement("div");
-    jail.id = "jail";
-    board.childNodes[10].appendChild(jail);
-
-    const jailVerticalWalkway = document.createElement("div");
-    jailVerticalWalkway.id = "jail-vertical-walkway";
-    board.childNodes[10].appendChild(jailVerticalWalkway);
-
-    const jailHorizontalWalkway = document.createElement("div");
-    jailHorizontalWalkway.id = "jail-horizontal-walkway";
-    board.childNodes[10].appendChild(jailHorizontalWalkway);
+    buildJailLocation(board.childNodes[10]);
 
     $(".location").click(function() {
         const placeIdx = parseInt(this.dataset.no);
         showCard(placeIdx);
     });
+}
+
+function setLocationImage(location, imageName) {
+    location.style.background = `url('${imageName}') no-repeat`;
+    location.style.backgroundColor = "";
+    location.style.backgroundSize = "68px 66px";
+}
+
+function buildJailLocation(jailLocation) {
+    const jail = document.createElement("div");
+    jail.id = "jail";
+    jailLocation.appendChild(jail);
+
+    const jailVerticalWalkway = document.createElement("div");
+    jailVerticalWalkway.id = "jail-vertical-walkway";
+    jailLocation.appendChild(jailVerticalWalkway);
+
+    const jailHorizontalWalkway = document.createElement("div");
+    jailHorizontalWalkway.id = "jail-horizontal-walkway";
+    jailLocation.appendChild(jailHorizontalWalkway);
 }
 
 function buildPlayerViews() {
@@ -180,7 +139,7 @@ function buildPlayerViews() {
     });
 }
 
-function buildPlayerDisplays() {
+function buildPlayerDashboards() {
     // Set up the HUD for each player: name, location, and balance.
     players.forEach((player, i) => {
         const sprite = "<img class='display-sprite' src='https://cdn.bulbagarden.net/upload" + player.spriteFileName + "'>";
@@ -234,7 +193,7 @@ const GlobalState = {
 function startUp() {
     buildGameBoard();
     buildPlayerViews();
-    buildPlayerDisplays();
+    buildPlayerDashboards();
 
     const nextPlayer = players[(GlobalState.currentPlayer.num + 1) % players.length];
     $("#initial-turn").text(nextPlayer.name);
