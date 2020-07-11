@@ -66,9 +66,27 @@ const places = [
 ];
 
 const Locations = {
+	Go: 0,
+	CommunityChest1: 2,
 	IncomeTax: 4,
+	ReadingRailroad: 5,
+	Chance1: 7,
+	Jail: 10,
+	StCharlesPlace: 11,
+	ElectricCompany: 12,
+	PennsylvaniaRailroad: 15,
+	CommunityChest2: 17,
+	FreeParking: 20,
+	Chance2: 22,
+	IllinoisAvenue: 24,
+	BORailroad: 25,
+	WaterWorks: 28,
+	GoToJail: 30,
+	CommunityChest3: 33,
+	ShortLine: 35,
+	Chance3: 36,
 	LuxuryTax: 38,
-	FreeParking: 20
+	Boardwalk: 39
 };
 
 const Railroads = [5, 15, 25, 35];

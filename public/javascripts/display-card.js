@@ -26,14 +26,21 @@ function showCard(placeIdx) {
             $("#tax-info").text("Cash pool: $" + GlobalState.tax);
             break;
 
-        case 0:// Go
-        case 10:// Jail
-        case 30:// Go to Jail
-        case 2: case 17: case 33:// Community Chest
-        case 7: case 22: case 36:// Chance
+        case Locations.Go:
+        case Locations.Jail:
+        case Locations.GoToJail:
+        case Locations.CommunityChest1:
+        case Locations.CommunityChest2:
+        case Locations.CommunityChest3:
+        case Locations.Chance1:
+        case Locations.Chance2:
+        case Locations.Chance3:
             break;
 
-        case 5: case 15: case 25: case 35:
+        case Locations.ReadingRailroad:
+        case Locations.PennsylvaniaRailroad:
+        case Locations.BORailroad:
+        case Locations.ShortLine:
             // Display railroad rents.
             $("#price").text("Price: $" + place.p);
             $("#rent0").text("Rent: $" + place.re0);
@@ -45,7 +52,8 @@ function showCard(placeIdx) {
             $("#mortgage-value").text("");
             $("#price-per-house").text("");
             break;
-        case 12: case 28:
+        case Locations.ElectricCompany:
+        case Locations.WaterWorks:
             // Display utility rents.
             $("#price").text("Price: $" + place.p);
             $("#rent0").text("One Utility: 4 times roll");

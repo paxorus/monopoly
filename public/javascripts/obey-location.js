@@ -1,4 +1,4 @@
-import {places, MONOPOLIES} from "./location-configs.js";
+import {places, Locations, MONOPOLIES} from "./location-configs.js";
 import {log} from "./message-box.js";
 import {players, GlobalState} from "./startup.js";
 import {addGetOutOfJailFreeCard, payRent, rollMove, shouldRollAgain} from "./execute-turn.js";
@@ -34,11 +34,16 @@ function determineRent(mover, owner, place) {
     const ownershipCount = propertyGroup.filter(placeIdx => places[placeIdx].own === owner.num).length;
 
     switch (mover.placeIdx) {
-        case 12: case 28:// Utilities
+        case Locations.ElectricCompany: case Locations.WaterWorks:
             const multiplier = (ownershipCount === 1) ? 4 : 10;
             return multiplier * (mover.latestRoll[0] + mover.latestRoll[1]);
-        case 5: case 15: case 25: case 35:// Railroads
+
+        case Locations.ReadingRailroad:
+        case Locations.PennsylvaniaRailroad:
+        case Locations.BORailroad:
+        case Locations.ShortLine:
             return [place.re0, place.re1, place.re2, place.re3][ownershipCount - 1];
+
         default:// Colored property
             if (ownershipCount < propertyGroup.length) {
                 return place.re0;
@@ -59,23 +64,23 @@ function offerUnownedProperty(mover, place) {
 
 function obeySpecialSquare(mover) {
     switch (mover.placeIdx) {
-        case 7: case 22: case 36:
+        case Locations.Chance1: case Locations.Chance2: case Locations.Chance3:
             obeyChanceSquare(mover);
             break;
-        case 2: case 17: case 33:
+        case Locations.CommunityChest1: case Locations.CommunityChest2: case Locations.CommunityChest3:
             obeyCommunityChestSquare(mover);
             break;
-        case 4:// Income tax
+        case Locations.IncomeTax:
             mover.updateBalance(-200);
             GlobalState.tax += 200;
             log("You paid $200 income tax.");
             break;
-        case 38:// Luxury tax
+        case Locations.LuxuryTax:
             mover.updateBalance(-100);
             GlobalState.tax += 100;
             log("You paid $100 luxury tax.");
             break;
-        case 20:// Free parking
+        case Locations.FreeParking:
             const tax = GlobalState.tax;
             mover.updateBalance(tax);
             GlobalState.tax = 0;
@@ -85,7 +90,7 @@ function obeySpecialSquare(mover) {
                 log("Sorry, there was no money to collect.");
             }
             break;
-        case 30:// Go to jail
+        case Locations.GoToJail:
             mover.goToJail();
             break;
     }
@@ -97,12 +102,12 @@ function obeyChanceSquare(mover) {
     switch (Math.floor(Math.random() * 16)) {
         case 0:
             log("Advance to Boardwalk.");
-            mover.updateLocation(39);
+            mover.updateLocation(Locations.Boardwalk);
             obeyLocation(mover);
             break;
         case 1:
             log('Advance to "Go". (Collect $200)');
-            mover.updateLocation(0);
+            mover.updateLocation(Locations.Go);
             mover.updateBalance(200);
             break;
         case 2:
@@ -118,10 +123,10 @@ function obeyChanceSquare(mover) {
             break;
         case 4:
             log('Advance to St. Charles Place. If you pass "Go" collect $200.');
-            if (mover.placeIdx > 11) {
+            if (mover.placeIdx > Locations.StCharlesPlace) {
                 mover.updateBalance(200);
             }
-            mover.updateLocation(11);
+            mover.updateLocation(Locations.StCharlesPlace);
             obeyLocation(mover);
             break;
         case 5:
@@ -143,10 +148,10 @@ function obeyChanceSquare(mover) {
             break;
         case 9:
             log('Advance to Illinois Avenue. If you pass "Go" collect $200.');
-            if (mover.placeIdx > 24) {
+            if (mover.placeIdx > Locations.IllinoisAvenue) {
                 mover.updateBalance(200);
             }
-            mover.updateLocation(24);
+            mover.updateLocation(Locations.IllinoisAvenue);
             obeyLocation(mover);
             break;
         case 10:
@@ -162,10 +167,10 @@ function obeyChanceSquare(mover) {
             break;
         case 12:
             log("Advance to the nearest utility. If Unowned, you may buy it from the bank. If Owned, pay owner a total ten times amount thrown on dice.");
-            if (mover.placeIdx >= 12 && mover.placeIdx < 28) {
-                mover.updateLocation(28);
+            if (mover.placeIdx >= Locations.ElectricCompany && mover.placeIdx < Locations.WaterWorks) {
+                mover.updateLocation(Locations.WaterWorks);
             } else {
-                mover.updateLocation(12);
+                mover.updateLocation(Locations.ElectricCompany);
             }
             if (places[mover.placeIdx].own === -1) {
                 obeyLocation(mover);
@@ -177,10 +182,10 @@ function obeyChanceSquare(mover) {
             break;
         case 13:
             log('Take a trip to Reading Railroad. If you pass "Go" collect $200.');
-            if (mover.placeIdx > 5) {
+            if (mover.placeIdx > Locations.ReadingRailroad) {
                 mover.updateBalance(200);
             }
-            mover.updateLocation(5);
+            mover.updateLocation(Locations.ReadingRailroad);
             break;
         case 14: case 15:
             log("Advance to the nearest railroad. If Unowned, you may buy it from the bank. If Owned, pay owner twice the rental to which they are otherwise entitled.");
@@ -256,7 +261,7 @@ function obeyCommunityChestSquare(mover) {
             break;
         case 11:
             log('Advance to "Go". (Collect $200)');
-            mover.updateLocation(0);
+            mover.updateLocation(Locations.Go);
             mover.updateBalance(200);
             break;
         case 12:

@@ -1,5 +1,5 @@
 import Player from "./player.js";
-import {places} from "./location-configs.js";
+import {places, Locations} from "./location-configs.js";
 import {showCard} from "./display-card.js";
 
 // Players are hard-coded for now.
@@ -79,9 +79,9 @@ function buildGameBoard() {
     });
 
     // Free Parking: add #alltax
-    board.childNodes[20].id = "alltax";
+    board.childNodes[Locations.FreeParking].id = "alltax";
 
-    buildJailLocation(board.childNodes[10]);
+    buildJailLocation(board.childNodes[Locations.Jail]);
 
     $(".location").click(function() {
         const placeIdx = parseInt(this.dataset.no);
@@ -130,7 +130,7 @@ function buildPlayerViews() {
             toggleHighlightedProperties(i, false);
         });
 
-        board.childNodes[0].appendChild(circ);
+        board.childNodes[Locations.Go].appendChild(circ);
 
         const heads = document.getElementById("heads");
         heads.innerHTML += "<div id='head" + i + "' class='player-display-head'></div>";
