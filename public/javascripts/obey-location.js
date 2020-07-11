@@ -42,16 +42,16 @@ function determineRent(mover, owner, place) {
         case Locations.PennsylvaniaRailroad:
         case Locations.BORailroad:
         case Locations.ShortLine:
-            return [place.re0, place.re1, place.re2, place.re3][ownershipCount - 1];
+            return place.rents[ownershipCount - 1];
 
         default:// Colored property
             if (ownershipCount < propertyGroup.length) {
-                return place.re0;
+                return place.rents[0];
             }
             if (place.houseCount === 0) {
-                return 2 * place.re0;
+                return 2 * place.rents[0];
             }
-            return place["re" + place.houseCount];// e.g. 3 houses -> place.re3
+            return place.rents[place.houseCount];// e.g. 3 houses -> place.rents[3]
     }
 }
 

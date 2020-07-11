@@ -43,10 +43,10 @@ function showCard(placeIdx) {
         case Locations.ShortLine:
             // Display railroad rents.
             $("#price").text("Price: $" + place.p);
-            $("#rent0").text("Rent: $" + place.re0);
-            $("#rent1").text("2 railroads: $" + place.re1);
-            $("#rent2").text("3 railroads: $" + place.re2);
-            $("#rent3").text("4 railroads: $" + place.re3);
+            $("#rent0").text("Rent: $" + place.rents[0]);
+            $("#rent1").text("2 railroads: $" + place.rents[1]);
+            $("#rent2").text("3 railroads: $" + place.rents[2]);
+            $("#rent3").text("4 railroads: $" + place.rents[3]);
             $("#rent4").text("");
             $("#rent5").text("");
             $("#mortgage-value").text("");
@@ -68,12 +68,12 @@ function showCard(placeIdx) {
         default:
             // Display house rents.
             $("#price").text("Price: $" + place.p);
-            $("#rent0").text("Rent: $" + place.re0);
-            $("#rent1").text("With 1 House: $" + place.re1);
-            $("#rent2").text("With 2 Houses: $" + place.re2);
-            $("#rent3").text("With 3 Houses: $" + place.re3);
-            $("#rent4").text("With 4 Houses: $" + place.re4);
-            $("#rent5").text("With HOTEL: $" + place.re5);
+            $("#rent0").text("Rent: $" + place.rents[0]);
+            $("#rent1").text("With 1 House: $" + place.rents[1]);
+            $("#rent2").text("With 2 Houses: $" + place.rents[2]);
+            $("#rent3").text("With 3 Houses: $" + place.rents[3]);
+            $("#rent4").text("With 4 Houses: $" + place.rents[4]);
+            $("#rent5").text("With HOTEL: $" + place.rents[5]);
 
             const mortgageStatus = place.isMortgaged ? "Unmortgage" : "Mortgage";
             $("#mortgage-value").text(`${mortgageStatus} Value: $${place.p / 2}`);
