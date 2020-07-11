@@ -38,7 +38,7 @@ function buildGameBoard() {
         const newdiv = document.createElement("div");
         newdiv.dataset.no = placeIdx;
         const indiv = document.createElement("div");
-        newdiv.style.backgroundColor = place.col;
+        newdiv.style.backgroundColor = place.color;
         
         switch (Math.floor(placeIdx / 10)) {
             case 0:
@@ -72,7 +72,7 @@ function buildGameBoard() {
         }
 
         // Add a neutral-colored walkway for house-able properties.
-        if (place.ho) {
+        if (place.housePrice) {
             newdiv.appendChild(indiv);
         }
         board.appendChild(newdiv);
@@ -167,7 +167,7 @@ function slide(user) {
 
 function toggleHighlightedProperties(userId, shouldShow) {
     const ownedProperties = places
-        .map((place, placeId) => [placeId, place.own])
+        .map((place, placeId) => [placeId, place.ownerNum])
         .filter(([placeId, owner]) => owner === userId);
 
     ownedProperties.forEach(([placeId, ]) => highlightProperty(placeId, shouldShow));

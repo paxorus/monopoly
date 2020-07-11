@@ -11,7 +11,7 @@ function showCard(placeIdx) {
     // Update text color.
     $("#propname").css("color", BLACK_TEXT_COLORS.has(placeIdx) ? "black" : "white");
 
-    $("#propname").css("backgroundColor", place.cardColor || place.col);
+    $("#propname").css("backgroundColor", place.cardColor || place.color);
 
     // Populate price and rents.
     switch (placeIdx) {
@@ -42,7 +42,7 @@ function showCard(placeIdx) {
         case Locations.BORailroad:
         case Locations.ShortLine:
             // Display railroad rents.
-            $("#price").text("Price: $" + place.p);
+            $("#price").text("Price: $" + place.price);
             $("#rent0").text("Rent: $" + place.rents[0]);
             $("#rent1").text("2 railroads: $" + place.rents[1]);
             $("#rent2").text("3 railroads: $" + place.rents[2]);
@@ -55,7 +55,7 @@ function showCard(placeIdx) {
         case Locations.ElectricCompany:
         case Locations.WaterWorks:
             // Display utility rents.
-            $("#price").text("Price: $" + place.p);
+            $("#price").text("Price: $" + place.price);
             $("#rent0").text("One Utility: 4 times roll");
             $("#rent1").text("Both Utilities: 10 times roll");
             $("#rent2").text("");
@@ -67,7 +67,7 @@ function showCard(placeIdx) {
             break;
         default:
             // Display house rents.
-            $("#price").text("Price: $" + place.p);
+            $("#price").text("Price: $" + place.price);
             $("#rent0").text("Rent: $" + place.rents[0]);
             $("#rent1").text("With 1 House: $" + place.rents[1]);
             $("#rent2").text("With 2 Houses: $" + place.rents[2]);
@@ -76,25 +76,25 @@ function showCard(placeIdx) {
             $("#rent5").text("With HOTEL: $" + place.rents[5]);
 
             const mortgageStatus = place.isMortgaged ? "Unmortgage" : "Mortgage";
-            $("#mortgage-value").text(`${mortgageStatus} Value: $${place.p / 2}`);
-            $("#price-per-house").text(`$${place.ho} Per House`);
+            $("#mortgage-value").text(`${mortgageStatus} Value: $${place.price / 2}`);
+            $("#price-per-house").text(`$${place.housePrice} Per House`);
             break;
     }
 
     // Hide price and rents for non-properties.
-    $("#rent-table").css("display", place.p > 0 ? "block" : "none");
+    $("#rent-table").css("display", place.price > 0 ? "block" : "none");
 
     const shouldShowTaxLine = [Locations.IncomeTax, Locations.LuxuryTax, Locations.FreeParking].includes(placeIdx);
     $("#tax-info").css("display", shouldShowTaxLine ? "block" : "none");
 
-    $("#mortgage-margin").css("display", place.ho ? "block" : "none");
+    $("#mortgage-margin").css("display", place.housePrice ? "block" : "none");
 
-    if (place.p === 0) {// Unbuyable
+    if (place.price === 0) {// Unbuyable
         $("#owner-name").text("");
-    } else if (place.own === -1) {
+    } else if (place.ownerNum === -1) {
         $("#owner-name").text("Unowned");
     } else {
-        const owner = players[place.own];
+        const owner = players[place.ownerNum];
         $("#owner-name").text("Owned by ");
         $("#owner-name").append(buildOwnerNameDisplay(owner));
     }

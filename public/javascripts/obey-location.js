@@ -7,12 +7,12 @@ function obeyLocation(mover) {
     // On location change (from a roll, chance card, or comm chest card), follow the rules of that square.
     GlobalState.waitingForUserResponse = false;
     const place = places[mover.placeIdx];
-    if (place.p !== 0) {
-        if (place.own === -1) {
+    if (place.price !== 0) {
+        if (place.ownerNum === -1) {
             offerUnownedProperty(mover, place);
-        } else if (place.own != mover.num) {
+        } else if (place.ownerNum != mover.num) {
             // Owned: pay rent to the owner.
-            const owner = players[place.own];
+            const owner = players[place.ownerNum];
             const rent = determineRent(mover, owner, place);
             payRent(mover, owner, rent);
         }
@@ -31,7 +31,7 @@ function determineRent(mover, owner, place) {
     }
 
     const propertyGroup = MONOPOLIES.find(group => group.includes(mover.placeIdx));
-    const ownershipCount = propertyGroup.filter(placeIdx => places[placeIdx].own === owner.num).length;
+    const ownershipCount = propertyGroup.filter(placeIdx => places[placeIdx].ownerNum === owner.num).length;
 
     switch (mover.placeIdx) {
         case Locations.ElectricCompany: case Locations.WaterWorks:
@@ -56,7 +56,7 @@ function determineRent(mover, owner, place) {
 }
 
 function offerUnownedProperty(mover, place) {
-    log(mover.name + ", would you like to buy " + place.name + " for $" + place.p + "?");
+    log(mover.name + ", would you like to buy " + place.name + " for $" + place.price + "?");
     $("#button-box").append("<div class='button' onclick='respondToBuyOffer(true)'>Buy " + place.name + "</div>");
     $("#button-box").append("<div class='button-negative' onclick='respondToBuyOffer(false)'>No Thanks</div>");
     GlobalState.waitingForUserResponse = true;
@@ -172,10 +172,10 @@ function obeyChanceSquare(mover) {
             } else {
                 mover.updateLocation(Locations.ElectricCompany);
             }
-            if (places[mover.placeIdx].own === -1) {
+            if (places[mover.placeIdx].ownerNum === -1) {
                 obeyLocation(mover);
-            } else if (places[mover.placeIdx].own != mover.num) {
-                const owner = players[places[mover.placeIdx].own];
+            } else if (places[mover.placeIdx].ownerNum != mover.num) {
+                const owner = players[places[mover.placeIdx].ownerNum];
                 const [roll1, roll2] = mover.latestRoll;
                 payRent(mover, owner, 10 * (roll1 + roll2));
             }
@@ -194,11 +194,11 @@ function obeyChanceSquare(mover) {
 
             mover.updateLocation(nearestRailroadIdx);
             const railroad = places[nearestRailroadIdx];
-            if (railroad.own === -1) {
+            if (railroad.ownerNum === -1) {
                 obeyLocation(mover);
-            } else if (players[railroad.own] != mover) {
+            } else if (players[railroad.ownerNum] != mover) {
                 // Control the rent properly.
-                const owner = players[railroad.own];
+                const owner = players[railroad.ownerNum];
                 const rent = determineRent(mover, owner, railroad);
                 payRent(owner, 2 * rent);
             }
@@ -284,7 +284,7 @@ function obeyCommunityChestSquare(mover) {
 }
 
 function countOwnedBuildings(owner) {
-    return places.filter(place => place.own === owner.num)
+    return places.filter(place => place.ownerNum === owner.num)
         .reduce(({houses, hotels}, place) => {
             const houseCount = place.houseCount;
             if (houseCount === 5) {

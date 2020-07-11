@@ -130,8 +130,8 @@ function payRent(mover, owner, rent) {
 function purchaseProperty(mover, placeIdx) {
     const place = places[placeIdx];
 
-    mover.updateBalance(-place.p);
-    place.own = mover.num;
+    mover.updateBalance(-place.price);
+    place.ownerNum = mover.num;
     log("Congratulations, " + mover.name + "! You now own " + place.name + "!");
 
     const propertyListing = document.createElement("div");
@@ -140,7 +140,7 @@ function purchaseProperty(mover, placeIdx) {
 
     const propertyColor = document.createElement("div");
     propertyColor.className = "hud-property-color";
-    propertyColor.style.backgroundColor = place.col;
+    propertyColor.style.backgroundColor = place.color;
     propertyListing.appendChild(propertyColor);
 
     const propertyName = document.createElement("span");
@@ -167,7 +167,7 @@ function purchaseProperty(mover, placeIdx) {
 
     // Check for a new monopoly.
     const monopoly = MONOPOLIES.find(monopoly => monopoly.includes(placeIdx));
-    if (monopoly !== undefined && monopoly.every(placeIdx => places[placeIdx].own === mover.num)) {
+    if (monopoly !== undefined && monopoly.every(placeIdx => places[placeIdx].ownerNum === mover.num)) {
         const propertyNames = monopoly.map(placeIdx => places[placeIdx].name);
         log("Monopoly! You may now build houses on " + concatenatePropertyNames(propertyNames)
             + ", and their rents have doubled.");
@@ -219,7 +219,7 @@ function buyHouse(owner, placeIdx) {
         return;
     }
 
-    owner.updateBalance(-place.ho);
+    owner.updateBalance(-place.housePrice);
     place.houseCount ++;
 
     // Enable the - button.
@@ -247,7 +247,7 @@ function sellHouse(owner, placeIdx) {
     }
 
     // Selling a house only returns half the cost.
-    owner.updateBalance(place.ho / 2);
+    owner.updateBalance(place.housePrice / 2);
     place.houseCount --;
 
     // Enable the + button.
@@ -300,7 +300,7 @@ function mortgageOrUnmortgageProperty(owner, placeIdx) {
 
 function mortgageProperty(owner, placeIdx) {
     const place = places[placeIdx];
-    owner.updateBalance(place.p / 2);
+    owner.updateBalance(place.price / 2);
     place.isMortgaged = true;
 
     const button = $("#hud-property" + placeIdx + " > .property-mortgager");
@@ -310,12 +310,12 @@ function mortgageProperty(owner, placeIdx) {
 
     $("#hud-property" + placeIdx + " > .house-adder").toggleClass("button-disabled", true);
 
-    log(`Mortgaged ${place.name} for $${place.p / 2}.`);
+    log(`Mortgaged ${place.name} for $${place.price / 2}.`);
 }
 
 function unmortgageProperty(owner, placeIdx) {
     const place = places[placeIdx];
-    owner.updateBalance(- place.p / 2);
+    owner.updateBalance(- place.price / 2);
     place.isMortgaged = false;
 
     const button = $("#hud-property" + placeIdx + " > .property-mortgager");
@@ -324,7 +324,7 @@ function unmortgageProperty(owner, placeIdx) {
     button.attr("title", "Mortgage the Property");
 
     $("#hud-property" + placeIdx + " > .house-adder").toggleClass("button-disabled", false);
-    log(`Unmortgaged ${place.name} for $${place.p / 2}.`);
+    log(`Unmortgaged ${place.name} for $${place.price / 2}.`);
 }
 
 function respondPayOutOfJail(hasAgreed) {

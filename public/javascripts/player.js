@@ -45,7 +45,8 @@ export default class Player {
 
         // Update the view with the current user's location.
         $("#loc" + this.num).text(places[this.placeIdx].name);
-        if (places[this.placeIdx].ho) {
+        if (places[this.placeIdx].housePrice) {
+            // Place on property walkway.
             $("#board").children().eq(this.placeIdx).children().first().append($("#marker" + this.num));
         } else if (this.placeIdx === Locations.Jail) {
             this.moveToJustVisiting();
