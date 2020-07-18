@@ -205,6 +205,7 @@ body {
 .dashboard {
     height: 450px;
     background-color: rgb(213, 232, 212);
+    overflow-y: scroll;
 }
 .player-display-head {
     font-size: 18px;

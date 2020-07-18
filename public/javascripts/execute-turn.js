@@ -1,138 +1,48 @@
 import {showCard} from "./display-card.js";
 import {places, propertyComparator, MONOPOLIES} from "./location-configs.js";
 import {log, MessageBox} from "./message-box.js";
-import {obeyLocation} from "./obey-location.js";
 import {highlightProperty, players, GlobalState} from "./startup.js";
 
-function rollDice() {
-    return Math.ceil(6 * Math.random());
+function allowConcludeTurn() {
+    // Show "End Turn" button.
+    $("#end-turn").css("display", "block");
 }
 
-function concludeTurn() {
-    // Show "Next Turn" button.
-    $("#execute-next-turn").css("display", "block");
+function advanceTurn() {
+    // Hide "End Turn" button.
+    $("#end-turn").css("display", "none");
+    socket.emit("advance-turn");
 }
 
 function executeTurn() {
-    // Advance to next player.
-    GlobalState.currentPlayer = players[(GlobalState.currentPlayer.num + 1) % players.length];
-    const mover = GlobalState.currentPlayer;
+    socket.emit("execute-turn", {playerId: GlobalState.me.num});
 
     // Switch to the normal interactive; only applicable on the first turn.
     $("#initial-interactive").css("display", "none");
     $("#interactive").css("display", "block");
 
     // Set up the message box.
-    $("#execute-next-turn").css("display", "none");
+    $("#execute-turn").css("display", "none");
     MessageBox.clear();
-    log("It's " + mover.name + "'s turn.");
-
-    if (mover.jailDays > 0) {
-        executeTurnInJail(mover);
-    } else {
-        mover.rollCount = 0;// Limited to 3 by jail.
-        rollMove(mover);
-    }
 }
 
-function executeTurnInJail(mover) { 
-    mover.jailDays --;
-
-    // No need to roll if 1 day left, turn's up anyways.
-    if (mover.jailDays === 0) {
-        mover.getOutOfJail();
-        log("Your jail sentence is up. You're free to go!")
-        concludeTurn();
-        return;
-    }
-
-    const roll1 = rollDice();
-    const roll2 = rollDice();
-    log("You rolled " + roll1 + " and " + roll2 + ".");
-    if (roll1 === roll2) {
-        log("A double! You're free!");
-        mover.getOutOfJail();
-        concludeTurn();
-        return;
-    }
-
-    const turns = (mover.jailDays > 1) ? "turns" : "turn";
-    log("No double... " + mover.name + ", you have " + mover.jailDays + " " + turns + " remaining on your sentence.");
-    log(mover.name + ", would you like to pay $50 to get out of jail?");
-    $("#button-box").append("<div class='button' onclick='respondPayOutOfJail(true)'>Pay $50</div>");
-    $("#button-box").append("<div class='button-negative' onclick='respondPayOutOfJail(false)'>No Thanks</div>");
-}
-
-function shouldRollAgain(mover) {
-    const [roll1, roll2] = mover.latestRoll;
-
-    if (roll1 != roll2) {
-        concludeTurn();
-        return false;
-    } else if (mover.rollCount == 3) {
-        log("A 3rd double! Troll alert! You're going to jail.");
-        mover.goToJail();
-        concludeTurn();
-        return false;
-    } else if (mover.jailDays > 0) {
-        concludeTurn();
-        return false;
-    }
-
-    log("A double!");
-    return true;
-}
-
-function rollMove(mover) {
-    const roll1 = rollDice();
-    const roll2 = rollDice();
-    mover.latestRoll = [roll1, roll2];
-    mover.rollCount ++;
-    log("You rolled a " + roll1 + " and a " + roll2 + ".");
-
-    let newLocation = mover.placeIdx + roll1 + roll2;
-    if (newLocation > 39) {
-        // Pass Go.
-        newLocation -= 40;
-        mover.updateBalance(200);
-    }
-    mover.updateLocation(newLocation);
-
-    log("You landed on " + places[newLocation].name + ".");
-    obeyLocation(mover);
+function offerUnownedProperty(mover, placeIdx) {
+    const place = places[placeIdx];
+    log(mover.name + ", would you like to buy " + place.name + " for $" + place.price + "?");
+    $("#button-box").append("<div class='button' onclick='respondToBuyOffer(true)'>Buy " + place.name + "</div>");
+    $("#button-box").append("<div class='button-negative' onclick='respondToBuyOffer(false)'>No Thanks</div>");
 }
 
 function respondToBuyOffer(ifBuy) {
     // Hide the Buy/No buttons.
     $("#button-box").children().remove();
 
-    const mover = GlobalState.currentPlayer;
-
-    if (ifBuy) {
-        purchaseProperty(mover, mover.placeIdx);
-    } else {
-        log(places[mover.placeIdx].name + " went unsold.");
-    }
-    if (shouldRollAgain(mover)) {
-        rollMove(mover);
-    }
-}
-
-function payRent(mover, owner, rent) {
-    if (rent === 0) {// Due to mortgaging.
-        return;
-    }
-    mover.updateBalance(-rent);
-    owner.updateBalance(rent);
-    log("You paid $" + rent + " in rent to " + owner.name + ".");
+    socket.emit('respond-to-buy-offer', {playerId: GlobalState.me.num, ifBuy});
 }
 
 function purchaseProperty(mover, placeIdx) {
     const place = places[placeIdx];
-
-    mover.updateBalance(-place.price);
     place.ownerNum = mover.num;
-    log("Congratulations, " + mover.name + "! You now own " + place.name + "!");
 
     const propertyListing = document.createElement("div");
     propertyListing.id = "hud-property" + placeIdx;
@@ -164,62 +74,37 @@ function purchaseProperty(mover, placeIdx) {
     } else {
         propertyList.appendChild(propertyListing);
     }
-
-    // Check for a new monopoly.
-    const monopoly = MONOPOLIES.find(monopoly => monopoly.includes(placeIdx));
-    if (monopoly !== undefined && monopoly.every(placeIdx => places[placeIdx].ownerNum === mover.num)) {
-        const propertyNames = monopoly.map(placeIdx => places[placeIdx].name);
-        log("Monopoly! You may now build houses on " + concatenatePropertyNames(propertyNames)
-            + ", and their rents have doubled.");
-        monopoly.forEach(placeIdx => {
-            const [adder, remover] = buildHouseButtons(mover, placeIdx);
-            $("#hud-property" + placeIdx).append(adder);
-            $("#hud-property" + placeIdx).append(remover);
-        });
-    }
 }
 
-function concatenatePropertyNames(names) {
-    if (names.length === 3) {
-        return names[0] + ", " + names[1] + ", and " + names[2];
-    } else {
-        return names[0] + " and " + names[1];
-    }
-}
+function buildHouseButtons(placeIdx) {
+    const owner = GlobalState.me;
 
-function buildHouseButtons(owner, placeIdx) {
     const adder = document.createElement("div");
     adder.className = "button house-button house-adder";
     adder.title = "Buy a House";
-    $(adder).append("<img class='house-icon' src='images/house.svg'><sup class='house-plus-sign'>+</sup>");
-    adder.addEventListener("click", event => buyHouse(owner, placeIdx));
+    $(adder).append("<img class='house-icon' src='/images/house.svg'><sup class='house-plus-sign'>+</sup>");
+    adder.addEventListener("click", event => socket.emit("buy-house", {playerId: owner.num, placeIdx}));
+    $("#hud-property" + placeIdx).append(adder);
 
     const remover = document.createElement("div");
     remover.className = "button-negative button-disabled house-button house-remover";
     remover.title = "Sell a House";
-    $(remover).append("<img class='house-icon' src='images/house.svg'><sup class='house-minus-sign'>-</sup>");
-    remover.addEventListener("click", event => sellHouse(owner, placeIdx));
-
-    return [adder, remover];
+    $(remover).append("<img class='house-icon' src='/images/house.svg'><sup class='house-minus-sign'>-</sup>");
+    remover.addEventListener("click", event => socket.emit("sell-house", {playerId: owner.num, placeIdx}));
+    $("#hud-property" + placeIdx).append(remover);
 }
 
 function buildMortgageButton(owner, placeIdx) {
     const mortgager = document.createElement("div");
     mortgager.className = "button house-button property-mortgager";
     mortgager.title = "Mortgage the Property";
-    $(mortgager).append("<img class='house-icon' src='images/mortgage.svg'><sup class='mortgage-symbol'>$</sup>");
+    $(mortgager).append("<img class='house-icon' src='/images/mortgage.svg'><sup class='mortgage-symbol'>$</sup>");
     mortgager.addEventListener("click", event => mortgageOrUnmortgageProperty(owner, placeIdx));
     return mortgager;
 }
 
 function buyHouse(owner, placeIdx) {
     const place = places[placeIdx];
-
-    if (place.houseCount === 5 || place.isMortgaged) {
-        return;
-    }
-
-    owner.updateBalance(-place.housePrice);
     place.houseCount ++;
 
     // Enable the - button.
@@ -232,22 +117,13 @@ function buyHouse(owner, placeIdx) {
         $("#hud-property" + placeIdx + " > .house-adder").toggleClass("button-disabled", true);
         repeat(4, () => removeBuildingIcon(placeIdx));
         addBuildingIcon(placeIdx, "hotel");
-        log("Upgraded to a hotel on " + place.name + ".");
     } else {
         addBuildingIcon(placeIdx, "house");
-        log("Built a house on " + place.name + ".");
     }
 }
 
 function sellHouse(owner, placeIdx) {
     const place = places[placeIdx];
-
-    if (place.houseCount === 0) {
-        return;
-    }
-
-    // Selling a house only returns half the cost.
-    owner.updateBalance(place.housePrice / 2);
     place.houseCount --;
 
     // Enable the + button.
@@ -256,7 +132,6 @@ function sellHouse(owner, placeIdx) {
     if (place.houseCount === 4) {
         repeat(4, () => addBuildingIcon(placeIdx, "house"));
         removeBuildingIcon(placeIdx);
-        log("Downgraded from a hotel on " + place.name + ".");
         return;
     }
 
@@ -265,13 +140,12 @@ function sellHouse(owner, placeIdx) {
         $("#hud-property" + placeIdx + " > .property-mortgager").toggleClass("button-disabled", false);
     }
 
-    log("Removed a house from " + place.name + ".");
     removeBuildingIcon(placeIdx);
 }
 
 function addBuildingIcon(placeIdx, buildingType) {
     const houseImage = document.createElement("img");
-    houseImage.src = "images/" + buildingType + ".svg";
+    houseImage.src = "/images/" + buildingType + ".svg";
     houseImage.className = "placed-house";
     $("#board").children().eq(placeIdx).append(houseImage);
 }
@@ -287,44 +161,54 @@ function repeat(n, func) {
 function mortgageOrUnmortgageProperty(owner, placeIdx) {
     const place = places[placeIdx];
     if (place.isMortgaged) {
-        unmortgageProperty(owner, placeIdx);
+        socket.emit("unmortgage-property", {playerId: owner.num, placeIdx});
         return;
     }
 
+    // Button disabled, do nothing.
     if (place.houseCount > 0) {
         return;
     }
 
-    mortgageProperty(owner, placeIdx);
+    socket.emit("mortgage-property", {playerId: owner.num, placeIdx});
 }
 
 function mortgageProperty(owner, placeIdx) {
     const place = places[placeIdx];
-    owner.updateBalance(place.price / 2);
     place.isMortgaged = true;
 
-    const button = $("#hud-property" + placeIdx + " > .property-mortgager");
-    button.children(".mortgage-symbol").text("!");
-    button.toggleClass("button button-negative");
-    button.attr("title", "Unmortgage the Property");
+    if (owner === GlobalState.me) {
+        const button = $("#hud-property" + placeIdx + " > .property-mortgager");
+        button.children(".mortgage-symbol").text("!");
+        button.toggleClass("button button-negative");
+        button.attr("title", "Unmortgage the Property");
 
-    $("#hud-property" + placeIdx + " > .house-adder").toggleClass("button-disabled", true);
-
-    log(`Mortgaged ${place.name} for $${place.price / 2}.`);
+        $("#hud-property" + placeIdx + " > .house-adder").toggleClass("button-disabled", true);
+    }
 }
 
 function unmortgageProperty(owner, placeIdx) {
     const place = places[placeIdx];
-    owner.updateBalance(- place.price / 2);
     place.isMortgaged = false;
 
-    const button = $("#hud-property" + placeIdx + " > .property-mortgager");
-    button.children(".mortgage-symbol").text("$");
-    button.toggleClass("button button-negative");
-    button.attr("title", "Mortgage the Property");
+    if (owner === GlobalState.me) {
+        const button = $("#hud-property" + placeIdx + " > .property-mortgager");
+        button.children(".mortgage-symbol").text("$");
+        button.toggleClass("button button-negative");
+        button.attr("title", "Mortgage the Property");
 
-    $("#hud-property" + placeIdx + " > .house-adder").toggleClass("button-disabled", false);
-    log(`Unmortgaged ${place.name} for $${place.price / 2}.`);
+        $("#hud-property" + placeIdx + " > .house-adder").toggleClass("button-disabled", false);
+    }
+}
+
+function offerPayOutOfJail() {
+    const mover = GlobalState.me;
+
+    const turns = (mover.jailDays > 1) ? "turns" : "turn";
+    log("No double... " + mover.name + ", you have " + mover.jailDays + " " + turns + " remaining on your sentence.");
+    log(mover.name + ", would you like to pay $50 to get out of jail?");
+    $("#button-box").append("<div class='button' onclick='respondPayOutOfJail(true)'>Pay $50</div>");
+    $("#button-box").append("<div class='button-negative' onclick='respondPayOutOfJail(false)'>No Thanks</div>");
 }
 
 function respondPayOutOfJail(hasAgreed) {
@@ -332,14 +216,10 @@ function respondPayOutOfJail(hasAgreed) {
     $("#button-box").children().remove();
 
     if (! hasAgreed) {
-        concludeTurn();
-        return;
+        allowConcludeTurn();
+    } else {
+        socket.emit("pay-out-of-jail", {playerId: GlobalState.me.num});
     }
-
-    const mover = GlobalState.currentPlayer;
-    mover.getOutOfJail();
-    mover.updateBalance(-50);
-    concludeTurn();
 }
 
 function addGetOutOfJailFreeCard(mover) {
@@ -347,14 +227,21 @@ function addGetOutOfJailFreeCard(mover) {
 
     if (mover.numJailCards === 1) {
         const isUsageEnabled = mover.jailDays > 0 ? "" : "button-disabled";
-        $("#jail-card" + mover.num).append(`<br />Get Out of Jail Free<span id='jail-card-quantity${mover.num}'></span><span class='button ${isUsageEnabled} use-jail-card' onclick='useGetOutOfJailFreeCard(players[${mover.num}])'>Use Card</div>`);
+        $("#jail-card" + mover.num).append(`<br />Get Out of Jail Free<span id='jail-card-quantity${mover.num}'></span>`);
+
+        if (mover === GlobalState.me) {
+            $("#jail-card" + mover.num).append(`<span class='button ${isUsageEnabled} use-jail-card' onclick='useGetOutOfJailFreeCard()'>Use Card</div>`);
+        }
     } else {
         $("#jail-card-quantity" + mover.num).text(" x" + mover.numJailCards);
     }
 }
 
 function useGetOutOfJailFreeCard(player) {
-    player.getOutOfJail();
+    socket.emit("use-jail-card", {playerId: GlobalState.me.num});
+}
+
+function updateGetOutOfJailFreeCards(player) {
     player.numJailCards --;
 
     if (player.numJailCards === 0) {
@@ -364,7 +251,6 @@ function useGetOutOfJailFreeCard(player) {
         $("#jail-card-quantity" + player.num).text(" x" + player.numJailCards);
     }
 }
-
 // function transaction() {
 //     var amount=prompt("Enter the volume of the transaction below.");
 //     var recip=prompt("Enter the recipient.");
@@ -391,10 +277,19 @@ function useGetOutOfJailFreeCard(player) {
 
 export {
     addGetOutOfJailFreeCard,
+    advanceTurn,
+    allowConcludeTurn,
+    buildHouseButtons,
+    buyHouse,
     executeTurn,
-    payRent,
+    mortgageProperty,
+    offerPayOutOfJail,
+    offerUnownedProperty,
+    purchaseProperty,
     respondToBuyOffer,
     respondPayOutOfJail,
-    rollMove,
-    shouldRollAgain
+    sellHouse,
+    unmortgageProperty,
+    updateGetOutOfJailFreeCards,
+    useGetOutOfJailFreeCard
 };

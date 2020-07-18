@@ -16,9 +16,11 @@ export default class Player {
         this.numJailCards = 0;
     }
 
+    updateJailDays(jailDays) {
+        this.jailDays = jailDays;
+    }
+
     goToJail() {
-        log("You will be in jail for 3 turns!");
-        this.updateLocation(Locations.Jail);
         this.jailDays = 3;
         $("#loc" + this.num).text("Jail");
         $(`#jail-card${this.num} > .use-jail-card`).toggleClass("button-disabled", false);
@@ -26,22 +28,22 @@ export default class Player {
     }
 
     getOutOfJail() {
-        log("You are now out of jail!");
         this.jailDays = 0;
         $("#loc" + this.num).text("Just Visiting");
         this.moveToJustVisiting();
         $(`#jail-card${this.num} > .use-jail-card`).toggleClass("button-disabled", true);
     }
 
-    updateBalance(income) {
+    updateBalance(newBalance) {
         // Update the view with the player's balance.
-        this.balance += income;
+        this.balance = newBalance;
         $("#bal" + this.num).text("$" + this.balance);
     }
 
     updateLocation(newLocation) {
         const oldLocation = this.placeIdx;
         this.placeIdx = newLocation;
+        $("#board").children().eq(this.placeIdx).append($("#marker" + this.num));
 
         // Update the view with the current user's location.
         $("#loc" + this.num).text(places[this.placeIdx].name);

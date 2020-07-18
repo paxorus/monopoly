@@ -1,28 +1,27 @@
-import {places, Locations, MONOPOLIES} from "./location-configs.js";
-import {log} from "./message-box.js";
-import {players, GlobalState} from "./startup.js";
-import {addGetOutOfJailFreeCard, payRent, rollMove, shouldRollAgain} from "./execute-turn.js";
+const {places, Locations, MONOPOLIES} = require("./location-configs.js");
+const {emit} = require("./message-box.js");
+const {players, GlobalState} = require("./startup.js");
+
+const AdvanceToNextPlayer = false;
+const WaitForUserResponse = true;
 
 function obeyLocation(mover) {
     // On location change (from a roll, chance card, or comm chest card), follow the rules of that square.
-    GlobalState.waitingForUserResponse = false;
     const place = places[mover.placeIdx];
     if (place.price !== 0) {
         if (place.ownerNum === -1) {
-            offerUnownedProperty(mover, place);
+            mover.emit("offer-unowned-property", {placeIdx: mover.placeIdx});
+            return WaitForUserResponse;
         } else if (place.ownerNum != mover.num) {
             // Owned: pay rent to the owner.
             const owner = players[place.ownerNum];
             const rent = determineRent(mover, owner, place);
             payRent(mover, owner, rent);
+            return AdvanceToNextPlayer;
         }
     } else {
-        obeySpecialSquare(mover);
-    }
-    
-    if (!GlobalState.waitingForUserResponse && shouldRollAgain(mover)) {
-        rollMove(mover);
-    }
+        return obeySpecialSquare(mover);
+    }    
 }
 
 function determineRent(mover, owner, place) {
@@ -55,125 +54,131 @@ function determineRent(mover, owner, place) {
     }
 }
 
-function offerUnownedProperty(mover, place) {
-    log(mover.name + ", would you like to buy " + place.name + " for $" + place.price + "?");
-    $("#button-box").append("<div class='button' onclick='respondToBuyOffer(true)'>Buy " + place.name + "</div>");
-    $("#button-box").append("<div class='button-negative' onclick='respondToBuyOffer(false)'>No Thanks</div>");
-    GlobalState.waitingForUserResponse = true;
+function payRent(mover, owner, rent) {
+    // TODO: Check if mover owns it.
+    if (rent === 0) {// Due to mortgaging. TODO: Notify users why no rent was paid.
+        return;
+    }
+    mover.updateBalance(-rent);
+    owner.updateBalance(rent);
+    mover.log(`You paid $${rent} in rent to ${owner.name}.`);
+    owner.log(`${mover.name} paid $${rent} in rent to you.`);
 }
 
 function obeySpecialSquare(mover) {
     switch (mover.placeIdx) {
         case Locations.Chance1: case Locations.Chance2: case Locations.Chance3:
-            obeyChanceSquare(mover);
+            return obeyChanceSquare(mover);
             break;
         case Locations.CommunityChest1: case Locations.CommunityChest2: case Locations.CommunityChest3:
-            obeyCommunityChestSquare(mover);
+            return obeyCommunityChestSquare(mover);
             break;
         case Locations.IncomeTax:
             mover.updateBalance(-200);
             GlobalState.tax += 200;
-            log("You paid $200 income tax.");
+            mover.log("You paid $200 income tax.");
             break;
         case Locations.LuxuryTax:
             mover.updateBalance(-100);
             GlobalState.tax += 100;
-            log("You paid $100 luxury tax.");
+            mover.log("You paid $100 luxury tax.");
             break;
         case Locations.FreeParking:
             const tax = GlobalState.tax;
             mover.updateBalance(tax);
             GlobalState.tax = 0;
             if (tax > 0) {
-                log("You collected $" + tax + " from free parking!");
+                mover.log("You collected $" + tax + " from free parking!");
             } else {
-                log("Sorry, there was no money to collect.");
+                mover.log("Sorry, there was no money to collect.");
             }
             break;
         case Locations.GoToJail:
             mover.goToJail();
             break;
     }
+
+    return AdvanceToNextPlayer;
 }
 
 function obeyChanceSquare(mover) {
-    log("Chance: ");
+    mover.log("Chance: ");
 
     switch (Math.floor(Math.random() * 16)) {
         case 0:
-            log("Advance to Boardwalk.");
+            mover.log("Advance to Boardwalk.");
             mover.updateLocation(Locations.Boardwalk);
-            obeyLocation(mover);
+            return obeyLocation(mover);
             break;
         case 1:
-            log('Advance to "Go". (Collect $200)');
+            mover.log('Advance to "Go". (Collect $200)');
             mover.updateLocation(Locations.Go);
             mover.updateBalance(200);
             break;
         case 2:
-            log("Make general repairs on all your property: For each house pay $25, for each hotel pay $100.");
+            mover.log("Make general repairs on all your property: For each house pay $25, for each hotel pay $100.");
             const {houses, hotels} = countOwnedBuildings(mover);
             const total = 25 * houses + 100 * hotels;
-            log("Paid $" + total + ".");
+            mover.log("Paid $" + total + ".");
             mover.updateBalance(-total);
             break;
         case 3:
-            log("Speeding fine $15.");
+            mover.log("Speeding fine $15.");
             mover.updateBalance(-15);
             break;
         case 4:
-            log('Advance to St. Charles Place. If you pass "Go" collect $200.');
+            mover.log('Advance to St. Charles Place. If you pass "Go" collect $200.');
             if (mover.placeIdx > Locations.StCharlesPlace) {
                 mover.updateBalance(200);
             }
             mover.updateLocation(Locations.StCharlesPlace);
-            obeyLocation(mover);
+            return obeyLocation(mover);
             break;
         case 5:
-            log("Your building loan matures. Collect $150.");
+            mover.log("Your building loan matures. Collect $150.");
             mover.updateBalance(150);
             break;
         case 6:
-            log("Go back three spaces.");
+            mover.log("Go back three spaces.");
             mover.updateLocation(mover.placeIdx - 3);
-            obeyLocation(mover);
+            return obeyLocation(mover);
             break;
         case 7:
-            log("GET OUT OF JAIL FREE. This card may be kept until needed or traded.");
+            mover.log("GET OUT OF JAIL FREE. This card may be kept until needed or traded.");
             addGetOutOfJailFreeCard(mover);
             break;
         case 8:
-            log("Bank pays you dividend of $50.");
+            mover.log("Bank pays you dividend of $50.");
             mover.updateBalance(50);
             break;
         case 9:
-            log('Advance to Illinois Avenue. If you pass "Go" collect $200.');
+            mover.log('Advance to Illinois Avenue. If you pass "Go" collect $200.');
             if (mover.placeIdx > Locations.IllinoisAvenue) {
                 mover.updateBalance(200);
             }
             mover.updateLocation(Locations.IllinoisAvenue);
-            obeyLocation(mover);
+            return obeyLocation(mover);
             break;
         case 10:
-            log("You have been elected chairman of the board. Pay each player $50.");
+            mover.log("You have been elected chairman of the board. Pay each player $50.");
             players.forEach(player => {
                 player.updateBalance(50);
             });
             mover.updateBalance(-50 * players.length);
             break;
         case 11:
-            log('Go to jail. Go directly to jail, do not pass "Go", do not collect $200.');
+            mover.log('Go to jail. Go directly to jail, do not pass "Go", do not collect $200.');
             mover.goToJail();
             break;
         case 12:
-            log("Advance to the nearest utility. If Unowned, you may buy it from the bank. If Owned, pay owner a total ten times amount thrown on dice.");
+            mover.log("Advance to the nearest utility. If Unowned, you may buy it from the bank. If Owned, pay owner a total ten times amount thrown on dice.");
             if (mover.placeIdx >= Locations.ElectricCompany && mover.placeIdx < Locations.WaterWorks) {
                 mover.updateLocation(Locations.WaterWorks);
             } else {
                 mover.updateLocation(Locations.ElectricCompany);
             }
             if (places[mover.placeIdx].ownerNum === -1) {
-                obeyLocation(mover);
+                return obeyLocation(mover);
             } else if (places[mover.placeIdx].ownerNum != mover.num) {
                 const owner = players[places[mover.placeIdx].ownerNum];
                 const [roll1, roll2] = mover.latestRoll;
@@ -181,21 +186,21 @@ function obeyChanceSquare(mover) {
             }
             break;
         case 13:
-            log('Take a trip to Reading Railroad. If you pass "Go" collect $200.');
+            mover.log('Take a trip to Reading Railroad. If you pass "Go" collect $200.');
             if (mover.placeIdx > Locations.ReadingRailroad) {
                 mover.updateBalance(200);
             }
             mover.updateLocation(Locations.ReadingRailroad);
             break;
         case 14: case 15:
-            log("Advance to the nearest railroad. If Unowned, you may buy it from the bank. If Owned, pay owner twice the rental to which they are otherwise entitled.");
+            mover.log("Advance to the nearest railroad. If Unowned, you may buy it from the bank. If Owned, pay owner twice the rental to which they are otherwise entitled.");
             const rangeIdx = Math.floor((mover.placeIdx + 5) % 40 / 10);// What side of the board are we on if we step forward 5?
             const nearestRailroadIdx = 10 * rangeIdx + 5;// Map that side to its railroad.
 
             mover.updateLocation(nearestRailroadIdx);
             const railroad = places[nearestRailroadIdx];
             if (railroad.ownerNum === -1) {
-                obeyLocation(mover);
+                return obeyLocation(mover);
             } else if (players[railroad.ownerNum] != mover) {
                 // Control the rent properly.
                 const owner = players[railroad.ownerNum];
@@ -204,83 +209,87 @@ function obeyChanceSquare(mover) {
             }
             break;
     }
+
+    return AdvanceToNextPlayer;
 }
 
 function obeyCommunityChestSquare(mover) {
-    log("Community Chest: ");
+    mover.log("Community Chest: ");
     switch (Math.floor(Math.random() * 16)) {
         case 0:
-            log("GET OUT OF JAIL FREE. This card may be kept until needed or traded.");
+            mover.log("GET OUT OF JAIL FREE. This card may be kept until needed or traded.");
             addGetOutOfJailFreeCard(mover);
             break;
         case 1:
-            log("You have won second prize in a beauty contest. Collect $10.");
+            mover.log("You have won second prize in a beauty contest. Collect $10.");
             mover.updateBalance(10);
             break;
         case 2:
-            log("Holiday fund matures. Receive $100.");
+            mover.log("Holiday fund matures. Receive $100.");
             mover.updateBalance(100);
             break;
         case 3:
-            log("Bank error in your favor. Collect $200.");
+            mover.log("Bank error in your favor. Collect $200.");
             mover.updateBalance(200);
             break;
         case 4:
-            log('Go to jail. Go directly to jail, do not pass "Go", do not collect $200.');
+            mover.log('Go to jail. Go directly to jail, do not pass "Go", do not collect $200.');
             mover.goToJail();
             break;
         case 5:
-            log("It is your birthday. Collect $10 from every player.");
+            mover.log("It is your birthday. Collect $10 from every player.");
             mover.updateBalance(10 * players.length);
             players.forEach(player => {
                 player.updateBalance(-10);
             });
             break;
         case 6:
-            log("Doctor's fees. Pay $50.");
+            mover.log("Doctor's fees. Pay $50.");
             mover.updateBalance(-50);
             break;
         case 7:
-            log("Pay hospital fees of $100.");
+            mover.log("Pay hospital fees of $100.");
             mover.updateBalance(-100);
             break;
         case 8:
-            log("You inherit $100.");
+            mover.log("You inherit $100.");
             mover.updateBalance(100);
             break;
         case 9:
-            log("From sale of stock you get $50.");
+            mover.log("From sale of stock you get $50.");
             mover.updateBalance(50);
             break;
         case 10:
-            log("You are assessed for street repairs: $40 per house, $115 per hotel.");
+            mover.log("You are assessed for street repairs: $40 per house, $115 per hotel.");
             const {houses, hotels} = countOwnedBuildings(mover);
             const total = 40 * houses + 115 * hotels;
-            log("Paid $" + total + ".");
+            mover.log("Paid $" + total + ".");
             mover.updateBalance(-total);
             break;
         case 11:
-            log('Advance to "Go". (Collect $200)');
+            mover.log('Advance to "Go". (Collect $200)');
             mover.updateLocation(Locations.Go);
             mover.updateBalance(200);
             break;
         case 12:
-            log("Income tax refund. Collect $20.");
+            mover.log("Income tax refund. Collect $20.");
             mover.updateBalance(20);
             break; 
         case 13:
-            log("Pay school fees of $50.");
+            mover.log("Pay school fees of $50.");
             mover.updateBalance(-50);
             break;
         case 14:
-            log("Life insurance matures. Collect $100.");
+            mover.log("Life insurance matures. Collect $100.");
             mover.updateBalance(100);
             break; 
         case 15:
-            log("Receive $25. Consultancy fee.");
+            mover.log("Receive $25. Consultancy fee.");
             mover.updateBalance(25);
             break;
     }
+
+    return AdvanceToNextPlayer;
 }
 
 function countOwnedBuildings(owner) {
@@ -298,6 +307,24 @@ function countOwnedBuildings(owner) {
         });
 }
 
-export {
+function addGetOutOfJailFreeCard(mover) {
+    mover.numJailCards ++;
+    emit.all("add-jail-card", {playerId: mover.num});
+}
+
+function useGetOutOfJailFreeCard(player) {
+    player.getOutOfJail();
+    player.numJailCards --;
+
+    if (player.numJailCards === 0) {
+        $("#jail-card" + player.num).text("");
+    } else {
+        // e.g. Get Out of Jail Free x3
+        $("#jail-card-quantity" + player.num).text(" x" + player.numJailCards);
+    }
+}
+
+module.exports = {
+    // addGetOutOfJailFreeCard,
     obeyLocation
 };
