@@ -56,7 +56,7 @@ io.on("connection", socket => {
 		GlobalState.hasGameStarted = true;
 		// Choose starting player.
 		const startingPlayerNum = Math.floor(Math.random() * players.length);
-    GlobalState.currentPlayer = players[startingPlayerNum];
+	    GlobalState.currentPlayer = players[startingPlayerNum];
 
 		io.emit("start-up", {
 			newPlayers: playerData,
