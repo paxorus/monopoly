@@ -1,256 +1,256 @@
 body {
-    background-size: cover;
-    font-size: 15px;
-    color: black;
-    font-family: Verdana;
+	background-size: cover;
+	font-size: 15px;
+	color: black;
+	font-family: Verdana;
 }
 
 #board {
-    position: absolute;
-    width: 700px;
-    height: 680px;
-    top: 0;
-    left: 0;
+	position: absolute;
+	width: 700px;
+	height: 680px;
+	top: 0;
+	left: 0;
 }
 .location {
-    width: 68px;
-    height: 66px;
-    position: absolute;
-    text-align: center;
-    background-color: rgb(213, 232, 212);
-    border: 2px #020 solid;
-    cursor: pointer;
+	width: 68px;
+	height: 66px;
+	position: absolute;
+	text-align: center;
+	background-color: rgb(213, 232, 212);
+	border: 2px #020 solid;
+	cursor: pointer;
 }
 .walkway {
-    background-color: rgb(213, 232, 212);
+	background-color: rgb(213, 232, 212);
 }
 .location-highlighted {
-    background-color: rgb(142, 193, 139);
+	background-color: rgb(142, 193, 139);
 }
 #jail {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 44px;
-    height: 44px;
-    background-image: url('/images/in-jail.svg');
-    background-size: 44px 44px;
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 44px;
+	height: 44px;
+	background-image: url('/images/in-jail.svg');
+	background-size: 44px 44px;
 }
 #jail-vertical-walkway {
-    position: absolute;
-    left: 0;
-    width: 24px; /* location.width - jail.width */
-    height: 66px;
+	position: absolute;
+	left: 0;
+	width: 24px; /* location.width - jail.width */
+	height: 66px;
 }
 #jail-horizontal-walkway {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 44px; /* jail.width */
-    height: 22px; /* location.height - jail.height */
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	width: 44px; /* jail.width */
+	height: 22px; /* location.height - jail.height */
 }
 
 /* Player sprites */
 .circ {
-    float: left;
-    width: 22px;
-    height: 22px;
-    display: block;
+	float: left;
+	width: 22px;
+	height: 22px;
+	display: block;
 }
 .circ:hover {
-    background-color: #08F;
+	background-color: #08F;
 }
 
 .placed-house {
-    width: 17px;
+	width: 17px;
 }
 
 .house-icon {
-    width: 20px;
-    display: inline-block;
-    line-height: 20px;
+	width: 20px;
+	display: inline-block;
+	line-height: 20px;
 }
 .house-button {
-    height: 20px;
-    width: 33px;
-    display: inline-block;
-    user-select: none;
+	height: 20px;
+	width: 33px;
+	display: inline-block;
+	user-select: none;
 
-    margin-left: 5px;
+	margin-left: 5px;
 }
 .house-plus-sign {
-    color: black;
-    font-size: 15px;
-    font-weight: 600;
+	color: black;
+	font-size: 15px;
+	font-weight: 600;
 
-    position: relative;
-    top: -6px;
-    left: -3px;
+	position: relative;
+	top: -6px;
+	left: -3px;
 }
 .house-minus-sign, .mortgage-symbol {
-    color: black;
-    font-size: 15px;
-    font-weight: 600;
+	color: black;
+	font-size: 15px;
+	font-weight: 600;
 
-    position: relative;
-    top: -6px;
+	position: relative;
+	top: -6px;
 }
 
 /* Location card */
 .head {
-    font-size: 20px;
-    padding: 5px;
-    background-color: #BBB;
-    border-radius: 5px 5px 0 0;
-    color: #333;
+	font-size: 20px;
+	padding: 5px;
+	background-color: #BBB;
+	border-radius: 5px 5px 0 0;
+	color: #333;
 }
 #price {
-    padding-top: 5px;
+	padding-top: 5px;
 }
 #location-card {
-    position: absolute;
-    top: 200px;
-    left: 540px;
+	position: absolute;
+	top: 200px;
+	left: 540px;
 
-    width: 225px;
-    margin-left: -112px;
-    text-align: center;
-    display: none;
+	width: 225px;
+	margin-left: -112px;
+	text-align: center;
+	display: none;
 }
 .owner-name-clickable {
-    cursor: pointer;
-    color: #08F;
+	cursor: pointer;
+	color: #08F;
 }
 .owner-name-clickable:hover {
-    color: #2AF;
+	color: #2AF;
 }
 
 /* General buttons */
 .button {
-    font-size: 15px;
-    background-color: #08C;
-    padding: 5px;
-    color: white;
-    cursor: pointer;
+	font-size: 15px;
+	background-color: #08C;
+	padding: 5px;
+	color: white;
+	cursor: pointer;
 }
 .button:hover {
-    filter: saturate(125%);
+	filter: saturate(125%);
 }
 .button:active {
-    /*background-color: #E80;*/
-    filter: saturate(75%);
+	/*background-color: #E80;*/
+	filter: saturate(75%);
 }
 
 .button-negative {
-    font-size: 15px;
-    background-color: #E63;
-    padding: 5px;
-    color: white;
-    cursor: pointer;
+	font-size: 15px;
+	background-color: #E63;
+	padding: 5px;
+	color: white;
+	cursor: pointer;
 }
 .button-negative:hover {
-    filter: saturate(125%);
+	filter: saturate(125%);
 }
 .button-negative:active {
-    filter: saturate(75%);
+	filter: saturate(75%);
 }
 
 .button-disabled {
-    filter: saturate(0%);
-    cursor: not-allowed;
+	filter: saturate(0%);
+	cursor: not-allowed;
 }
 .button-disabled:hover {
-    filter: saturate(0%);
+	filter: saturate(0%);
 }
 .button-disabled:active {
-    filter: saturate(0%);
+	filter: saturate(0%);
 }
 .use-jail-card {
-    margin-left: 5px;
+	margin-left: 5px;
 }
 
 /* Location squares */
 .left {}
 .right {
-    left: 700px;
+	left: 700px;
 }
 .top {}
 .bottom {
-    top: 680px;
+	top: 680px;
 }
 /* Walkways */
 .vertical {
-    position: absolute;
-    width: 66.7%;
-    height: 66px;
-    text-align: center;
-    float: left;
+	position: absolute;
+	width: 66.7%;
+	height: 66px;
+	text-align: center;
+	float: left;
 }
 .horizontal {
-    position: absolute;
-    width: 68px;
-    height: 66.7%;
-    text-align: center;
-    float: left;
+	position: absolute;
+	width: 68px;
+	height: 66.7%;
+	text-align: center;
+	float: left;
 }
 
 /* Player displays */
 #heads {
-    position: absolute;
-    left: 772px;
-    margin-left: 10px;
-    top: 0;
-    width: 400px;
+	position: absolute;
+	left: 772px;
+	margin-left: 10px;
+	top: 0;
+	width: 400px;
 }
 .dashboard {
-    height: 450px;
-    background-color: rgb(213, 232, 212);
-    overflow-y: scroll;
+	height: 450px;
+	background-color: rgb(213, 232, 212);
+	overflow-y: scroll;
 }
 .player-display-head {
-    font-size: 18px;
-    background-color: #BBB;
-    padding: 5px 10px;
-    color: #333;
-    cursor: pointer;
+	font-size: 18px;
+	background-color: #BBB;
+	padding: 5px 10px;
+	color: #333;
+	cursor: pointer;
 }
 .display-sprite {
-    height: 18px;
-    margin-right: 5px;
+	height: 18px;
+	margin-right: 5px;
 }
 .hud-property {
-    padding: 5px 0;
-    padding-left: 10px;
+	padding: 5px 0;
+	padding-left: 10px;
 }
 .hud-property:hover {
-    background-color: rgb(213, 232, 212);
-    filter: brightness(0.9);
+	background-color: rgb(213, 232, 212);
+	filter: brightness(0.9);
 }
 .hud-property-name {
-    cursor: pointer;
-    margin-left: 8px;
+	cursor: pointer;
+	margin-left: 8px;
 }
 .hud-property-color {
-    height: 25px;
-    width: 15px;
-    display: inline-block;
+	height: 25px;
+	width: 15px;
+	display: inline-block;
 }
 
 /* Interactive message box */
 .interactive {
-    position: absolute;
-    top: 250px;
-    left: 240px;
+	position: absolute;
+	top: 250px;
+	left: 240px;
 
-    width: 250px;
-    margin-left: -125px;
+	width: 250px;
+	margin-left: -125px;
 }
 
 #interactive {
-    display: none;
+	display: none;
 }
 
 #message-box {
-    overflow-y: auto;
-    max-height: 400px;
+	overflow-y: auto;
+	max-height: 400px;
 }

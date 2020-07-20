@@ -9,199 +9,199 @@ const players = [];
 const JAIL_VERTICAL_WALKWAY_CAPACITY = 3;
 
 function buildGameBoard() {
-    // Build and place all board locations on DOM.
+	// Build and place all board locations on DOM.
 
-    const board = document.getElementById("board");
+	const board = document.getElementById("board");
 
-    places.forEach((place, placeIdx) => {
-        const newdiv = document.createElement("div");
-        newdiv.dataset.no = placeIdx;
-        const indiv = document.createElement("div");
-        newdiv.style.backgroundColor = place.color;
-        
-        switch (Math.floor(placeIdx / 10)) {
-            case 0:
-                newdiv.className = "location bottom";
-                newdiv.style.left = 70 * (10 - placeIdx) + "px";
-                indiv.style.bottom = 0;
-                indiv.className = "walkway horizontal";
-                break;
-            case 1:
-                newdiv.className = "location left";
-                newdiv.style.top = 680 - 68 * (placeIdx - 10) + "px";
-                indiv.style.left = 0;
-                indiv.className = "walkway vertical";
-                break;
-            case 2:
-                newdiv.className = "location top";
-                newdiv.style.left = 70 * (placeIdx - 20) + "px";
-                indiv.style.top = 0;
-                indiv.className = "walkway horizontal";
-                break;
-            case 3:
-                newdiv.className = "location right";
-                newdiv.style.top = 68 * (placeIdx - 30) + "px";
-                indiv.style.right = 0;
-                indiv.className = "walkway vertical";
-                break;
-        }
+	places.forEach((place, placeIdx) => {
+		const newdiv = document.createElement("div");
+		newdiv.dataset.no = placeIdx;
+		const indiv = document.createElement("div");
+		newdiv.style.backgroundColor = place.color;
+		
+		switch (Math.floor(placeIdx / 10)) {
+			case 0:
+				newdiv.className = "location bottom";
+				newdiv.style.left = 70 * (10 - placeIdx) + "px";
+				indiv.style.bottom = 0;
+				indiv.className = "walkway horizontal";
+				break;
+			case 1:
+				newdiv.className = "location left";
+				newdiv.style.top = 680 - 68 * (placeIdx - 10) + "px";
+				indiv.style.left = 0;
+				indiv.className = "walkway vertical";
+				break;
+			case 2:
+				newdiv.className = "location top";
+				newdiv.style.left = 70 * (placeIdx - 20) + "px";
+				indiv.style.top = 0;
+				indiv.className = "walkway horizontal";
+				break;
+			case 3:
+				newdiv.className = "location right";
+				newdiv.style.top = 68 * (placeIdx - 30) + "px";
+				indiv.style.right = 0;
+				indiv.className = "walkway vertical";
+				break;
+		}
 
-        if (place.imageName) {
-            setLocationImage(newdiv, place.imageName);
-        }
+		if (place.imageName) {
+			setLocationImage(newdiv, place.imageName);
+		}
 
-        // Add a neutral-colored walkway for house-able properties.
-        if (place.housePrice) {
-            newdiv.appendChild(indiv);
-        }
-        board.appendChild(newdiv);
-    });
+		// Add a neutral-colored walkway for house-able properties.
+		if (place.housePrice) {
+			newdiv.appendChild(indiv);
+		}
+		board.appendChild(newdiv);
+	});
 
-    // Free Parking: add #alltax
-    board.childNodes[Locations.FreeParking].id = "alltax";
+	// Free Parking: add #alltax
+	board.childNodes[Locations.FreeParking].id = "alltax";
 
-    buildJailLocation(board.childNodes[Locations.Jail]);
+	buildJailLocation(board.childNodes[Locations.Jail]);
 
-    $(".location").click(function() {
-        const placeIdx = parseInt(this.dataset.no);
-        showCard(placeIdx);
-    });
+	$(".location").click(function() {
+		const placeIdx = parseInt(this.dataset.no);
+		showCard(placeIdx);
+	});
 }
 
 function setLocationImage(location, imageName) {
-    location.style.background = `url('${imageName}') no-repeat`;
-    location.style.backgroundColor = "";
-    location.style.backgroundSize = "68px 66px";
+	location.style.background = `url('${imageName}') no-repeat`;
+	location.style.backgroundColor = "";
+	location.style.backgroundSize = "68px 66px";
 }
 
 function buildJailLocation(jailLocation) {
-    const jail = document.createElement("div");
-    jail.id = "jail";
-    jailLocation.appendChild(jail);
+	const jail = document.createElement("div");
+	jail.id = "jail";
+	jailLocation.appendChild(jail);
 
-    const jailVerticalWalkway = document.createElement("div");
-    jailVerticalWalkway.id = "jail-vertical-walkway";
-    jailLocation.appendChild(jailVerticalWalkway);
+	const jailVerticalWalkway = document.createElement("div");
+	jailVerticalWalkway.id = "jail-vertical-walkway";
+	jailLocation.appendChild(jailVerticalWalkway);
 
-    const jailHorizontalWalkway = document.createElement("div");
-    jailHorizontalWalkway.id = "jail-horizontal-walkway";
-    jailLocation.appendChild(jailHorizontalWalkway);
+	const jailHorizontalWalkway = document.createElement("div");
+	jailHorizontalWalkway.id = "jail-horizontal-walkway";
+	jailLocation.appendChild(jailHorizontalWalkway);
 }
 
 function buildPlayerViews() {
-    // Build each player view.
+	// Build each player view.
 
-    const board = document.getElementById("board");
+	const board = document.getElementById("board");
 
-    players.forEach((player, i) => {
-        const circ = document.createElement("img");    
-        circ.id = "marker" + i;
-        circ.className = "circ";
-        circ.src = "https://cdn.bulbagarden.net/upload" + player.spriteFileName;
-        circ.addEventListener("click", event => {
-            slide(i);
-            event.stopPropagation();
-        });
-        circ.addEventListener("mouseover", event => {
-            toggleHighlightedProperties(i, true);
-        });
-        circ.addEventListener("mouseout", event => {
-            toggleHighlightedProperties(i, false);
-        });
+	players.forEach((player, i) => {
+		const circ = document.createElement("img");    
+		circ.id = "marker" + i;
+		circ.className = "circ";
+		circ.src = "https://cdn.bulbagarden.net/upload" + player.spriteFileName;
+		circ.addEventListener("click", event => {
+			slide(i);
+			event.stopPropagation();
+		});
+		circ.addEventListener("mouseover", event => {
+			toggleHighlightedProperties(i, true);
+		});
+		circ.addEventListener("mouseout", event => {
+			toggleHighlightedProperties(i, false);
+		});
 
-        board.childNodes[Locations.Go].appendChild(circ);
+		board.childNodes[Locations.Go].appendChild(circ);
 
-        const heads = document.getElementById("heads");
-        heads.innerHTML += "<div id='head" + i + "' class='player-display-head'></div>";
-        heads.innerHTML += "<div style='background-color:rgb(68, 136, 204);height:5px'></div>";
-        heads.innerHTML += `<div class='dashboard' id='user${i}' style='display:none'><span id='property-list${i}'></span><span id='jail-card${i}'></div>`;
-    });
+		const heads = document.getElementById("heads");
+		heads.innerHTML += "<div id='head" + i + "' class='player-display-head'></div>";
+		heads.innerHTML += "<div style='background-color:rgb(68, 136, 204);height:5px'></div>";
+		heads.innerHTML += `<div class='dashboard' id='user${i}' style='display:none'><span id='property-list${i}'></span><span id='jail-card${i}'></div>`;
+	});
 }
 
 function buildPlayerDashboards() {
-    // Set up the HUD for each player: name, location, and balance.
-    players.forEach((player, i) => {
-        const sprite = "<img class='display-sprite' src='https://cdn.bulbagarden.net/upload" + player.spriteFileName + "'>";
-        $("#head" + i).html(sprite + player.name + ": <span id='loc" + i + "'>Go</span><div style='float:right' id='bal" + i + "'>$1500</div>");    
+	// Set up the HUD for each player: name, location, and balance.
+	players.forEach((player, i) => {
+		const sprite = "<img class='display-sprite' src='https://cdn.bulbagarden.net/upload" + player.spriteFileName + "'>";
+		$("#head" + i).html(sprite + player.name + ": <span id='loc" + i + "'>Go</span><div style='float:right' id='bal" + i + "'>$1500</div>");    
 
-        // Expand HUD on click.
-        $("#head" + i).click(function() {
-            if (document.getElementById("user" + i).style.display == "none") {
-                slide(i);
-            }
-        });
-    });
+		// Expand HUD on click.
+		$("#head" + i).click(function() {
+			if (document.getElementById("user" + i).style.display == "none") {
+				slide(i);
+			}
+		});
+	});
 }
 
 function slide(user) {
-    // Collapse HUDs for all but current user.
-    players.forEach((player, i) => {
-        if (i != user) {
-            $("#user" + i).slideUp();
-        } else {
-            $("#user" + i).slideDown();
-        }
-    });
+	// Collapse HUDs for all but current user.
+	players.forEach((player, i) => {
+		if (i != user) {
+			$("#user" + i).slideUp();
+		} else {
+			$("#user" + i).slideDown();
+		}
+	});
 }
 
 function toggleHighlightedProperties(userId, shouldShow) {
-    const ownedProperties = places
-        .map((place, placeId) => [placeId, place.ownerNum])
-        .filter(([placeId, owner]) => owner === userId);
+	const ownedProperties = places
+		.map((place, placeId) => [placeId, place.ownerNum])
+		.filter(([placeId, owner]) => owner === userId);
 
-    ownedProperties.forEach(([placeId, ]) => highlightProperty(placeId, shouldShow));
+	ownedProperties.forEach(([placeId, ]) => highlightProperty(placeId, shouldShow));
 }
 
 function highlightProperty(placeId, shouldShow) {
-    const jqLocation = $(".location:eq(" + placeId + ")");
-    if (jqLocation.has(".walkway").length) {
-        jqLocation.children(".walkway").toggleClass("location-highlighted", shouldShow);
-    } else {
-        jqLocation.toggleClass("location-highlighted", shouldShow);
-    }    
+	const jqLocation = $(".location:eq(" + placeId + ")");
+	if (jqLocation.has(".walkway").length) {
+		jqLocation.children(".walkway").toggleClass("location-highlighted", shouldShow);
+	} else {
+		jqLocation.toggleClass("location-highlighted", shouldShow);
+	}    
 }
 
 
 const GlobalState = {
-    // currentPlayer: undefined,
-    me: undefined,
-    tax: 0,
-    waitingForUserResponse: undefined
+	// currentPlayer: undefined,
+	me: undefined,
+	tax: 0,
+	waitingForUserResponse: undefined
 }
 
 function startUp(myPlayerNum, startingPlayerNum) {
-    buildGameBoard();
-    buildPlayerViews();
-    buildPlayerDashboards();
+	buildGameBoard();
+	buildPlayerViews();
+	buildPlayerDashboards();
 
-    GlobalState.me = players[myPlayerNum];
+	GlobalState.me = players[myPlayerNum];
 
-    if (myPlayerNum === startingPlayerNum) {
-        $("#initial-interactive").css("display", "block");
-    } else {
-        $("#waiting-on-player").css("display", "block");
-        $("#current-player-name").text(players[startingPlayerNum].name);
-    }
+	if (myPlayerNum === startingPlayerNum) {
+		$("#initial-interactive").css("display", "block");
+	} else {
+		$("#waiting-on-player").css("display", "block");
+		$("#current-player-name").text(players[startingPlayerNum].name);
+	}
 }
 
 function updateTurn(nextPlayerId) {
-    if (nextPlayerId === GlobalState.me.num) {
-        $("#waiting-on-player").css("display", "none");
-        $("#execute-turn").css("display", "block");
-        $("#interactive").css("display", "block");
-        MessageBox.clear();
-    } else {
-        log(`It's ${players[nextPlayerId].name}'s turn.`);
-    }
+	if (nextPlayerId === GlobalState.me.num) {
+		$("#waiting-on-player").css("display", "none");
+		$("#execute-turn").css("display", "block");
+		$("#interactive").css("display", "block");
+		MessageBox.clear();
+	} else {
+		log(`It's ${players[nextPlayerId].name}'s turn.`);
+	}
 }
 
 export {
-    GlobalState,
-    JAIL_VERTICAL_WALKWAY_CAPACITY,
-    toggleHighlightedProperties,
-    highlightProperty,
-    players,
-    slide,
-    startUp,
-    updateTurn
+	GlobalState,
+	JAIL_VERTICAL_WALKWAY_CAPACITY,
+	toggleHighlightedProperties,
+	highlightProperty,
+	players,
+	slide,
+	startUp,
+	updateTurn
 };

@@ -1,15 +1,15 @@
 class MessageBoxSingleton {
-    constructor() {
-        this.dom = document.getElementById("message-box");
-    }
+	constructor() {
+		this.dom = document.getElementById("message-box");
+	}
 
-    clear() {
-        this.dom.innerHTML = "";
-    }
+	clear() {
+		this.dom.innerHTML = "";
+	}
 
-    log(message) {
-        this.dom.innerHTML += message + "<br />";
-    }
+	log(message) {
+		this.dom.innerHTML += message + "<br />";
+	}
 }
 
 const MessageBox = new MessageBoxSingleton();

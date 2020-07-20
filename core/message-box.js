@@ -2,7 +2,6 @@ let io;
 
 // TODO: This should only emit to players of a game, not everyone.
 function configureEmitter(_io) {
-	console.log('configured');
 	io = _io;
 }
 
