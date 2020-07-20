@@ -110,6 +110,11 @@ app.get("/index/:secretKey", function(req, res) {
 	res.render("pages/index", {secretKey: req.params.secretKey});
 });
 
+// To run client-side tests.
+app.get("/test", function(req, res) {
+	res.render("pages/test");
+});
+
 server.listen(app.get("port"), function() {
 	console.log("Node app is running on port", app.get("port"));
 });

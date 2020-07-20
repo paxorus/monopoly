@@ -37,7 +37,7 @@ function respondToBuyOffer(ifBuy) {
     // Hide the Buy/No buttons.
     $("#button-box").children().remove();
 
-    socket.emit('respond-to-buy-offer', {playerId: GlobalState.me.num, ifBuy});
+    socket.emit("respond-to-buy-offer", {playerId: GlobalState.me.num, ifBuy});
 }
 
 function purchaseProperty(mover, placeIdx) {

@@ -325,6 +325,5 @@ function useGetOutOfJailFreeCard(player) {
 }
 
 module.exports = {
-    // addGetOutOfJailFreeCard,
     obeyLocation
 };

@@ -1,0 +1,24 @@
+<html>
+<head>
+    <title>Mocha Client Tests</title>
+    <link href="/stylesheets/main.css" rel="stylesheet"></link>
+    <link href="https://unpkg.com/mocha@4.0.1/mocha.css" rel="stylesheet" />
+</head>
+<body>
+    <div id="mocha"></div>
+
+    <div style="display: none">
+        <%- include("../partials/game", {secretKey: "prakhar"}) %>
+    </div>
+    <script src="https://unpkg.com/mocha@4.0.1/mocha.js"></script>
+    <script src="/javascripts/third-party/jquery.js"></script>
+    <script type="module">
+		mocha.setup('bdd');
+    </script>
+    <script type="module">
+    	import '/javascripts/test/display-card.test.js';
+		mocha.checkLeaks();
+		mocha.run();
+    </script>
+</body>
+</html>
