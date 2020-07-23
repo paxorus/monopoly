@@ -29,8 +29,7 @@ window.useGetOutOfJailFreeCard = useGetOutOfJailFreeCard;
 import Player from "/javascripts/player.js";
 window.Player = Player;
 
-import {players, startUp, updateTurn, GlobalState} from "/javascripts/startup.js";
-window.players = players;
+import {startUp, updateTurn, GlobalState} from "/javascripts/startup.js";
 window.GlobalState = GlobalState;
 
 import {hideLocationCard} from "/javascripts/display-card.js";
@@ -42,13 +41,7 @@ window.log = log;
 const socket = io();
 window.socket = socket;
 
-socket.on("start-up", ({newPlayers, yourPlayerNum, startingPlayerNum}) => {
-	newPlayers.forEach(player => {
-		players.push(new Player(player.name, player.num, player.spriteFileName));
-	});
-
-	startUp(yourPlayerNum, startingPlayerNum);
-});
+socket.on("start-up", startUp);
 
 // Updates
 socket.on("log", text => {
@@ -57,11 +50,11 @@ socket.on("log", text => {
 });
 
 socket.on("update-balance", ({playerId, balance}) => {
-	players[playerId].updateBalance(balance);
+	GlobalState.players[playerId].updateBalance(balance);
 });
 
 socket.on("update-location", ({playerId, placeIdx}) => {
-	players[playerId].updateLocation(placeIdx);
+	GlobalState.players[playerId].updateLocation(placeIdx);
 });
 
 // Turn actions
@@ -87,32 +80,32 @@ socket.on("build-house-buttons", ({placeIdx}) => {
 });
 
 socket.on("buy-house", ({playerId, placeIdx}) => {
-	buyHouse(players[playerId], placeIdx);
+	buyHouse(GlobalState.players[playerId], placeIdx);
 });
 
 socket.on("sell-house", ({playerId, placeIdx}) => {
-	sellHouse(players[playerId], placeIdx);
+	sellHouse(GlobalState.players[playerId], placeIdx);
 });
 
 // Jail actions
 socket.on("go-to-jail", ({playerId}) => {
-	players[playerId].goToJail();
+	GlobalState.players[playerId].goToJail();
 });
 
 socket.on("get-out-of-jail", ({playerId}) => {
-	players[playerId].getOutOfJail();
+	GlobalState.players[playerId].getOutOfJail();
 });
 
 socket.on("add-jail-card", ({playerId}) => {
-	addGetOutOfJailFreeCard(players[playerId]);
+	addGetOutOfJailFreeCard(GlobalState.players[playerId]);
 });
 
 socket.on("use-jail-card", ({playerId}) => {
-	updateGetOutOfJailFreeCards(players[playerId]);
+	updateGetOutOfJailFreeCards(GlobalState.players[playerId]);
 });
 
 socket.on("update-jail-days", ({playerId, jailDays}) => {
-	players[playerId].updateJailDays(jailDays);
+	GlobalState.players[playerId].updateJailDays(jailDays);
 });
 
 socket.on("offer-pay-out-of-jail", () => {
@@ -121,13 +114,19 @@ socket.on("offer-pay-out-of-jail", () => {
 
 // Mortgage actions
 socket.on("mortgage-property", ({playerId, placeIdx}) => {
-	mortgageProperty(players[playerId], placeIdx);
+	mortgageProperty(GlobalState.players[playerId], placeIdx);
 });
 
 socket.on("unmortgage-property", ({playerId, placeIdx}) => {
-	unmortgageProperty(players[playerId], placeIdx);
+	unmortgageProperty(GlobalState.players[playerId], placeIdx);
 });
 
-socket.emit("start-up", {
-	secretKey
-});
+function initializeGame() {
+	socket.emit("start-up", {
+		secretKey
+	});
+}
+
+export {
+	initializeGame
+};

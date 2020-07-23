@@ -3,10 +3,13 @@ import {places, Locations} from "./location-configs.js";
 import Player from "./player.js";
 import {log, MessageBox} from "./message-box.js";
 
-// Players will be populated by server.
-const players = [];
-
 const JAIL_VERTICAL_WALKWAY_CAPACITY = 3;
+
+const GlobalState = {
+	players: undefined,
+	me: undefined,
+	tax: 0
+}
 
 function buildGameBoard() {
 	// Build and place all board locations on DOM.
@@ -88,40 +91,26 @@ function buildJailLocation(jailLocation) {
 	jailLocation.appendChild(jailHorizontalWalkway);
 }
 
-function buildPlayerViews() {
-	// Build each player view.
-
+function buildPlayerViews(players) {
+	// Build player sprites and place them at Go.
 	const board = document.getElementById("board");
 
 	players.forEach((player, i) => {
-		const circ = document.createElement("img");    
-		circ.id = "marker" + i;
-		circ.className = "circ";
-		circ.src = "https://cdn.bulbagarden.net/upload" + player.spriteFileName;
-		circ.addEventListener("click", event => {
-			slide(i);
-			event.stopPropagation();
-		});
-		circ.addEventListener("mouseover", event => {
-			toggleHighlightedProperties(i, true);
-		});
-		circ.addEventListener("mouseout", event => {
-			toggleHighlightedProperties(i, false);
-		});
+		const playerSprite = player.buildSprite();
+		board.childNodes[Locations.Go].appendChild(playerSprite);
+	});
+}
 
-		board.childNodes[Locations.Go].appendChild(circ);
+function buildPlayerDashboards(players) {
+	// Set up the HUD for each player: name, location, and balance.
+	players.forEach((player, i) => {
+		const sprite = "<img class='display-sprite' src='https://cdn.bulbagarden.net/upload" + player.spriteFileName + "'>";
 
 		const heads = document.getElementById("heads");
 		heads.innerHTML += "<div id='head" + i + "' class='player-display-head'></div>";
 		heads.innerHTML += "<div style='background-color:rgb(68, 136, 204);height:5px'></div>";
 		heads.innerHTML += `<div class='dashboard' id='user${i}' style='display:none'><span id='property-list${i}'></span><span id='jail-card${i}'></div>`;
-	});
-}
 
-function buildPlayerDashboards() {
-	// Set up the HUD for each player: name, location, and balance.
-	players.forEach((player, i) => {
-		const sprite = "<img class='display-sprite' src='https://cdn.bulbagarden.net/upload" + player.spriteFileName + "'>";
 		$("#head" + i).html(sprite + player.name + ": <span id='loc" + i + "'>Go</span><div style='float:right' id='bal" + i + "'>$1500</div>");    
 
 		// Expand HUD on click.
@@ -135,7 +124,7 @@ function buildPlayerDashboards() {
 
 function slide(user) {
 	// Collapse HUDs for all but current user.
-	players.forEach((player, i) => {
+	GlobalState.players.forEach((player, i) => {
 		if (i != user) {
 			$("#user" + i).slideUp();
 		} else {
@@ -161,27 +150,24 @@ function highlightProperty(placeId, shouldShow) {
 	}    
 }
 
+function startUp({newPlayers, yourPlayerNum, startingPlayerNum}) {
 
-const GlobalState = {
-	// currentPlayer: undefined,
-	me: undefined,
-	tax: 0,
-	waitingForUserResponse: undefined
-}
+	const players = newPlayers.map(player => new Player(player.name, player.num, player.spriteFileName));
 
-function startUp(myPlayerNum, startingPlayerNum) {
 	buildGameBoard();
-	buildPlayerViews();
-	buildPlayerDashboards();
+	buildPlayerViews(players);
+	buildPlayerDashboards(players);
 
-	GlobalState.me = players[myPlayerNum];
+	GlobalState.me = players[yourPlayerNum];
 
-	if (myPlayerNum === startingPlayerNum) {
+	if (yourPlayerNum === startingPlayerNum) {
 		$("#initial-interactive").css("display", "block");
 	} else {
 		$("#waiting-on-player").css("display", "block");
 		$("#current-player-name").text(players[startingPlayerNum].name);
 	}
+
+	GlobalState.players = players;
 }
 
 function updateTurn(nextPlayerId) {
@@ -191,7 +177,7 @@ function updateTurn(nextPlayerId) {
 		$("#interactive").css("display", "block");
 		MessageBox.clear();
 	} else {
-		log(`It's ${players[nextPlayerId].name}'s turn.`);
+		log(`It's ${GlobalState.players[nextPlayerId].name}'s turn.`);
 	}
 }
 
@@ -200,7 +186,6 @@ export {
 	JAIL_VERTICAL_WALKWAY_CAPACITY,
 	toggleHighlightedProperties,
 	highlightProperty,
-	players,
 	slide,
 	startUp,
 	updateTurn

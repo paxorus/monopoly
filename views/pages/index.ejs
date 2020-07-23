@@ -4,4 +4,12 @@
 </head>
 <body>
 <%- include("../partials/game") %>
+
+<script type="module">
+	import {initializeGame} from "/javascripts/event-handlers.js";
+
+	const secretKey = "<%= secretKey %>";
+	window.secretKey = secretKey;
+	initializeGame(secretKey);
+</script>
 </body></html>

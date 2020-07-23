@@ -1,5 +1,5 @@
 import {places, BLACK_TEXT_COLORS, Locations} from "./location-configs.js";
-import {players, slide, toggleHighlightedProperties, GlobalState} from "./startup.js";
+import {slide, toggleHighlightedProperties, GlobalState} from "./startup.js";
 
 function showCard(placeIdx) {
 
@@ -94,7 +94,7 @@ function showCard(placeIdx) {
 	} else if (place.ownerNum === -1) {
 		$("#owner-name").text("Unowned");
 	} else {
-		const owner = players[place.ownerNum];
+		const owner = GlobalState.players[place.ownerNum];
 		$("#owner-name").text("Owned by ");
 		$("#owner-name").append(buildOwnerNameDisplay(owner));
 	}

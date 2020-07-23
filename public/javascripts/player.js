@@ -1,6 +1,6 @@
 import {places, Locations} from "./location-configs.js";
 import {log} from "./message-box.js";
-import {JAIL_VERTICAL_WALKWAY_CAPACITY} from "./startup.js";
+import {slide, toggleHighlightedProperties, JAIL_VERTICAL_WALKWAY_CAPACITY} from "./startup.js";
 
 export default class Player {
 	constructor(name, num, spriteFileName) {
@@ -72,5 +72,24 @@ export default class Player {
 		} else {
 			$("#jail-horizontal-walkway").append($("#marker" + this.num));
 		}
+	}
+
+	buildSprite() {
+		const circ = document.createElement("img");
+		circ.id = "marker" + this.num;
+		circ.className = "circ";
+		circ.src = "https://cdn.bulbagarden.net/upload" + this.spriteFileName;
+		circ.addEventListener("click", event => {
+			slide(this.num);
+			event.stopPropagation();
+		});
+		circ.addEventListener("mouseover", event => {
+			toggleHighlightedProperties(this.num, true);
+		});
+		circ.addEventListener("mouseout", event => {
+			toggleHighlightedProperties(this.num, false);
+		});
+
+		return circ;
 	}
 }

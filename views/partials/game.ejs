@@ -56,12 +56,9 @@
 <div id="heads"></div>
 
 <script src="/javascripts/third-party/jquery.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+
 <script type="module" src="/javascripts/display-card.js"></script>
 <script type="module" src="/javascripts/execute-turn.js"></script>
 <script type="module" src="/javascripts/startup.js"></script>
-<script src="/socket.io/socket.io.js"></script>
-<script type="module">
-const secretKey = '<%= secretKey %>';
-window.secretKey = secretKey;
-</script>
 <script type="module" src="/javascripts/event-handlers.js"></script>

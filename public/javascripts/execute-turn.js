@@ -1,7 +1,7 @@
 import {showCard} from "./display-card.js";
 import {places, propertyComparator, MONOPOLIES} from "./location-configs.js";
 import {log, MessageBox} from "./message-box.js";
-import {highlightProperty, players, GlobalState} from "./startup.js";
+import {highlightProperty, GlobalState} from "./startup.js";
 
 function allowConcludeTurn() {
 	// Show "End Turn" button.
