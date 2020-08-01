@@ -1,6 +1,6 @@
 import assert from "./assert.js";
 import {showCard} from "../display-card.js";
-import {GlobalState} from "../startup.js";
+import {GlobalState} from "../game-board.js";
 
 function justVisitingSpriteIds() {
 	const verticalWalkwayOccupants = [...$("#jail-vertical-walkway").children()].map(x => x.id);

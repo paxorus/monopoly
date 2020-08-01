@@ -1,6 +1,5 @@
 import {showCard} from "./display-card.js";
 import {places, Locations} from "./location-configs.js";
-import Player from "./player.js";
 import {log, MessageBox} from "./message-box.js";
 
 const JAIL_VERTICAL_WALKWAY_CAPACITY = 3;
@@ -150,43 +149,17 @@ function highlightProperty(placeId, shouldShow) {
 	}    
 }
 
-function startUp({newPlayers, yourPlayerNum, startingPlayerNum}) {
-
-	const players = newPlayers.map(player => new Player(player.name, player.num, player.spriteFileName));
-
+function buildAllViews(players) {
 	buildGameBoard();
 	buildPlayerViews(players);
 	buildPlayerDashboards(players);
-
-	GlobalState.me = players[yourPlayerNum];
-
-	if (yourPlayerNum === startingPlayerNum) {
-		$("#initial-interactive").css("display", "block");
-	} else {
-		$("#waiting-on-player").css("display", "block");
-		$("#current-player-name").text(players[startingPlayerNum].name);
-	}
-
-	GlobalState.players = players;
-}
-
-function updateTurn(nextPlayerId) {
-	if (nextPlayerId === GlobalState.me.num) {
-		$("#waiting-on-player").css("display", "none");
-		$("#execute-turn").css("display", "block");
-		$("#interactive").css("display", "block");
-		MessageBox.clear();
-	} else {
-		log(`It's ${GlobalState.players[nextPlayerId].name}'s turn.`);
-	}
 }
 
 export {
+	buildAllViews,
 	GlobalState,
-	JAIL_VERTICAL_WALKWAY_CAPACITY,
-	toggleHighlightedProperties,
 	highlightProperty,
+	JAIL_VERTICAL_WALKWAY_CAPACITY,
 	slide,
-	startUp,
-	updateTurn
+	toggleHighlightedProperties
 };

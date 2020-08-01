@@ -1,7 +1,7 @@
 import {showCard} from "./display-card.js";
 import {places, propertyComparator, MONOPOLIES} from "./location-configs.js";
 import {log, MessageBox} from "./message-box.js";
-import {highlightProperty, GlobalState} from "./startup.js";
+import {highlightProperty, GlobalState} from "./game-board.js";
 
 function allowConcludeTurn() {
 	// Show "End Turn" button.
@@ -12,6 +12,18 @@ function advanceTurn() {
 	// Hide "End Turn" button.
 	$("#end-turn").css("display", "none");
 	socket.emit("advance-turn");
+}
+
+function updateTurn(nextPlayerId) {
+	// Display whose turn it is.
+	if (nextPlayerId === GlobalState.me.num) {
+		$("#waiting-on-player").css("display", "none");
+		$("#execute-turn").css("display", "block");
+		$("#interactive").css("display", "block");
+		MessageBox.clear();
+	} else {
+		log(`It's ${GlobalState.players[nextPlayerId].name}'s turn.`);
+	}
 }
 
 function executeTurn() {
@@ -291,5 +303,6 @@ export {
 	sellHouse,
 	unmortgageProperty,
 	updateGetOutOfJailFreeCards,
+	updateTurn,
 	useGetOutOfJailFreeCard
 };

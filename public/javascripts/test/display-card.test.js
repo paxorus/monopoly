@@ -1,6 +1,6 @@
 import assert from "./assert.js";
 import {showCard} from "../display-card.js";
-import {GlobalState} from "../startup.js";
+import {GlobalState} from "../game-board.js";
 
 function readLocationCard() {
 	return $("#location-card").text().trim().replace(/\n\s+/g, "\n").split("\n");

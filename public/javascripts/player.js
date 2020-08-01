@@ -1,6 +1,6 @@
 import {places, Locations} from "./location-configs.js";
 import {log} from "./message-box.js";
-import {slide, toggleHighlightedProperties, JAIL_VERTICAL_WALKWAY_CAPACITY} from "./startup.js";
+import {slide, toggleHighlightedProperties, JAIL_VERTICAL_WALKWAY_CAPACITY} from "./game-board.js";
 
 export default class Player {
 	constructor(name, num, spriteFileName) {

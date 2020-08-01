@@ -1,4 +1,4 @@
-import {startUp} from "../startup.js";
+import {startUp} from "../start-up.js";
 
 const newPlayers = [
 	new Player("Boop", 0, "/0/0d/025Pikachu.png"),

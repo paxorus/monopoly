@@ -1,5 +1,5 @@
 import {places, BLACK_TEXT_COLORS, Locations} from "./location-configs.js";
-import {slide, toggleHighlightedProperties, GlobalState} from "./startup.js";
+import {slide, toggleHighlightedProperties, GlobalState} from "./game-board.js";
 
 function showCard(placeIdx) {
 

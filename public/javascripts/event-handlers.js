@@ -14,6 +14,7 @@ import {
 	sellHouse,
 	unmortgageProperty,
 	updateGetOutOfJailFreeCards,
+	updateTurn,
 	useGetOutOfJailFreeCard
 } from "/javascripts/execute-turn.js";
 
@@ -29,7 +30,9 @@ window.useGetOutOfJailFreeCard = useGetOutOfJailFreeCard;
 import Player from "/javascripts/player.js";
 window.Player = Player;
 
-import {startUp, updateTurn, GlobalState} from "/javascripts/startup.js";
+import {startUp} from "/javascripts/start-up.js";
+
+import {GlobalState} from "/javascripts/game-board.js";
 window.GlobalState = GlobalState;
 
 import {hideLocationCard} from "/javascripts/display-card.js";
@@ -72,7 +75,7 @@ socket.on("offer-unowned-property", ({placeIdx}) => {
 });
 
 socket.on("purchase-property", ({playerId, placeIdx}) => {
-	purchaseProperty(players[playerId], placeIdx);
+	purchaseProperty(GlobalState.players[playerId], placeIdx);
 });
 
 socket.on("build-house-buttons", ({placeIdx}) => {
