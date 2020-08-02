@@ -1,5 +1,5 @@
 import {showCard} from "./display-card.js";
-import {places, propertyComparator, MONOPOLIES} from "./location-configs.js";
+import {places, propertyComparator} from "./location-configs.js";
 import {log, MessageBox} from "./message-box.js";
 import {highlightProperty, GlobalState} from "./game-board.js";
 
@@ -73,10 +73,13 @@ function purchaseProperty(mover, placeIdx) {
 	propertyName.addEventListener("click", event => showCard(placeIdx));
 	propertyListing.appendChild(propertyName);
 
-	propertyListing.appendChild(buildMortgageButton(mover, placeIdx));
+	if (mover === GlobalState.me) {
+		propertyListing.appendChild(buildMortgageButton(mover, placeIdx));
+	}
 
 	const propertyList = document.getElementById("property-list" + mover.num);
 
+	// Keep the property list sorted.
 	const nextElement = [...propertyList.children].find(listing => {
 		const otherPlaceIdx = parseInt(listing.id.substring("hud-property".length), 10);
 		return propertyComparator(placeIdx, otherPlaceIdx) < 0;
@@ -158,12 +161,20 @@ function sellHouse(owner, placeIdx) {
 function addBuildingIcon(placeIdx, buildingType) {
 	const houseImage = document.createElement("img");
 	houseImage.src = "/images/" + buildingType + ".svg";
-	houseImage.className = "placed-house";
-	$("#board").children().eq(placeIdx).append(houseImage);
+
+	const isLeftRow = placeIdx > 10 && placeIdx < 20;
+	const isRightRow = placeIdx > 30 && placeIdx < 49;
+	if (isLeftRow || isRightRow) {
+		houseImage.className = "placed-house placed-house-vertical";
+	} else {
+		houseImage.className = "placed-house";
+	}
+
+	$("#house-plot" + placeIdx).append(houseImage);
 }
 
 function removeBuildingIcon(placeIdx) {
-	$("#board").children().eq(placeIdx).children("img:nth-of-type(1)").remove();
+	$("#house-plot" + placeIdx).children("img:nth-of-type(1)").remove();
 }
 
 function repeat(n, func) {

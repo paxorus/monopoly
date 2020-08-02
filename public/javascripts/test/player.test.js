@@ -25,9 +25,6 @@ describe("Player", function () {
 		it("should wrap the players along the walkway", function () {
 			const players = GlobalState.players;
 
-			const sprites = players.map(player => player.buildSprite());
-			$("#board").children().eq(0).append(sprites);
-
 			players.forEach(player => player.updateLocation(10));
 
 			assert.deepEqual(justVisitingSpriteIds(), [["marker0", "marker1", "marker2"], ["marker3", "marker4"]]);

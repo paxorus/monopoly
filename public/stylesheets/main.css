@@ -5,6 +5,7 @@ body {
 	font-family: Verdana;
 }
 
+/* Location squares */
 #board {
 	position: absolute;
 	width: 700px;
@@ -27,6 +28,51 @@ body {
 .location-highlighted {
 	background-color: rgb(142, 193, 139);
 }
+.left, .right {
+	display: flex;
+	align-items: center;
+}
+.right {
+	left: 700px;
+}
+.top {}
+.bottom {
+	top: 680px;
+}
+/* Walkways */
+.vertical {
+	position: absolute;
+	width: 66.7%;
+	height: 66px;
+	text-align: center;
+	float: left;
+}
+.horizontal {
+	position: absolute;
+	width: 68px;
+	height: 66.7%;
+	text-align: center;
+	float: left;
+}
+.house-plot-left {
+	position: absolute;
+	right: 0;
+	width: 33.3%;
+}
+.house-plot-top {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+}
+.placed-house {
+	width: 17px;
+	margin-bottom: -1px;
+}
+.placed-house-vertical {
+	margin-left: 3px;
+	display: block;
+}
+
 #jail {
 	position: absolute;
 	top: 0;
@@ -59,10 +105,6 @@ body {
 }
 .circ:hover {
 	background-color: #08F;
-}
-
-.placed-house {
-	width: 17px;
 }
 
 .house-icon {
@@ -169,31 +211,6 @@ body {
 	margin-left: 5px;
 }
 
-/* Location squares */
-.left {}
-.right {
-	left: 700px;
-}
-.top {}
-.bottom {
-	top: 680px;
-}
-/* Walkways */
-.vertical {
-	position: absolute;
-	width: 66.7%;
-	height: 66px;
-	text-align: center;
-	float: left;
-}
-.horizontal {
-	position: absolute;
-	width: 68px;
-	height: 66.7%;
-	text-align: center;
-	float: left;
-}
-
 /* Player displays */
 #heads {
 	position: absolute;
@@ -213,6 +230,10 @@ body {
 	padding: 5px 10px;
 	color: #333;
 	cursor: pointer;
+}
+.dashboard-divider {
+	background-color: rgb(68, 136, 204);
+	height: 5px;
 }
 .display-sprite {
 	height: 18px;

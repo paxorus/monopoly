@@ -7,7 +7,7 @@ import {
 } from "../execute-turn.js";
 
 function houseImageNames(placeIdx) {
-	const propertyImages = [...$("#board").children().eq(placeIdx).children("img")];
+	const propertyImages = [...$("#house-plot" + placeIdx).children("img")];
 	return propertyImages.map(image => image.src.substring(image.src.lastIndexOf("/") + 1));
 }
 

@@ -197,13 +197,15 @@ function useGetOutOfJailFreeCard(player) {
 
 function mortgageProperty(player, placeIdx) {
 	const place = places[placeIdx];
-	player.updateBalance(places.price / 2);
+	place.isMortgaged = true;
+	player.updateBalance(place.price / 2);
 	player.log(`Mortgaged ${place.name} for $${place.price / 2}.`);
 	emit.all("mortgage-property", {playerId: player.num, placeIdx});
 }
 
 function unmortgageProperty(player, placeIdx) {
 	const place = places[placeIdx];
+	place.isMortgaged = false;
 	player.updateBalance(- place.price / 2);
 	player.log(`Unmortgaged ${place.name} for $${place.price / 2}.`);
 	emit.all("unmortgage-property", {playerId: player.num, placeIdx});
@@ -213,6 +215,7 @@ module.exports = {
 	advanceTurn,
 	buyHouse,
 	executeTurn,
+	hasAchievedColoredMonopoly,
 	mortgageProperty,
 	payOutOfJail,
 	respondToBuyOffer,

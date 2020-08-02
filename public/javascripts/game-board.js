@@ -16,47 +16,54 @@ function buildGameBoard() {
 	const board = document.getElementById("board");
 
 	places.forEach((place, placeIdx) => {
-		const newdiv = document.createElement("div");
-		newdiv.dataset.no = placeIdx;
-		const indiv = document.createElement("div");
-		newdiv.style.backgroundColor = place.color;
-		
+		const locationSquare = document.createElement("div");
+		locationSquare.dataset.no = placeIdx;
+		locationSquare.style.backgroundColor = place.color;
+
+		const walkway = document.createElement("div");
+		const housePlot = document.createElement("div");
+		housePlot.id = "house-plot" + placeIdx;
+
 		switch (Math.floor(placeIdx / 10)) {
 			case 0:
-				newdiv.className = "location bottom";
-				newdiv.style.left = 70 * (10 - placeIdx) + "px";
-				indiv.style.bottom = 0;
-				indiv.className = "walkway horizontal";
+				locationSquare.className = "location bottom";
+				locationSquare.style.left = 70 * (10 - placeIdx) + "px";
+				walkway.style.bottom = 0;
+				walkway.className = "walkway horizontal";
 				break;
 			case 1:
-				newdiv.className = "location left";
-				newdiv.style.top = 680 - 68 * (placeIdx - 10) + "px";
-				indiv.style.left = 0;
-				indiv.className = "walkway vertical";
+				locationSquare.className = "location left";
+				locationSquare.style.top = 680 - 68 * (placeIdx - 10) + "px";
+				walkway.style.left = 0;
+				walkway.className = "walkway vertical";
+				housePlot.className = "house-plot-left";
 				break;
 			case 2:
-				newdiv.className = "location top";
-				newdiv.style.left = 70 * (placeIdx - 20) + "px";
-				indiv.style.top = 0;
-				indiv.className = "walkway horizontal";
+				locationSquare.className = "location top";
+				locationSquare.style.left = 70 * (placeIdx - 20) + "px";
+				walkway.style.top = 0;
+				walkway.className = "walkway horizontal";
+				housePlot.className = "house-plot-top";
 				break;
 			case 3:
-				newdiv.className = "location right";
-				newdiv.style.top = 68 * (placeIdx - 30) + "px";
-				indiv.style.right = 0;
-				indiv.className = "walkway vertical";
+				locationSquare.className = "location right";
+				locationSquare.style.top = 68 * (placeIdx - 30) + "px";
+				walkway.style.right = 0;
+				walkway.className = "walkway vertical";
+				housePlot.className = "house-plot-right";
 				break;
 		}
 
 		if (place.imageName) {
-			setLocationImage(newdiv, place.imageName);
+			setLocationImage(locationSquare, place.imageName);
 		}
 
 		// Add a neutral-colored walkway for house-able properties.
 		if (place.housePrice) {
-			newdiv.appendChild(indiv);
+			locationSquare.appendChild(walkway);
+			locationSquare.appendChild(housePlot);
 		}
-		board.appendChild(newdiv);
+		board.appendChild(locationSquare);
 	});
 
 	// Free Parking: add #alltax
@@ -94,30 +101,62 @@ function buildPlayerViews(players) {
 	// Build player sprites and place them at Go.
 	const board = document.getElementById("board");
 
-	players.forEach((player, i) => {
+	players.forEach(player => {
 		const playerSprite = player.buildSprite();
-		board.childNodes[Locations.Go].appendChild(playerSprite);
+		board.childNodes[player.placeIdx].appendChild(playerSprite);
 	});
 }
 
 function buildPlayerDashboards(players) {
 	// Set up the HUD for each player: name, location, and balance.
 	players.forEach((player, i) => {
-		const sprite = "<img class='display-sprite' src='https://cdn.bulbagarden.net/upload" + player.spriteFileName + "'>";
+		// Build header.
+		const header = document.createElement("div");
+		header.id = "head" + i;
+		header.className = "player-display-head";
 
-		const heads = document.getElementById("heads");
-		heads.innerHTML += "<div id='head" + i + "' class='player-display-head'></div>";
-		heads.innerHTML += "<div style='background-color:rgb(68, 136, 204);height:5px'></div>";
-		heads.innerHTML += `<div class='dashboard' id='user${i}' style='display:none'><span id='property-list${i}'></span><span id='jail-card${i}'></div>`;
+		const sprite = document.createElement("img");
+		sprite.className = "display-sprite";
+		sprite.src = "https://cdn.bulbagarden.net/upload" + player.spriteFileName;
 
-		$("#head" + i).html(sprite + player.name + ": <span id='loc" + i + "'>Go</span><div style='float:right' id='bal" + i + "'>$1500</div>");    
+		const location = document.createElement("span");
+		location.id = "loc" + i;
+		const balance = document.createElement("div");
+		balance.id = "bal" + i;
+		balance.style.float = "right";
+		balance.appendChild(document.createTextNode("$" + player.balance));
+
+		header.appendChild(sprite);
+		header.appendChild(document.createTextNode(player.name + ": "));
+		header.appendChild(location);
+		header.appendChild(balance);
+
+		// Build divider.
+		const bar = document.createElement("div");
+		bar.className = "dashboard-divider";
+
+		// Build dashboard.
+		const dashboard = document.createElement("div");
+		dashboard.id = "user" + i;
+		dashboard.style.display = "none";
+		dashboard.className = "dashboard";
+
+		const propertyList = document.createElement("span");
+		propertyList.id = "property-list" + i;
+		const jailCards = document.createElement("span");
+		jailCards.id = "jail-card" + i;
+
+		dashboard.appendChild(propertyList);
+		dashboard.appendChild(jailCards);
 
 		// Expand HUD on click.
-		$("#head" + i).click(function() {
-			if (document.getElementById("user" + i).style.display == "none") {
+		header.addEventListener("click", event => {
+			if (dashboard.style.display === "none") {
 				slide(i);
 			}
 		});
+
+		$("#heads").append(header, bar, dashboard);
 	});
 }
 

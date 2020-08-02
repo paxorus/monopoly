@@ -10,6 +10,7 @@ const {
 	advanceTurn,
 	buyHouse,
 	executeTurn,
+	hasAchievedColoredMonopoly,
 	mortgageProperty,
 	payOutOfJail,
 	respondToBuyOffer,
@@ -17,6 +18,7 @@ const {
 	unmortgageProperty,
 	useGetOutOfJailFreeCard
 } = require("./core/execute-turn.js");
+const {MONOPOLIES, places} = require("./core/location-configs.js");
 const {configureEmitter, emit} = require("./core/message-box.js");
 const {authLookup, players, GlobalState} = require("./core/startup.js");
 
@@ -40,13 +42,28 @@ io.on("connection", socket => {
 		const playerData = players.map(player => ({
 			name: player.name,
 			num: player.num,
-			spriteFileName: player.spriteFileName
+			spriteFileName: player.spriteFileName,
+			balance: player.balance,
+			placeIdx: player.placeIdx,
+			jailDays: player.jailDays,
+			numJailCards: player.numJailCards
+		}));
+
+		const locationData = places.map((place, idx) => ({
+			placeIdx: idx,
+			ownerNum: place.ownerNum,
+			houseCount: place.houseCount,
+			isMortgaged: place.isMortgaged
 		}));
 
 		if (GlobalState.hasGameStarted) {
 			// For subsequent users, or users who refreshed the page.
+			const monopolies = MONOPOLIES.filter(monopoly => hasAchievedColoredMonopoly(monopoly, player.num));
+
 			player.emit("start-up", {
-				newPlayers: playerData,
+				playerData,
+				locationData,
+				monopolies,
 				startingPlayerNum: GlobalState.currentPlayer.num,
 				yourPlayerNum: player.num
 			});
@@ -59,7 +76,9 @@ io.on("connection", socket => {
 	    GlobalState.currentPlayer = players[startingPlayerNum];
 
 		io.emit("start-up", {
-			newPlayers: playerData,
+			playerData,
+			locationData,
+			monopolies: [],
 			startingPlayerNum,
 			yourPlayerNum: player.num
 		});
