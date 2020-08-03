@@ -1,6 +1,5 @@
 import {showCard} from "./display-card.js";
 import {places, Locations} from "./location-configs.js";
-import {log, MessageBox} from "./message-box.js";
 
 const JAIL_VERTICAL_WALKWAY_CAPACITY = 3;
 
