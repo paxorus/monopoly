@@ -13,7 +13,7 @@ import {buildAllViews, GlobalState} from "./game-board.js";
 import {log} from "./message-box.js";
 import Player from "./player.js";
 
-function startUp({isNewGame, playerData, locationData, savedMessages, monopolies, yourPlayerId, currentPlayerId}) {
+function startUp({isNewGame, playerData, locationData, savedMessages, monopolies, yourPlayerId, currentPlayerId, tax}) {
 
 	const players = playerData.map(({name, num, spriteFileName, balance}) => {
 		const player = new Player(name, num, spriteFileName);
@@ -23,6 +23,7 @@ function startUp({isNewGame, playerData, locationData, savedMessages, monopolies
 
 	GlobalState.me = players[yourPlayerId];
 	GlobalState.players = players;
+	GlobalState.tax = tax;
 
 	buildAllViews(players);
 

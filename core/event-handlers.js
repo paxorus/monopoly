@@ -55,7 +55,8 @@ function onConnection(io, socket) {
 				savedMessages,
 				monopolies,
 				currentPlayerId: GlobalState.currentPlayer.num,
-				yourPlayerId: player.num
+				yourPlayerId: player.num,
+				tax: GlobalState.tax
 			});
 			return;
 		}
@@ -72,7 +73,8 @@ function onConnection(io, socket) {
 			savedMessages: [],
 			monopolies: [],
 			currentPlayerId,
-			yourPlayerId: player.num
+			yourPlayerId: player.num,
+			tax: 0
 		});
 	});
 

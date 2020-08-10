@@ -115,6 +115,11 @@ socket.on("offer-pay-out-of-jail", () => {
 	offerPayOutOfJail();
 });
 
+// Tax actions
+socket.on("update-tax", ({tax}) => {
+	GlobalState.tax = tax;
+});
+
 // Mortgage actions
 socket.on("mortgage-property", ({playerId, placeIdx}) => {
 	mortgageProperty(GlobalState.players[playerId], placeIdx);

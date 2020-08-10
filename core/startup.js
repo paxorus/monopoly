@@ -1,5 +1,5 @@
 const Player = require("./player.js");
-const {createPlayerMessageBoxes} = require("./message-box.js");
+const {createPlayerMessageBoxes, emit} = require("./message-box.js");
 
 // Shared state
 // Players are hard-coded for now.
@@ -37,6 +37,14 @@ const authLookup = {
 const GlobalState = {
 	currentPlayer: undefined,
 	tax: 0,
+	addToTax: taxDelta => {
+		this.tax += taxDelta;
+		emit.all("update-tax", {tax: this.tax});
+	},
+	clearTax: () => {
+		this.tax = 0;
+		emit.all("update-tax", {tax: 0});
+	},
 	hasGameStarted: false
 };
 

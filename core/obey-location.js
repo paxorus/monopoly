@@ -75,18 +75,18 @@ function obeySpecialSquare(mover) {
 			break;
 		case Locations.IncomeTax:
 			mover.updateBalance(-200);
-			GlobalState.tax += 200;
+			GlobalState.addToTax(200);
 			mover.log("You paid $200 income tax.");
 			break;
 		case Locations.LuxuryTax:
 			mover.updateBalance(-100);
-			GlobalState.tax += 100;
+			GlobalState.addToTax(100);
 			mover.log("You paid $100 luxury tax.");
 			break;
 		case Locations.FreeParking:
 			const tax = GlobalState.tax;
 			mover.updateBalance(tax);
-			GlobalState.tax = 0;
+			GlobalState.clearTax();
 			if (tax > 0) {
 				mover.log("You collected $" + tax + " from free parking!");
 			} else {

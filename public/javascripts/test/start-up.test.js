@@ -39,7 +39,8 @@ describe("Start Up", () => {
 			],
 			monopolies: [[16, 18, 19]],
 			yourPlayerId: 0,
-			currentPlayerId: 0
+			currentPlayerId: 0,
+			tax: 500
 		});
 
 		it("should load the current balance", () => {
@@ -92,5 +93,10 @@ describe("Start Up", () => {
 				""
 			]);
 		});
+
+		it("should load the current free parking cash pool", () => {
+			assert.equal(500, GlobalState.tax);
+		});
+
 	});
 });

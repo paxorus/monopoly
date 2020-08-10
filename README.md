@@ -16,7 +16,6 @@ The Pokemon sprites are loaded from Bulbapedia.
 * Losing and exiting the game.
 
 #### App Essentials
-* Reloadability
 * Registration page
 * Rooms (currently only one game at a time is supported)
 * Auction
@@ -46,6 +45,5 @@ The Pokemon sprites are loaded from Bulbapedia.
 
 ## Bugs
 * Player sprites should not be middle-aligned like the houses in left+right squares.
-* Forward tax changes to the UI and make it reloadable
 * Does the server use GlobalState.currentPlayer or can I delete it?
 * Attach all event listeners in JS, instead of setting them on the window and letting HTML find them in the global space.
