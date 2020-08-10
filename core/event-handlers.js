@@ -11,12 +11,11 @@ const {
 	useGetOutOfJailFreeCard
 } = require("./execute-turn.js");
 const {MONOPOLIES, places} = require("./location-configs.js");
-const {configureEmitter, emit} = require("./message-box.js");
+const {configureEmitter, emit, getMessagesForPlayer} = require("./message-box.js");
 const {authLookup, players, GlobalState} = require("./startup.js");
 
 function onConnection(io, socket) {
 	console.log("a user connected");
-	configureEmitter(io, socket);
 
 	socket.on("disconnect", () => {
 		console.log("a user disconnected");
@@ -47,27 +46,33 @@ function onConnection(io, socket) {
 			// For subsequent users, or users who refreshed the page.
 			const monopolies = MONOPOLIES.filter(monopoly => hasAchievedColoredMonopoly(monopoly, player.num));
 
+			const savedMessages = getMessagesForPlayer(player.num);
+
 			player.emit("start-up", {
+				isNewGame: false,
 				playerData,
 				locationData,
+				savedMessages,
 				monopolies,
-				startingPlayerNum: GlobalState.currentPlayer.num,
-				yourPlayerNum: player.num
+				currentPlayerId: GlobalState.currentPlayer.num,
+				yourPlayerId: player.num
 			});
 			return;
 		}
 
 		GlobalState.hasGameStarted = true;
 		// Choose starting player.
-		const startingPlayerNum = Math.floor(Math.random() * players.length);
-	    GlobalState.currentPlayer = players[startingPlayerNum];
+		const currentPlayerId = Math.floor(Math.random() * players.length);
+		GlobalState.currentPlayer = players[currentPlayerId];
 
 		io.emit("start-up", {
+			isNewGame: true,
 			playerData,
 			locationData,
+			savedMessages: [],
 			monopolies: [],
-			startingPlayerNum,
-			yourPlayerNum: player.num
+			currentPlayerId,
+			yourPlayerId: player.num
 		});
 	});
 

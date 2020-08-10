@@ -17,7 +17,7 @@ function advanceTurn() {
 	GlobalState.currentPlayer = nextPlayer;
 	emit.all("advance-turn", {
 		nextPlayerId: nextPlayer.num
-	});	
+	});
 }
 
 function executeTurn(mover) {

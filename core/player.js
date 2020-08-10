@@ -52,6 +52,7 @@ module.exports = class Player {
 
 	emit(eventName, message) {
 		this.socket.emit(eventName, message);
+		emit.saveMessageForPlayer(this.num, eventName, message);
 	}
 
 	log(message) {

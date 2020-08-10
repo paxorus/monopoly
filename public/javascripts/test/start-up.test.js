@@ -33,9 +33,13 @@ describe("Start Up", () => {
 		startUp({
 			playerData,
 			locationData,
+			savedMessages: [
+				["log", "some message"],
+				["offer-unowned-property", {placeIdx: 3}]
+			],
 			monopolies: [[16, 18, 19]],
-			yourPlayerNum: 0,
-			startingPlayerNum: 0
+			yourPlayerId: 0,
+			currentPlayerId: 0
 		});
 
 		it("should load the current balance", () => {
@@ -79,5 +83,14 @@ describe("Start Up", () => {
 			});
 		});
 
+		it("should replay all message logs and offers", () => {
+			const messages = [...$("#message-box").contents()].map(x => x.textContent.trim());
+			assert.deepEqual(messages, [
+				"some message",
+				"",
+				"Boop, would you like to buy Baltic Avenue for $60?",
+				""
+			]);
+		});
 	});
 });

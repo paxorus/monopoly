@@ -1,4 +1,5 @@
 const Player = require("./player.js");
+const {createPlayerMessageBoxes} = require("./message-box.js");
 
 // Shared state
 // Players are hard-coded for now.
@@ -38,6 +39,8 @@ const GlobalState = {
 	tax: 0,
 	hasGameStarted: false
 };
+
+createPlayerMessageBoxes(players);
 
 module.exports = {
 	GlobalState,

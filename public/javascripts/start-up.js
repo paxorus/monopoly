@@ -1,8 +1,19 @@
+import {
+	addGetOutOfJailFreeCard,
+	allowConcludeTurn,
+	buildHouseButtons,
+	buyHouse,
+	mortgageProperty,
+	offerPayOutOfJail,
+	offerUnownedProperty,
+	purchaseProperty,
+	updateTurn
+} from "./execute-turn.js";
 import {buildAllViews, GlobalState} from "./game-board.js";
-import {addGetOutOfJailFreeCard, buildHouseButtons, buyHouse, mortgageProperty, purchaseProperty} from "./execute-turn.js";
+import {log} from "./message-box.js";
 import Player from "./player.js";
 
-function startUp({playerData, locationData, monopolies, yourPlayerNum, startingPlayerNum}) {
+function startUp({isNewGame, playerData, locationData, savedMessages, monopolies, yourPlayerId, currentPlayerId}) {
 
 	const players = playerData.map(({name, num, spriteFileName, balance}) => {
 		const player = new Player(name, num, spriteFileName);
@@ -10,7 +21,7 @@ function startUp({playerData, locationData, monopolies, yourPlayerNum, startingP
 		return player;
 	});
 
-	GlobalState.me = players[yourPlayerNum];
+	GlobalState.me = players[yourPlayerId];
 	GlobalState.players = players;
 
 	buildAllViews(players);
@@ -29,14 +40,6 @@ function startUp({playerData, locationData, monopolies, yourPlayerNum, startingP
 			addGetOutOfJailFreeCard(player);
 		}
 	});
-
-	// TODO: only if it's the first turn
-	if (yourPlayerNum === startingPlayerNum) {
-		$("#initial-interactive").css("display", "block");
-	} else {
-		$("#waiting-on-player").css("display", "block");
-		$("#current-player-name").text(players[startingPlayerNum].name);
-	}
 
 	locationData.forEach(({placeIdx, ownerNum, houseCount, isMortgaged}) => {
 		if (ownerNum === -1 || ownerNum === undefined) {
@@ -62,6 +65,41 @@ function startUp({playerData, locationData, monopolies, yourPlayerNum, startingP
 			buildHouseButtons(placeIdx);
 		});
 	});
+
+	if (savedMessages.length === 0) {// If it's the first turn
+		if (yourPlayerId === currentPlayerId) {
+			$("#initial-interactive").css("display", "block");
+		} else {
+			$("#waiting-on-player").css("display", "block");
+			$("#current-player-name").text(players[currentPlayerId].name);
+		}
+	} else {
+		$("#interactive").css("display", "block");
+		savedMessages
+			.filter(([eventName, message]) => eventName === "log")
+			.forEach(([eventName, message]) => log(message));
+
+		const [finalEventName, finalMessage] = savedMessages[savedMessages.length - 1];
+		switch (finalEventName) {
+			// Offers
+			case "allow-conclude-turn":
+				allowConcludeTurn();
+				break;
+
+			case "offer-pay-out-of-jail":
+				offerPayOutOfJail();
+				break;
+
+			case "offer-unowned-property":
+				offerUnownedProperty(GlobalState.me, finalMessage.placeIdx);
+				break;
+
+			case "advance-turn":
+				updateTurn(finalMessage.nextPlayerId);
+				break;
+		}
+
+	}
 }
 
 export {
