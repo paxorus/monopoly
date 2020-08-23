@@ -4,60 +4,54 @@
 <style>
 #invalid-name-message {font-size: 12px; height: 15px}
 .highlight-invalid-message {color: red}
+#page-container {background-color: rgba(255, 255, 255, 0.3);}
 </style>
 </head>
-<body>
+<body style="background-image: url('images/background-monopoly.png')">
 
-<!-- TODO: List games -->
+<div id="page-container">
+<h1>Current Games</h1>
+<% if (inProgressGames.length > 0) { %>
+	<% for (let i = 0; i < inProgressGames.length; i ++) { %>
+		<a href="/game/<%= inProgressGames[i].id %>">
+		<div>
+			Admin: <%= inProgressGames[i].adminId === yourId ? "You" : inProgressGames[i].adminId %>
+			<br />
+			Game: <%= inProgressGames[i].name %>
+			<br />
+			Created: <%= new Date(inProgressGames[i].createTime) %>
+		</div>
+		</a>
+	<% } %>
+<% } else { %>
+	<div>None</div>
+<% } %>
+
+<h1>Completed Games</h1>
+<% if (completedGames.length > 0) { %>
+	<% for (let i = 0; i < completedGames.length; i ++) { %>
+		<div>
+			Admin: <%= completedGames[0].adminId %>
+			<br />
+			Game: <%= completedGames[0].name %>
+			<br />
+			Created: <%= new Date(completedGames[0].createTime) %>
+		</div>
+	<% } %>
+<% } else { %>
+	<div>None</div>
+<% } %>
 
 <form id="new-game-form" style="display: inline-block">
 	<center>
+	<h1>Create New Game</h1>
 	Name: <input id="game-name-field" type="text" />
 	<div id="invalid-name-message"></div>
 	<div id="create-game" class="button button-disabled" style="display: inline-block;">Create</div>
 	</center>
 </form>
+</div>
 
 <script src="/javascripts/third-party/jquery.js"></script>
-<script>
-// Don't reload page on input Enter or button click.
-$("#new-game-form").submit(event => event.preventDefault());
-
-$("#game-name-field").on("input", event => {
-	// Validate as user types.
-	const {isValid, reason} = isValidString(event.target.value);
-	$("#create-game").toggleClass("button-disabled", ! isValid);
-	$("#invalid-name-message").text(reason);
-});
-
-$("#game-name-field").on("blur", event => {
-	// Redden invalid reason if user leaves field.
-	const reason = $("#invalid-name-message").text();
-	if (reason !== "") {
-		$("#invalid-name-message").toggleClass("highlight-invalid-message", true);
-	}
-});
-
-
-$("#create-game").click(event => {
-	// AJAX details to server.
-	const gameName = $("#game-name-field").val();
-	location.href = `/game/create/${gameName}`;
-});
-
-function isValidString(input) {
-	if (input.length < 5 || input.length > 50) {
-		return {isValid: false, reason: "Name must be 5-50 characters long."};
-	}
-
-	for (let i = 0; i < input.length; i ++) {
-		const charCode = input.charCodeAt(i);
-		if (charCode < 32 || charCode > 126) {
-			return {isValid: false, reason: "Invalid character, only alphanumeric and common symbols are allowed."};
-		}
-	}
-
-	return {isValid: true, reason: ""}
-}
-</script>
+<script src="/javascripts/landing/create-game.js"></script>
 </body></html>

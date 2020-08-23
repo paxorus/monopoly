@@ -17,36 +17,79 @@ app.set("view engine", "ejs");
 
 io.on("connection", socket => onConnection(io, socket));
 
-let games = {};
+let games = {
+	"oiwftflpzyhsxjgarpla": {
+		id: "oiwftflpzyhsxjgarpla",
+		name: "my game",
+		adminId: "heerffgylfgxuslpsujz",
+		createTime: 1598213805058,
+		hasStarted: false,
+		hasCompleted: false
+	}
+};
 
+let players = {
+	"heerffgylfgxuslpsujz": {
+		secretKey: "icmufmqrjuybromognhx",
+		gameIds: ["oiwftflpzyhsxjgarpla"]
+	}
+};
 
 app.get("/", function(req, res) {
 	if ("playerId" in req.cookies) {
-		// TODO: Fetch games
-		const games = [];
-		// TODO: Fetch player
-		res.render("pages/landing", {games});
+		const {playerId, secretKey} = req.cookies;
+		const player = players[playerId];
+		if (player.secretKey !== secretKey) {
+			res.status(401);
+			return;
+		}
+		const playerGames = player.gameIds.map(gameId => games[gameId]);
+		const inProgressGames = playerGames.filter(game => ! game.hasCompleted);
+		const completedGames = playerGames.filter(game => game.hasCompleted);
+		res.render("pages/landing", {
+			inProgressGames,
+			completedGames,
+			yourId: playerId
+		});
 	} else {
-		res.cookie("playerId", randomId(), {httpOnly: true});
-		res.render("pages/landing", {games: []});
+		// New player.
+		const playerId = randomId();
+		const secretKey = randomId();
+		res.cookie("playerId", playerId, {httpOnly: true});
+		res.cookie("secretKey", secretKey, {httpOnly: true});
+		players[playerId] = {
+			gameIds: [],
+			secretKey
+		};
+		res.render("pages/landing", {
+			inProgressGames: [],
+			completedGames: [],
+			yourId: playerId
+		});
 	}
 });
 
+// TODO: bug if game name is "create"
 app.get("/game/create/:gameName", function(req, res) {
 	const {gameName} = req.params;
 	const {playerId} = req.cookies;
 	const gameId = randomId();
 	const newGame = {
+		id: gameId,
 		name: gameName,
 		adminId: playerId,
-		createTime: +new Date()
+		createTime: +new Date(),
+		hasStarted: false,
+		hasCompleted: false
 	};
 	// TODO: blocking game registration
 	games[gameId] = newGame;
-	res.redirect(`/lobby/${gameId}`);
+	players[playerId].gameIds.push(gameId);
+
+	res.redirect(`/game/${gameId}`);
 });
 
-app.get("/lobby/:gameId", function(req, res) {
+app.get("/game/:gameId", function(req, res) {
 	const {gameId} = req.params;
 
 	const game = games[gameId];
@@ -56,19 +99,26 @@ app.get("/lobby/:gameId", function(req, res) {
 		});
 	}
 
-	const {playerId} = req.cookies;
-	res.render("pages/lobby", {
-		adminId: game.adminId,
-		gameName: game.name,
-		gameCreateTime: game.createTime
-	});
+	// TODO: Show game if complete.
+	if (game.hasStarted) {
+		// Render game.
+		res.render("pages/gameplay", {gameId, secretKey});
+	} else {
+		// Render lobby.
+		const {playerId} = req.cookies;
+		res.render("pages/lobby", {
+			adminId: game.adminId,
+			gameName: game.name,
+			gameCreateTime: game.createTime
+		});
+	}
 });
 
-app.get("/game/play/:gameId/:secretKey", function(req, res) {
-	const {gameId, secretKey} = req.params;
-	// TODO: Fetch game state
-	res.render("pages/gameplay", {gameId, secretKey});
-});
+// app.get("/game/play/:gameId/:secretKey", function(req, res) {
+// 	const {gameId, secretKey} = req.params;
+// 	// TODO: Fetch game state
+// 	res.render("pages/gameplay", {gameId, secretKey});
+// });
 
 // app.post("/game/create", function(req, res) {
 // 	const {userId} = req.params;
