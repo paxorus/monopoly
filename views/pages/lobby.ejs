@@ -4,9 +4,53 @@
 </head>
 <body>
 
-Admin: <%= adminId %>
+Admin: <%= adminId === yourId ? "You" : adminId %>
 <br />
 Game: <%= gameName %>
 <br />
 Created: <%= new Date(gameCreateTime) %>
+
+<div id="join-game" class="button" style="display: inline-block;">Join Game</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/javascripts/third-party/jquery.js"></script>
+<script>
+const gameId = "<%= gameId %>";
+
+const socket = io("/lobby");
+
+socket.emit("join-lobby", {gameId});
+
+let hasJoinedGame = false;
+
+$("#join-game").click(event => {
+	if (hasJoinedGame) {
+		socket.emit("leave-game");
+		$("#join-game").text("Join Game");
+		hasJoinedGame = false;
+	} else {
+		socket.emit("join-game");
+		$("#join-game").text("Leave Game");
+		hasJoinedGame = true;
+	}
+});
+
+socket.on("join-game", ({playerId}) => {
+	console.log("join", playerId);
+});
+
+socket.on("leave-game", ({playerId}) => {
+	console.log("leave", playerId);
+});
+
+socket.on("bad-player-id", () => {
+	console.error("Server did not recognize player ID. :(");
+});
+
+socket.on("bad-secret-key", () => {
+	console.error("Server recognized player ID but failed credentials. :(");
+});
+
+</script>
+
 </body></html>

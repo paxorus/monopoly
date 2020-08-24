@@ -41,7 +41,7 @@ window.hideLocationCard = hideLocationCard;
 import {log} from "/javascripts/message-box.js";
 window.log = log;
 
-const socket = io();
+const socket = io("/gameplay");
 window.socket = socket;
 
 socket.on("start-up", startUp);

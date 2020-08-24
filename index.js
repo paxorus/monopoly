@@ -1,7 +1,8 @@
 const express = require("express");
 const http = require("http");
 const socketIO = require("socket.io");
-const cookieParser = require('cookie-parser')
+const cookie = require("cookie");
+const cookieParser = require("cookie-parser");
 
 const {onConnection} = require("./core/event-handlers.js");
 
@@ -15,7 +16,7 @@ app.use(cookieParser());
 app.set("views", __dirname + "/views");
 app.set("view engine", "ejs");
 
-io.on("connection", socket => onConnection(io, socket));
+io.of("/gameplay").on("connection", socket => onConnection(io, socket));
 
 let games = {
 	"oiwftflpzyhsxjgarpla": {
@@ -39,10 +40,18 @@ app.get("/", function(req, res) {
 	if ("playerId" in req.cookies) {
 		const {playerId, secretKey} = req.cookies;
 		const player = players[playerId];
+		if (player === undefined) {
+			res.status(401);
+			res.send("401 (Unauthorized): Player not recognized");
+		}
+
 		if (player.secretKey !== secretKey) {
 			res.status(401);
+			res.send("401 (Unauthorized): Player recognized but does not match device");
 			return;
 		}
+
+		// TODO: get the below info async
 		const playerGames = player.gameIds.map(gameId => games[gameId]);
 		const inProgressGames = playerGames.filter(game => ! game.hasCompleted);
 		const completedGames = playerGames.filter(game => game.hasCompleted);
@@ -53,14 +62,7 @@ app.get("/", function(req, res) {
 		});
 	} else {
 		// New player.
-		const playerId = randomId();
-		const secretKey = randomId();
-		res.cookie("playerId", playerId, {httpOnly: true});
-		res.cookie("secretKey", secretKey, {httpOnly: true});
-		players[playerId] = {
-			gameIds: [],
-			secretKey
-		};
+		const playerId = setNewPlayerAndCookies(res);
 		res.render("pages/landing", {
 			inProgressGames: [],
 			completedGames: [],
@@ -99,6 +101,13 @@ app.get("/game/:gameId", function(req, res) {
 		});
 	}
 
+	let {playerId} = req.cookies;
+
+	if (playerId === undefined) {
+		// New visitor.
+		setNewPlayerAndCookies(res);
+	}
+
 	// TODO: Show game if complete.
 	if (game.hasStarted) {
 		// Render game.
@@ -109,10 +118,27 @@ app.get("/game/:gameId", function(req, res) {
 		res.render("pages/lobby", {
 			adminId: game.adminId,
 			gameName: game.name,
-			gameCreateTime: game.createTime
+			gameCreateTime: game.createTime,
+			gameId: game.id,
+			yourId: playerId
 		});
 	}
 });
+
+function setNewPlayerAndCookies(res) {
+	const playerId = randomId();
+	const secretKey = randomId();
+
+	res.cookie("playerId", playerId, {httpOnly: true});
+	res.cookie("secretKey", secretKey, {httpOnly: true});
+
+	players[playerId] = {
+		gameIds: [],
+		secretKey
+	};
+
+	return playerId;
+}
 
 // app.get("/game/play/:gameId/:secretKey", function(req, res) {
 // 	const {gameId, secretKey} = req.params;
@@ -126,6 +152,49 @@ app.get("/game/:gameId", function(req, res) {
 // 	games[gameId] = null;
 // 	res.render("pages/lobby", {admin: userId, gameId});
 // });
+
+io.of("/lobby").on("connection", socket => {
+
+	const {playerId, secretKey} = cookie.parse(socket.request.headers.cookie);
+
+	// Authenticate and identify socket on connection.
+	if (!(playerId in players)) {
+		// Invalid player ID or secret key.
+		socket.emit("bad-player-id");
+		return;
+	}
+
+	if (players[playerId].secretKey !== secretKey) {
+		// Invalid player ID or secret key.
+		socket.emit("bad-secret-key");
+		return;
+	}
+
+	const player = players[playerId];// Needed?
+
+	let _gameId;
+
+	socket.on("join-lobby", ({gameId}) => {
+		_gameId = gameId;
+		socket.join(`lobby-${gameId}`);
+		console.log(`${playerId} joined lobby ${_gameId}`);
+	});
+
+	socket.on("join-game", () => {
+		socket.to(`lobby-${_gameId}`).emit("join-game", {playerId});
+		console.log(`${playerId} joined game ${_gameId}`);
+	});
+
+	socket.on("leave-game", () => {
+		socket.to(`lobby-${_gameId}`).emit("leave-game", {playerId});
+		console.log(`${playerId} left game ${_gameId}`);
+	});
+
+	socket.on("disconnect", () => {
+		console.log("left lobby");
+	});
+});
+
 
 // To run client-side tests.
 app.get("/test", function(req, res) {
