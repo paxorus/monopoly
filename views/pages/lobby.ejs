@@ -10,38 +10,65 @@ Game: <%= gameName %>
 <br />
 Created: <%= new Date(gameCreateTime) %>
 
-<div id="join-game" class="button" style="display: inline-block;">Join Game</div>
+<ul id="joined-players">
+<% for (let i = 0; i < joinedPlayerNames.length; i ++) { %>
+	<li><%= joinedPlayerNames[i] %></li>
+<% } %>
+</ul>
+
+<div id="join-game" class="button" style="display: inline-block;">
+<% if (hasJoinedGame) { %>
+	Leave Game
+<% } else { %>
+	Join Game
+<% } %>
+</div>
+
+<% if (adminId === yourId) { %>
+<div id="start-game" class="button" style="display: inline-block;">Start Game</div>
+<% } %>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/javascripts/third-party/jquery.js"></script>
 <script>
 const gameId = "<%= gameId %>";
+const myId = "<%= yourId %>";
 
 const socket = io("/lobby");
 
 socket.emit("join-lobby", {gameId});
 
-let hasJoinedGame = false;
+let hasJoinedGame = <%= hasJoinedGame %>;
 
+const playerIds = <%- JSON.stringify(joinedPlayerNames) %>;
+
+/*
+ * Page event handlers.
+ */
 $("#join-game").click(event => {
 	if (hasJoinedGame) {
 		socket.emit("leave-game");
 		$("#join-game").text("Join Game");
 		hasJoinedGame = false;
+		removePlayerFromList(myId);
 	} else {
 		socket.emit("join-game");
 		$("#join-game").text("Leave Game");
 		hasJoinedGame = true;
+		addPlayerToList(myId);
 	}
 });
 
-socket.on("join-game", ({playerId}) => {
-	console.log("join", playerId);
+$("#start-game").click(event => {
+	location.href = `/action/start-game/`;
 });
 
-socket.on("leave-game", ({playerId}) => {
-	console.log("leave", playerId);
-});
+/**
+ * Socket event handlers.
+ */
+socket.on("join-game", ({playerId}) => addPlayerToList(playerId));
+
+socket.on("leave-game", ({playerId}) => removePlayerFromList(playerId));
 
 socket.on("bad-player-id", () => {
 	console.error("Server did not recognize player ID. :(");
@@ -50,6 +77,22 @@ socket.on("bad-player-id", () => {
 socket.on("bad-secret-key", () => {
 	console.error("Server recognized player ID but failed credentials. :(");
 });
+
+function addPlayerToList(playerId) {
+	// Add to list.
+	const li = document.createElement("li");
+	li.textContent = playerId;
+	$("#joined-players").append(li);
+	playerIds.push(playerId);
+}
+
+function removePlayerFromList(playerId) {
+	// Remove from list.
+	const index = playerIds.indexOf(playerId);
+
+	$("#joined-players").children().eq(index).remove();
+	playerIds.splice(index, 1);
+}
 
 </script>
 

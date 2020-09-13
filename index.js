@@ -16,6 +16,13 @@ app.use(cookieParser());
 app.set("views", __dirname + "/views");
 app.set("view engine", "ejs");
 
+Array.prototype.remove = function (x) {
+	const idx = this.findIndex(y => y === x);
+	if (idx !== -1) {
+		this.splice(idx, 1);
+	}
+};
+
 io.of("/gameplay").on("connection", socket => onConnection(io, socket));
 
 let games = {
@@ -25,7 +32,8 @@ let games = {
 		adminId: "heerffgylfgxuslpsujz",
 		createTime: 1598213805058,
 		hasStarted: false,
-		hasCompleted: false
+		hasCompleted: false,
+		playerIds: []
 	}
 };
 
@@ -51,7 +59,7 @@ app.get("/", function(req, res) {
 			return;
 		}
 
-		// TODO: get the below info async
+		// TODO: have page ajax-get the below info after page load
 		const playerGames = player.gameIds.map(gameId => games[gameId]);
 		const inProgressGames = playerGames.filter(game => ! game.hasCompleted);
 		const completedGames = playerGames.filter(game => game.hasCompleted);
@@ -71,8 +79,7 @@ app.get("/", function(req, res) {
 	}
 });
 
-// TODO: bug if game name is "create"
-app.get("/game/create/:gameName", function(req, res) {
+app.get("/action/create-game/:gameName", function(req, res) {
 	const {gameName} = req.params;
 	const {playerId} = req.cookies;
 	const gameId = randomId();
@@ -82,7 +89,8 @@ app.get("/game/create/:gameName", function(req, res) {
 		adminId: playerId,
 		createTime: +new Date(),
 		hasStarted: false,
-		hasCompleted: false
+		hasCompleted: false,
+		playerIds: []
 	};
 	// TODO: blocking game registration
 	games[gameId] = newGame;
@@ -105,7 +113,7 @@ app.get("/game/:gameId", function(req, res) {
 
 	if (playerId === undefined) {
 		// New visitor.
-		setNewPlayerAndCookies(res);
+		playerId = setNewPlayerAndCookies(res);
 	}
 
 	// TODO: Show game if complete.
@@ -114,13 +122,15 @@ app.get("/game/:gameId", function(req, res) {
 		res.render("pages/gameplay", {gameId, secretKey});
 	} else {
 		// Render lobby.
-		const {playerId} = req.cookies;
+		// const {playerId} = req.cookies;
 		res.render("pages/lobby", {
 			adminId: game.adminId,
 			gameName: game.name,
 			gameCreateTime: game.createTime,
 			gameId: game.id,
-			yourId: playerId
+			yourId: playerId,
+			joinedPlayerNames: game.playerIds.map(playerId => playerId),
+			hasJoinedGame: game.playerIds.includes(playerId)
 		});
 	}
 });
@@ -170,7 +180,7 @@ io.of("/lobby").on("connection", socket => {
 		return;
 	}
 
-	const player = players[playerId];// Needed?
+	// const player = players[playerId];// Needed?
 
 	let _gameId;
 
@@ -181,12 +191,20 @@ io.of("/lobby").on("connection", socket => {
 	});
 
 	socket.on("join-game", () => {
+		if (games[_gameId].playerIds.includes(playerId)) {
+			return;
+		}
+
 		socket.to(`lobby-${_gameId}`).emit("join-game", {playerId});
+		games[_gameId].playerIds.push(playerId);
+		players[playerId].gameIds.push(_gameId);
 		console.log(`${playerId} joined game ${_gameId}`);
 	});
 
 	socket.on("leave-game", () => {
 		socket.to(`lobby-${_gameId}`).emit("leave-game", {playerId});
+		games[_gameId].playerIds.remove(playerId);
+		players[playerId].gameIds.remove(_gameId);
 		console.log(`${playerId} left game ${_gameId}`);
 	});
 

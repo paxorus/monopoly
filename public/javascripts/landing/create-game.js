@@ -21,7 +21,7 @@ $("#create-game").click(event => {
 	const gameName = $("#game-name-field").val();
 	const {isValid} = isValidString(gameName);
 	if (isValid) {
-		location.href = `/game/create/${gameName}`;
+		location.href = `/action/create-game/${gameName}`;
 	}
 });
 
