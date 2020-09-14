@@ -16,6 +16,7 @@ app.use(cookieParser());
 app.set("views", __dirname + "/views");
 app.set("view engine", "ejs");
 
+// Monkey patch
 Array.prototype.remove = function (x) {
 	const idx = this.findIndex(y => y === x);
 	if (idx !== -1) {
@@ -51,6 +52,7 @@ app.get("/", function(req, res) {
 		if (player === undefined) {
 			res.status(401);
 			res.send("401 (Unauthorized): Player not recognized");
+			return;
 		}
 
 		if (player.secretKey !== secretKey) {
@@ -107,13 +109,15 @@ app.get("/game/:gameId", function(req, res) {
 		res.render("pages/404", {
 			message: `Game ${gameId} not found.`
 		});
+		return;
 	}
 
-	let {playerId} = req.cookies;
+	let {playerId, secretKey} = req.cookies;
 
-	if (playerId === undefined) {
-		// New visitor.
+	if (playerId === undefined) {// New visitor.
 		playerId = setNewPlayerAndCookies(res);
+	} else if (!authenticatePlayer(res, playerId, secretKey)) {
+		return;
 	}
 
 	// TODO: Show game if complete.
@@ -191,7 +195,12 @@ io.of("/lobby").on("connection", socket => {
 	});
 
 	socket.on("join-game", () => {
-		if (games[_gameId].playerIds.includes(playerId)) {
+		const game = games[_gameId];
+		if (game.playerIds.includes(playerId)) {
+			return;
+		}
+
+		if (game.hasStarted) {
 			return;
 		}
 
@@ -202,17 +211,52 @@ io.of("/lobby").on("connection", socket => {
 	});
 
 	socket.on("leave-game", () => {
+		const game = games[_gameId];
+		if (game.hasStarted) {
+			return;
+		}
+
 		socket.to(`lobby-${_gameId}`).emit("leave-game", {playerId});
 		games[_gameId].playerIds.remove(playerId);
 		players[playerId].gameIds.remove(_gameId);
 		console.log(`${playerId} left game ${_gameId}`);
 	});
 
+	socket.on("start-game", () => {
+		const game = games[_gameId];
+
+		if (game.adminId !== playerId) {
+			res.status(401);
+			res.send("401 (Unauthorized): You are not the admin of this game");
+			return;
+		}
+
+		game.hasStarted = true;
+		io.of("/lobby").to(`lobby-${_gameId}`).emit("start-game");
+	});
+
 	socket.on("disconnect", () => {
-		console.log("left lobby");
+		console.log(`${playerId} left lobby ${_gameId}`);
 	});
 });
 
+function authenticatePlayer(res, playerId, secretKey) {
+	const player = players[playerId];
+
+	if (player === undefined) {
+		res.status(401);
+		res.send("401 (Unauthorized): Player not recognized");
+		return false;
+	}
+
+	if (player.secretKey !== secretKey) {
+		res.status(401);
+		res.send("401 (Unauthorized): Player recognized but does not match device");
+		return false;
+	}
+
+	return true;
+}
 
 // To run client-side tests.
 app.get("/test", function(req, res) {

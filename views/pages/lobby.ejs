@@ -60,7 +60,8 @@ $("#join-game").click(event => {
 });
 
 $("#start-game").click(event => {
-	location.href = `/action/start-game/`;
+	// This will reload the page for all users.
+	socket.emit("start-game", {gameId});
 });
 
 /**
@@ -69,6 +70,8 @@ $("#start-game").click(event => {
 socket.on("join-game", ({playerId}) => addPlayerToList(playerId));
 
 socket.on("leave-game", ({playerId}) => removePlayerFromList(playerId));
+
+socket.on("start-game", () => location.reload());
 
 socket.on("bad-player-id", () => {
 	console.error("Server did not recognize player ID. :(");
