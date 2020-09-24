@@ -1,3 +1,4 @@
+const Data = require("./data.js");
 const {
 	advanceTurn,
 	buyHouse,
@@ -10,22 +11,36 @@ const {
 	unmortgageProperty,
 	useGetOutOfJailFreeCard
 } = require("./execute-turn.js");
-const {MONOPOLIES, places} = require("./location-configs.js");
+const {MONOPOLIES} = require("./location-configs.js");
 const {configureEmitter, emit, getMessagesForPlayer} = require("./message-box.js");
 const {authLookup, players, GlobalState} = require("./startup.js");
 
-function onConnection(io, socket) {
+function onConnection(io, socket, userId) {
+
+	let game, player;
+
 	console.log("a user connected");
 
 	socket.on("disconnect", () => {
 		console.log("a user disconnected");
 	});
 
-	socket.on("start-up", ({secretKey}) => {
-		const player = authLookup[secretKey];
+	socket.on("start-up", ({gameId}) => {
+		// Look up (game, user).
+		game = Data.games[gameId];
+		player = game.players.find(_player => _player.userId === userId);
+
+		if (player === undefined) {
+			console.error(`User ${userId} does not have a player in game ${gameId}.`);
+			console.error(game.players);
+			return;
+		}
+
+		socket.join(gameId);
 		player.configureEmitter(socket);
 
-		const playerData = players.map(player => ({
+		// Send the serializable subset of Player.
+		const playerData = game.players.map(player => ({
 			name: player.name,
 			num: player.num,
 			spriteFileName: player.spriteFileName,
@@ -35,46 +50,19 @@ function onConnection(io, socket) {
 			numJailCards: player.numJailCards
 		}));
 
-		const locationData = places.map((place, idx) => ({
-			placeIdx: idx,
-			ownerNum: place.ownerNum,
-			houseCount: place.houseCount,
-			isMortgaged: place.isMortgaged
-		}));
+		const monopolies = MONOPOLIES.filter(monopoly => hasAchievedColoredMonopoly(monopoly, player));
 
-		if (GlobalState.hasGameStarted) {
-			// For subsequent users, or users who refreshed the page.
-			const monopolies = MONOPOLIES.filter(monopoly => hasAchievedColoredMonopoly(monopoly, player.num));
+		// TODO
+		// const savedMessages = getMessagesForPlayer(player.num);
 
-			const savedMessages = getMessagesForPlayer(player.num);
-
-			player.emit("start-up", {
-				isNewGame: false,
-				playerData,
-				locationData,
-				savedMessages,
-				monopolies,
-				currentPlayerId: GlobalState.currentPlayer.num,
-				yourPlayerId: player.num,
-				tax: GlobalState.tax
-			});
-			return;
-		}
-
-		GlobalState.hasGameStarted = true;
-		// Choose starting player.
-		const currentPlayerId = Math.floor(Math.random() * players.length);
-		GlobalState.currentPlayer = players[currentPlayerId];
-
-		io.emit("start-up", {
-			isNewGame: true,
+		player.emit("start-up", {
 			playerData,
-			locationData,
-			savedMessages: [],
-			monopolies: [],
-			currentPlayerId,
+			locationData: game.places,
+			savedMessages: game.savedMessages,
+			monopolies,
+			currentPlayerId: game.currentPlayer.num,
 			yourPlayerId: player.num,
-			tax: 0
+			tax: game.tax
 		});
 	});
 
@@ -84,38 +72,38 @@ function onConnection(io, socket) {
 	});
 
 	socket.on("execute-turn", ({playerId}) => {
-		executeTurn(players[playerId]);
+		executeTurn(player);
 	});
 
 	// Property actions
 	socket.on("respond-to-buy-offer", ({playerId, ifBuy}) => {
-		respondToBuyOffer(players[playerId], ifBuy);
+		respondToBuyOffer(player, ifBuy);
 	});
 
 	socket.on("buy-house", ({playerId, placeIdx}) => {
-		buyHouse(players[playerId], placeIdx);
+		buyHouse(player, placeIdx);
 	});
 
 	socket.on("sell-house", ({playerId, placeIdx}) => {
-		sellHouse(players[playerId], placeIdx);
+		sellHouse(player, placeIdx);
 	});
 
 	// Jail actions
 	socket.on("use-jail-card", ({playerId}) => {
-		useGetOutOfJailFreeCard(players[playerId]);
+		useGetOutOfJailFreeCard(player);
 	});
 
 	socket.on("pay-out-of-jail", ({playerId}) => {
-		payOutOfJail(players[playerId]);
+		payOutOfJail(player);
 	});
 
 	// Mortgage rules
 	socket.on("mortgage-property", ({playerId, placeIdx}) => {
-		mortgageProperty(players[playerId], placeIdx);
+		mortgageProperty(player, placeIdx);
 	});
 
 	socket.on("unmortgage-property", ({playerId, placeIdx}) => {
-		unmortgageProperty(players[playerId], placeIdx);
+		unmortgageProperty(player, placeIdx);
 	});
 };
 

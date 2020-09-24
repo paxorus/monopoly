@@ -2,10 +2,12 @@ const {places, Locations} = require("./location-configs.js");
 const {emit} = require("./message-box.js");
 
 module.exports = class Player {
-	constructor(name, num, spriteFileName) {
+	constructor(name, userId, num, spriteFileName, game) {
 		this.name = name;
+		this.userId = userId;
 		this.num = num;
 		this.spriteFileName = spriteFileName;
+		this.game = game;
 
 		this.latestRoll = null;
 		this.rollCount = 0;// Needed?

@@ -67,9 +67,9 @@ $("#start-game").click(event => {
 /**
  * Socket event handlers.
  */
-socket.on("join-game", ({playerId}) => addPlayerToList(playerId));
+socket.on("join-game", ({userId}) => addPlayerToList(userId));
 
-socket.on("leave-game", ({playerId}) => removePlayerFromList(playerId));
+socket.on("leave-game", ({userId}) => removePlayerFromList(userId));
 
 socket.on("start-game", () => location.reload());
 

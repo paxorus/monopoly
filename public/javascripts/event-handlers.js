@@ -129,9 +129,9 @@ socket.on("unmortgage-property", ({playerId, placeIdx}) => {
 	unmortgageProperty(GlobalState.players[playerId], placeIdx);
 });
 
-function initializeGame() {
+function initializeGame(gameId) {
 	socket.emit("start-up", {
-		secretKey
+		gameId
 	});
 }
 

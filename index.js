@@ -4,7 +4,9 @@ const socketIO = require("socket.io");
 const cookie = require("cookie");
 const cookieParser = require("cookie-parser");
 
+const Data = require("./core/data.js");
 const {onConnection} = require("./core/event-handlers.js");
+const {startGame} = require("./core/startup.js");
 
 const app = express();
 const server = http.createServer(app);
@@ -25,80 +27,61 @@ Array.prototype.remove = function (x) {
 };
 
 io.of("/gameplay").on("connection", socket => {
-	const {playerId, secretKey} = cookie.parse(socket.request.headers.cookie);
+	const {userId, secretKey} = cookie.parse(socket.request.headers.cookie);
 
 	// Authenticate and identify socket on connection.
-	if (!socketAuthenticatePlayer(socket, playerId, secretKey)) {
+	if (!socketAuthenticatePlayer(socket, userId, secretKey)) {
 		return;
 	}
 
-	onConnection(io, socket);
+	onConnection(io, socket, userId);
 });
 
-let games = {
-	"oiwftflpzyhsxjgarpla": {
-		id: "oiwftflpzyhsxjgarpla",
-		name: "my game",
-		adminId: "heerffgylfgxuslpsujz",
-		createTime: 1598213805058,
-		hasStarted: false,
-		hasCompleted: false,
-		playerIds: []
-	}
-};
-
-let players = {
-	"heerffgylfgxuslpsujz": {
-		secretKey: "icmufmqrjuybromognhx",
-		gameIds: ["oiwftflpzyhsxjgarpla"]
-	}
-};
-
 app.get("/", function(req, res) {
-	if ("playerId" in req.cookies) {
-		const {playerId, secretKey} = req.cookies;
-		if (!httpAuthenticatePlayer(res, playerId, secretKey)) {
+	if ("userId" in req.cookies) {
+		const {userId, secretKey} = req.cookies;
+		if (!httpAuthenticatePlayer(res, userId, secretKey)) {
 			return;
 		}
 
-		const player = players[playerId];
+		const player = Data.users[userId];
 
 		// TODO: have page ajax-get the below info after page load
-		const playerGames = player.gameIds.map(gameId => games[gameId]);
+		const playerGames = player.gameIds.map(gameId => Data.games[gameId]);
 		const inProgressGames = playerGames.filter(game => ! game.hasCompleted);
 		const completedGames = playerGames.filter(game => game.hasCompleted);
 		res.render("pages/landing", {
 			inProgressGames,
 			completedGames,
-			yourId: playerId
+			yourId: userId
 		});
 	} else {
 		// New player.
-		const playerId = setNewPlayerAndCookies(res);
+		const userId = setNewPlayerAndCookies(res);
 		res.render("pages/landing", {
 			inProgressGames: [],
 			completedGames: [],
-			yourId: playerId
+			yourId: userId
 		});
 	}
 });
 
 app.get("/action/create-game/:gameName", function(req, res) {
 	const {gameName} = req.params;
-	const {playerId} = req.cookies;
+	const {userId} = req.cookies;
 	const gameId = randomId();
 	const newGame = {
 		id: gameId,
 		name: gameName,
-		adminId: playerId,
+		adminId: userId,
 		createTime: +new Date(),
 		hasStarted: false,
 		hasCompleted: false,
-		playerIds: []
+		lobby: {}
 	};
 	// TODO: blocking game registration
-	games[gameId] = newGame;
-	players[playerId].gameIds.push(gameId);
+	Data.games[gameId] = newGame;
+	Data.users[userId].gameIds.push(gameId);
 
 	res.redirect(`/game/${gameId}`);
 });
@@ -106,7 +89,7 @@ app.get("/action/create-game/:gameName", function(req, res) {
 app.get("/game/:gameId", function(req, res) {
 	const {gameId} = req.params;
 
-	const game = games[gameId];
+	const game = Data.games[gameId];
 	if (!game) {
 		res.render("pages/404", {
 			message: `Game ${gameId} not found.`
@@ -114,83 +97,70 @@ app.get("/game/:gameId", function(req, res) {
 		return;
 	}
 
-	let {playerId, secretKey} = req.cookies;
+	let {userId, secretKey} = req.cookies;
 
-	if (playerId === undefined) {// New visitor.
-		playerId = setNewPlayerAndCookies(res);
-	} else if (!httpAuthenticatePlayer(res, playerId, secretKey)) {
+	if (userId === undefined) {// New visitor.
+		userId = setNewPlayerAndCookies(res);
+	} else if (!httpAuthenticatePlayer(res, userId, secretKey)) {
 		return;
 	}
 
 	// TODO: Show game if complete.
 	if (game.hasStarted) {
 		// Render game.
-		res.render("pages/gameplay", {gameId, secretKey});
+		res.render("pages/gameplay", {gameId});
 	} else {
 		// Render lobby.
-		// const {playerId} = req.cookies;
+		// const {userId} = req.cookies;
 		res.render("pages/lobby", {
 			adminId: game.adminId,
 			gameName: game.name,
 			gameCreateTime: game.createTime,
 			gameId: game.id,
-			yourId: playerId,
-			joinedPlayerNames: game.playerIds.map(playerId => playerId),
-			hasJoinedGame: game.playerIds.includes(playerId)
+			yourId: userId,
+			joinedPlayerNames: Object.keys(game.lobby).map(lobbyMember => lobbyMember.name),
+			hasJoinedGame: Object.keys(game.lobby).includes(userId)
 		});
 	}
 });
 
 function setNewPlayerAndCookies(res) {
-	const playerId = randomId();
+	const userId = randomId();
 	const secretKey = randomId();
 
-	res.cookie("playerId", playerId, {httpOnly: true});
+	res.cookie("userId", userId, {httpOnly: true});
 	res.cookie("secretKey", secretKey, {httpOnly: true});
 
-	players[playerId] = {
+	Data.users[userId] = {
 		gameIds: [],
 		secretKey
 	};
 
-	return playerId;
+	return userId;
 }
-
-// app.get("/game/play/:gameId/:secretKey", function(req, res) {
-// 	const {gameId, secretKey} = req.params;
-// 	// TODO: Fetch game state
-// 	res.render("pages/gameplay", {gameId, secretKey});
-// });
-
-// app.post("/game/create", function(req, res) {
-// 	const {userId} = req.params;
-// 	const gameId = Math.random();
-// 	games[gameId] = null;
-// 	res.render("pages/lobby", {admin: userId, gameId});
-// });
 
 io.of("/lobby").on("connection", socket => {
 
-	const {playerId, secretKey} = cookie.parse(socket.request.headers.cookie);
+	const {userId, secretKey} = cookie.parse(socket.request.headers.cookie);
 
 	// Authenticate and identify socket on connection.
-	if (!socketAuthenticatePlayer(socket, playerId, secretKey)) {
+	if (!socketAuthenticatePlayer(socket, userId, secretKey)) {
 		return;
 	}
 
-	// const player = players[playerId];// Needed?
+	// const player = players[userId];// Needed?
 
 	let _gameId;
 
 	socket.on("join-lobby", ({gameId}) => {
 		_gameId = gameId;
 		socket.join(`lobby-${gameId}`);
-		console.log(`${playerId} joined lobby ${_gameId}`);
+		console.log(`${userId} joined lobby ${_gameId}`);
 	});
 
 	socket.on("join-game", () => {
-		const game = games[_gameId];
-		if (game.playerIds.includes(playerId)) {
+		const game = Data.games[_gameId];
+		if (Object.keys(game.lobby).includes(userId)) {
 			return;
 		}
 
@@ -198,44 +168,46 @@ io.of("/lobby").on("connection", socket => {
 			return;
 		}
 
-		socket.to(`lobby-${_gameId}`).emit("join-game", {playerId});
-		games[_gameId].playerIds.push(playerId);
-		players[playerId].gameIds.push(_gameId);
-		console.log(`${playerId} joined game ${_gameId}`);
+		socket.to(`lobby-${_gameId}`).emit("join-game", {userId});
+		Data.games[_gameId].lobby[userId] = {name: userId, sprite: "/8/8a/483Dialga.png"};
+		Data.users[userId].gameIds.push(_gameId);
+		console.log(`${userId} joined game ${_gameId}`);
 	});
 
 	socket.on("leave-game", () => {
-		const game = games[_gameId];
+		const game = Data.games[_gameId];
 		if (game.hasStarted) {
 			return;
 		}
 
-		socket.to(`lobby-${_gameId}`).emit("leave-game", {playerId});
-		games[_gameId].playerIds.remove(playerId);
-		players[playerId].gameIds.remove(_gameId);
-		console.log(`${playerId} left game ${_gameId}`);
+		socket.to(`lobby-${_gameId}`).emit("leave-game", {userId});
+		delete Data.games[_gameId].lobby[userId];
+		console.log(`${userId} left game ${_gameId}`);
 	});
 
 	socket.on("start-game", () => {
-		const game = games[_gameId];
 
-		if (game.adminId !== playerId) {
+		const game = Data.games[_gameId];
+
+		if (game.adminId !== userId) {
 			res.status(401);
 			res.send("401 (Unauthorized): You are not the admin of this game");
 			return;
 		}
 
-		game.hasStarted = true;
+		// Bootstrap game state to be playable.
+		startGame(game);
+
 		io.of("/lobby").to(`lobby-${_gameId}`).emit("start-game");
 	});
 
 	socket.on("disconnect", () => {
-		console.log(`${playerId} left lobby ${_gameId}`);
+		console.log(`${userId} left lobby ${_gameId}`);
 	});
 });
 
-function httpAuthenticatePlayer(res, playerId, secretKey) {
-	const player = players[playerId];
+function httpAuthenticatePlayer(res, userId, secretKey) {
+	const player = Data.users[userId];
 
 	if (player === undefined) {
 		res.status(401);
@@ -252,14 +224,14 @@ function httpAuthenticatePlayer(res, playerId, secretKey) {
 	return true;
 }
 
-function socketAuthenticatePlayer(socket, playerId, secretKey) {
-	if (!(playerId in players)) {
+function socketAuthenticatePlayer(socket, userId, secretKey) {
+	if (!(userId in Data.users)) {
 		// Invalid player ID or secret key.
 		socket.emit("bad-player-id");
 		return false;
 	}
 
-	if (players[playerId].secretKey !== secretKey) {
+	if (Data.users[userId].secretKey !== secretKey) {
 		// Invalid player ID or secret key.
 		socket.emit("bad-secret-key");
 		return false;

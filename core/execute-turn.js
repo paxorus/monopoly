@@ -131,10 +131,10 @@ function purchaseProperty(mover, placeIdx) {
 	}
 }
 
-function hasAchievedColoredMonopoly(monopoly, playerId) {
+function hasAchievedColoredMonopoly(monopoly, player) {
 	return monopoly !== undefined
 		&& monopoly !== Railroads && monopoly !== Utilities
-		&& monopoly.every(placeIdx => places[placeIdx].ownerNum === playerId);
+		&& monopoly.every(placeIdx => player.game.places[placeIdx].ownerNum === player.num);
 }
 
 function concatenatePropertyNames(names) {
