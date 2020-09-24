@@ -24,7 +24,16 @@ Array.prototype.remove = function (x) {
 	}
 };
 
-io.of("/gameplay").on("connection", socket => onConnection(io, socket));
+io.of("/gameplay").on("connection", socket => {
+	const {playerId, secretKey} = cookie.parse(socket.request.headers.cookie);
+
+	// Authenticate and identify socket on connection.
+	if (!socketAuthenticatePlayer(socket, playerId, secretKey)) {
+		return;
+	}
+
+	onConnection(io, socket);
+});
 
 let games = {
 	"oiwftflpzyhsxjgarpla": {
@@ -48,18 +57,11 @@ let players = {
 app.get("/", function(req, res) {
 	if ("playerId" in req.cookies) {
 		const {playerId, secretKey} = req.cookies;
-		const player = players[playerId];
-		if (player === undefined) {
-			res.status(401);
-			res.send("401 (Unauthorized): Player not recognized");
+		if (!httpAuthenticatePlayer(res, playerId, secretKey)) {
 			return;
 		}
 
-		if (player.secretKey !== secretKey) {
-			res.status(401);
-			res.send("401 (Unauthorized): Player recognized but does not match device");
-			return;
-		}
+		const player = players[playerId];
 
 		// TODO: have page ajax-get the below info after page load
 		const playerGames = player.gameIds.map(gameId => games[gameId]);
@@ -116,7 +118,7 @@ app.get("/game/:gameId", function(req, res) {
 
 	if (playerId === undefined) {// New visitor.
 		playerId = setNewPlayerAndCookies(res);
-	} else if (!authenticatePlayer(res, playerId, secretKey)) {
+	} else if (!httpAuthenticatePlayer(res, playerId, secretKey)) {
 		return;
 	}
 
@@ -172,15 +174,7 @@ io.of("/lobby").on("connection", socket => {
 	const {playerId, secretKey} = cookie.parse(socket.request.headers.cookie);
 
 	// Authenticate and identify socket on connection.
-	if (!(playerId in players)) {
-		// Invalid player ID or secret key.
-		socket.emit("bad-player-id");
-		return;
-	}
-
-	if (players[playerId].secretKey !== secretKey) {
-		// Invalid player ID or secret key.
-		socket.emit("bad-secret-key");
+	if (!socketAuthenticatePlayer(socket, playerId, secretKey)) {
 		return;
 	}
 
@@ -240,7 +234,7 @@ io.of("/lobby").on("connection", socket => {
 	});
 });
 
-function authenticatePlayer(res, playerId, secretKey) {
+function httpAuthenticatePlayer(res, playerId, secretKey) {
 	const player = players[playerId];
 
 	if (player === undefined) {
@@ -252,6 +246,22 @@ function authenticatePlayer(res, playerId, secretKey) {
 	if (player.secretKey !== secretKey) {
 		res.status(401);
 		res.send("401 (Unauthorized): Player recognized but does not match device");
+		return false;
+	}
+
+	return true;
+}
+
+function socketAuthenticatePlayer(socket, playerId, secretKey) {
+	if (!(playerId in players)) {
+		// Invalid player ID or secret key.
+		socket.emit("bad-player-id");
+		return false;
+	}
+
+	if (players[playerId].secretKey !== secretKey) {
+		// Invalid player ID or secret key.
+		socket.emit("bad-secret-key");
 		return false;
 	}
 
