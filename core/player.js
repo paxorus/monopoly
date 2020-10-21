@@ -1,4 +1,4 @@
-const {places, Locations} = require("./location-configs.js");
+const {Locations} = require("./location-configs.js");
 
 module.exports = class Player {
 	constructor(name, userId, num, spriteFileName, game) {

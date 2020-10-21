@@ -1,4 +1,4 @@
-const {places, propertyComparator, MONOPOLIES, Railroads, Utilities} = require("./location-configs.js");
+const {propertyComparator, LocationInfo, MONOPOLIES, Railroads, Utilities} = require("./location-configs.js");
 const {obeyLocation} = require("./obey-location.js");
 
 function rollDice() {
@@ -12,7 +12,7 @@ function concludeTurn(mover) {
 
 function advanceTurn(mover, game) {
 	const nextPlayerId = (game.currentPlayerId + 1) % game.players.length;
-	game.currentPlayer = nextPlayerId;
+	game.currentPlayerId = nextPlayerId;
 	mover.emitToAll("advance-turn", {
 		nextPlayerId
 	});
@@ -84,15 +84,15 @@ function rollMove(mover) {
 	mover.rollCount ++;
 	mover.log("You rolled a " + roll1 + " and a " + roll2 + ".");
 
-	let newLocation = mover.placeIdx + roll1 + roll2;
-	if (newLocation > 39) {
+	let newLocationIdx = mover.placeIdx + roll1 + roll2;
+	if (newLocationIdx > 39) {
 		// Pass Go.
-		newLocation -= 40;
+		newLocationIdx -= 40;
 		mover.updateBalance(200);
 	}
-	mover.updateLocation(newLocation);
+	mover.updateLocation(newLocationIdx);
 
-	mover.log("You landed on " + places[newLocation].name + ".");
+	mover.log("You landed on " + LocationInfo[newLocationIdx].name + ".");
 	const shouldWaitForUserResponse = obeyLocation(mover);
 
 	if (!shouldWaitForUserResponse && shouldRollAgain(mover)) {
@@ -104,7 +104,7 @@ function respondToBuyOffer(mover, ifBuy) {
 	if (ifBuy) {
 		purchaseProperty(mover, mover.placeIdx);
 	} else {
-		mover.log(places[mover.placeIdx].name + " went unsold.");
+		mover.log(LocationInfo[mover.placeIdx].name + " went unsold.");
 	}
 	if (shouldRollAgain(mover)) {
 		rollMove(mover);
@@ -112,7 +112,7 @@ function respondToBuyOffer(mover, ifBuy) {
 }
 
 function purchaseProperty(mover, placeIdx) {
-	const place = places[placeIdx];
+	const place = mover.game.places[placeIdx];
 
 	mover.updateBalance(-place.price);
 	place.ownerNum = mover.num;
@@ -121,8 +121,8 @@ function purchaseProperty(mover, placeIdx) {
 
 	// Check for a new monopoly.
 	const monopoly = MONOPOLIES.find(monopoly => monopoly.includes(placeIdx));
-	if (hasAchievedColoredMonopoly(monopoly, mover.num)) {
-		const propertyNames = monopoly.map(placeIdx => places[placeIdx].name);
+	if (hasAchievedColoredMonopoly(monopoly, mover)) {
+		const propertyNames = monopoly.map(placeIdx => LocationInfo[placeIdx].name);
 		mover.log("Monopoly! You may now build houses on " + concatenatePropertyNames(propertyNames)
 			+ ", and their rents have doubled.");
 		monopoly.forEach(placeIdx => mover.emit("build-house-buttons", {placeIdx}));
@@ -132,7 +132,7 @@ function purchaseProperty(mover, placeIdx) {
 function hasAchievedColoredMonopoly(monopoly, player) {
 	return monopoly !== undefined
 		&& monopoly !== Railroads && monopoly !== Utilities
-		&& monopoly.every(placeIdx => places[placeIdx].ownerNum === player.num);
+		&& monopoly.every(placeIdx => player.game.places[placeIdx].ownerNum === player.num);
 }
 
 function concatenatePropertyNames(names) {
@@ -144,7 +144,7 @@ function concatenatePropertyNames(names) {
 }
 
 function buyHouse(owner, placeIdx) {
-	const place = places[placeIdx];
+	const place = owner.game.places[placeIdx];
 
 	// Button disabled.
 	if (place.houseCount === 5 || place.isMortgaged) {
@@ -164,7 +164,7 @@ function buyHouse(owner, placeIdx) {
 }
 
 function sellHouse(owner, placeIdx) {
-	const place = places[placeIdx];
+	const place = owner.game.places[placeIdx];
 
 	// Button disabled.
 	if (place.houseCount === 0) {
@@ -194,7 +194,7 @@ function useGetOutOfJailFreeCard(player) {
 }
 
 function mortgageProperty(player, placeIdx) {
-	const place = places[placeIdx];
+	const place = player.game.places[placeIdx];
 	place.isMortgaged = true;
 	player.updateBalance(place.price / 2);
 	player.log(`Mortgaged ${place.name} for $${place.price / 2}.`);
@@ -202,7 +202,7 @@ function mortgageProperty(player, placeIdx) {
 }
 
 function unmortgageProperty(player, placeIdx) {
-	const place = places[placeIdx];
+	const place = player.game.places[placeIdx];
 	place.isMortgaged = false;
 	player.updateBalance(- place.price / 2);
 	player.log(`Unmortgaged ${place.name} for $${place.price / 2}.`);

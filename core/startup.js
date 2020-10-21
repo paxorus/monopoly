@@ -1,6 +1,6 @@
 const Data = require("./data.js");
 const Player = require("./player.js");
-const {places} = require("./location-configs.js");
+const {LocationInfo} = require("./location-configs.js");
 
 const Sprite = {
 	SWAMPERT_MEGA: "/9/98/260Swampert-Mega.png",
@@ -21,7 +21,6 @@ const LEGENDARY_MODE = false;
 function startGame(game) {
 	// Build the player for each user.
 	// TODO: Names and sprites should be customizable.
-	// TODO: Does Player need the idx?
 	const players = Object.entries(game.lobby).map(([userId, {name, sprite}], idx) => {
 		return new Player(name, userId, idx, sprite, game);
 	});
@@ -36,12 +35,14 @@ function startGame(game) {
 	game.tax = 0;
 	game.monopolies = [];
 
-	game.places = places.map((place, idx) => ({
-		placeIdx: idx,
-		ownerNum: -1,
-		houseCount: 0,
-		isMortgaged: false
-	}));
+	game.places = LocationInfo.map(place =>
+		place.price > 0 ? ({
+			ownerNum: -1,
+			houseCount: 0,
+			isMortgaged: false,
+			...place
+		}) : place
+	);
 }
 
 module.exports = {

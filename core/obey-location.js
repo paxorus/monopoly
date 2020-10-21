@@ -1,11 +1,11 @@
-const {places, Locations, MONOPOLIES} = require("./location-configs.js");
+const {Locations, MONOPOLIES} = require("./location-configs.js");
 
 const AdvanceToNextPlayer = false;
 const WaitForUserResponse = true;
 
 function obeyLocation(mover) {
 	// On location change (from a roll, chance card, or comm chest card), follow the rules of that square.
-	const place = places[mover.placeIdx];
+	const place = mover.game.places[mover.placeIdx];
 	if (place.price !== 0) {
 		if (place.ownerNum === -1) {
 			mover.emit("offer-unowned-property", {placeIdx: mover.placeIdx});
@@ -28,7 +28,7 @@ function determineRent(mover, owner, place) {
 	}
 
 	const propertyGroup = MONOPOLIES.find(group => group.includes(mover.placeIdx));
-	const ownershipCount = propertyGroup.filter(placeIdx => places[placeIdx].ownerNum === owner.num).length;
+	const ownershipCount = propertyGroup.filter(placeIdx => mover.game.places[placeIdx].ownerNum === owner.num).length;
 
 	switch (mover.placeIdx) {
 		case Locations.ElectricCompany: case Locations.WaterWorks:
@@ -171,21 +171,24 @@ function obeyChanceSquare(mover) {
 			mover.log('Go to jail. Go directly to jail, do not pass "Go", do not collect $200.');
 			mover.goToJail();
 			break;
-		case 12:
+		case 12: {
 			mover.log("Advance to the nearest utility. If Unowned, you may buy it from the bank. If Owned, pay owner a total ten times amount thrown on dice.");
 			if (mover.placeIdx >= Locations.ElectricCompany && mover.placeIdx < Locations.WaterWorks) {
 				mover.updateLocation(Locations.WaterWorks);
 			} else {
 				mover.updateLocation(Locations.ElectricCompany);
 			}
-			if (places[mover.placeIdx].ownerNum === -1) {
+
+			const game = mover.game;
+			if (game.places[mover.placeIdx].ownerNum === -1) {
 				return obeyLocation(mover);
-			} else if (places[mover.placeIdx].ownerNum != mover.num) {
-				const owner = mover.game.players[places[mover.placeIdx].ownerNum];
+			} else if (game.places[mover.placeIdx].ownerNum != mover.num) {
+				const owner = game.players[game.places[mover.placeIdx].ownerNum];
 				const [roll1, roll2] = mover.latestRoll;
 				payRent(mover, owner, 10 * (roll1 + roll2));
 			}
 			break;
+		}
 		case 13:
 			mover.log('Take a trip to Reading Railroad. If you pass "Go" collect $200.');
 			if (mover.placeIdx > Locations.ReadingRailroad) {
@@ -193,22 +196,24 @@ function obeyChanceSquare(mover) {
 			}
 			mover.updateLocation(Locations.ReadingRailroad);
 			break;
-		case 14: case 15:
+		case 14: case 15: {
 			mover.log("Advance to the nearest railroad. If Unowned, you may buy it from the bank. If Owned, pay owner twice the rental to which they are otherwise entitled.");
 			const rangeIdx = Math.floor((mover.placeIdx + 5) % 40 / 10);// What side of the board are we on if we step forward 5?
 			const nearestRailroadIdx = 10 * rangeIdx + 5;// Map that side to its railroad.
 
 			mover.updateLocation(nearestRailroadIdx);
-			const railroad = places[nearestRailroadIdx];
+			const game = mover.game;
+			const railroad = game.places[nearestRailroadIdx];
 			if (railroad.ownerNum === -1) {
 				return obeyLocation(mover);
-			} else if (mover.game.players[railroad.ownerNum] != mover) {
+			} else if (game.players[railroad.ownerNum] != mover) {
 				// Control the rent properly.
-				const owner = mover.game.players[railroad.ownerNum];
+				const owner = game.players[railroad.ownerNum];
 				const rent = determineRent(mover, owner, railroad);
 				payRent(owner, 2 * rent);
 			}
 			break;
+		}
 	}
 
 	return AdvanceToNextPlayer;
@@ -294,7 +299,7 @@ function obeyCommunityChestSquare(mover) {
 }
 
 function countOwnedBuildings(owner) {
-	return places.filter(place => place.ownerNum === owner.num)
+	return owner.game.places.filter(place => place.ownerNum === owner.num)
 		.reduce(({houses, hotels}, place) => {
 			const houseCount = place.houseCount;
 			if (houseCount === 5) {
