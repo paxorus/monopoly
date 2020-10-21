@@ -34,7 +34,7 @@ io.of("/gameplay").on("connection", socket => {
 		return;
 	}
 
-	onConnection(io, socket, userId);
+	onConnection(io.of("/gameplay"), socket, userId);
 });
 
 app.get("/", function(req, res) {
@@ -169,6 +169,7 @@ io.of("/lobby").on("connection", socket => {
 		}
 
 		socket.to(`lobby-${_gameId}`).emit("join-game", {userId});
+		// Player images are hard-coded for now.
 		Data.games[_gameId].lobby[userId] = {name: userId, sprite: "/8/8a/483Dialga.png"};
 		Data.users[userId].gameIds.push(_gameId);
 		console.log(`${userId} joined game ${_gameId}`);

@@ -1,5 +1,4 @@
 const {places, Locations} = require("./location-configs.js");
-const {emit} = require("./message-box.js");
 
 module.exports = class Player {
 	constructor(name, userId, num, spriteFileName, game) {
@@ -10,7 +9,7 @@ module.exports = class Player {
 		this.game = game;
 
 		this.latestRoll = null;
-		this.rollCount = 0;// Needed?
+		this.rollCount = 0;
 		this.balance = 1500;
 		this.placeIdx = Locations.Go;
 		
@@ -18,43 +17,71 @@ module.exports = class Player {
 		this.numJailCards = 0;
 
 		this.socket = null;
+		this.savedMessages = [];
 	}
 
 	decrementJailDays(jailDays) {
 		this.jailDays --;
-		emit.all("update-jail-days", {playerId: this.num, jailDays: this.jailDays});
+		this.io.emit("update-jail-days", {playerId: this.num, jailDays: this.jailDays});
 	}
 
 	goToJail() {
 		this.log("You will be in jail for 3 turns!");
 		this.updateLocation(Locations.Jail);
 		this.jailDays = 3;
-		emit.all("go-to-jail", {playerId: this.num});
+		this.io.emit("go-to-jail", {playerId: this.num});
 	}
 
 	getOutOfJail() {
 		this.log("You are now out of jail!");
 		this.jailDays = 0;
-		emit.all("get-out-of-jail", {playerId: this.num});
+		this.io.emit("get-out-of-jail", {playerId: this.num});
 	}
 
 	updateBalance(income) {
 		this.balance += income;
-		emit.all("update-balance", {playerId: this.num, balance: this.balance});
+		this.io.emit("update-balance", {playerId: this.num, balance: this.balance});
 	}
 
 	updateLocation(newLocation) {
 		this.placeIdx = newLocation;
-		emit.all("update-location", {playerId: this.num, placeIdx: this.placeIdx});
+		this.io.emit("update-location", {playerId: this.num, placeIdx: this.placeIdx});
 	}
 
-	configureEmitter(socket) {
+	configureEmitter(io, socket) {
 		this.socket = socket;
+		this.io = io;
 	}
 
 	emit(eventName, message) {
 		this.socket.emit(eventName, message);
-		emit.saveMessageForPlayer(this.num, eventName, message);
+		this.saveMessage(eventName, message);
+	}
+
+	emitToAll(eventName, message) {
+		this.io.emit(eventName, message);
+		this.saveMessage(eventName, message);
+	}
+
+	saveMessage(eventName, message) {
+		// Save messages of a player's most recent turn, to re-serve them on a page load.
+		switch (eventName) {
+			case "allow-conclude-turn":
+			case "offer-pay-out-of-jail":
+			case "offer-unowned-property":
+			case "log":
+				this.savedMessages.push([eventName, message]);
+				break;
+
+			case "advance-turn":
+				if (this.num === message.nextPlayerId) {
+					// Clear messages when going to show player the "Execute Turn" button.
+					this.savedMessages = [];
+				} else {
+					this.savedMessages.push([eventName, message]);
+				}
+				break;
+		}
 	}
 
 	log(message) {

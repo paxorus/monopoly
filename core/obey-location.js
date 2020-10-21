@@ -1,6 +1,4 @@
 const {places, Locations, MONOPOLIES} = require("./location-configs.js");
-const {emit} = require("./message-box.js");
-const {players, GlobalState} = require("./startup.js");
 
 const AdvanceToNextPlayer = false;
 const WaitForUserResponse = true;
@@ -14,7 +12,7 @@ function obeyLocation(mover) {
 			return WaitForUserResponse;
 		} else if (place.ownerNum != mover.num) {
 			// Owned: pay rent to the owner.
-			const owner = players[place.ownerNum];
+			const owner = mover.game.players[place.ownerNum];
 			const rent = determineRent(mover, owner, place);
 			payRent(mover, owner, rent);
 			return AdvanceToNextPlayer;
@@ -75,18 +73,21 @@ function obeySpecialSquare(mover) {
 			break;
 		case Locations.IncomeTax:
 			mover.updateBalance(-200);
-			GlobalState.addToTax(200);
+			mover.game.tax += 200;
+			mover.emitToAll("update-tax", {tax: mover.game.tax});
 			mover.log("You paid $200 income tax.");
 			break;
 		case Locations.LuxuryTax:
 			mover.updateBalance(-100);
-			GlobalState.addToTax(100);
+			mover.game.tax += 100;
+			mover.emitToAll("update-tax", {tax: mover.game.tax});
 			mover.log("You paid $100 luxury tax.");
 			break;
 		case Locations.FreeParking:
-			const tax = GlobalState.tax;
+			const tax = mover.game.tax;
 			mover.updateBalance(tax);
-			GlobalState.clearTax();
+			mover.game.tax = 0;
+			mover.emitToAll("update-tax", {tax: 0});
 			if (tax > 0) {
 				mover.log("You collected $" + tax + " from free parking!");
 			} else {
@@ -161,10 +162,10 @@ function obeyChanceSquare(mover) {
 			break;
 		case 10:
 			mover.log("You have been elected chairman of the board. Pay each player $50.");
-			players.forEach(player => {
+			mover.game.players.forEach(player => {
 				player.updateBalance(50);
 			});
-			mover.updateBalance(-50 * players.length);
+			mover.updateBalance(-50 * mover.game.players.length);
 			break;
 		case 11:
 			mover.log('Go to jail. Go directly to jail, do not pass "Go", do not collect $200.');
@@ -180,7 +181,7 @@ function obeyChanceSquare(mover) {
 			if (places[mover.placeIdx].ownerNum === -1) {
 				return obeyLocation(mover);
 			} else if (places[mover.placeIdx].ownerNum != mover.num) {
-				const owner = players[places[mover.placeIdx].ownerNum];
+				const owner = mover.game.players[places[mover.placeIdx].ownerNum];
 				const [roll1, roll2] = mover.latestRoll;
 				payRent(mover, owner, 10 * (roll1 + roll2));
 			}
@@ -201,9 +202,9 @@ function obeyChanceSquare(mover) {
 			const railroad = places[nearestRailroadIdx];
 			if (railroad.ownerNum === -1) {
 				return obeyLocation(mover);
-			} else if (players[railroad.ownerNum] != mover) {
+			} else if (mover.game.players[railroad.ownerNum] != mover) {
 				// Control the rent properly.
-				const owner = players[railroad.ownerNum];
+				const owner = mover.game.players[railroad.ownerNum];
 				const rent = determineRent(mover, owner, railroad);
 				payRent(owner, 2 * rent);
 			}
@@ -238,8 +239,8 @@ function obeyCommunityChestSquare(mover) {
 			break;
 		case 5:
 			mover.log("It is your birthday. Collect $10 from every player.");
-			mover.updateBalance(10 * players.length);
-			players.forEach(player => {
+			mover.updateBalance(10 * mover.game.players.length);
+			mover.game.players.forEach(player => {
 				player.updateBalance(-10);
 			});
 			break;
@@ -309,7 +310,7 @@ function countOwnedBuildings(owner) {
 
 function addGetOutOfJailFreeCard(mover) {
 	mover.numJailCards ++;
-	emit.all("add-jail-card", {playerId: mover.num});
+	mover.emitToAll("add-jail-card", {playerId: mover.num});
 }
 
 function useGetOutOfJailFreeCard(player) {

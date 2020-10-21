@@ -12,8 +12,7 @@ const {
 	useGetOutOfJailFreeCard
 } = require("./execute-turn.js");
 const {MONOPOLIES} = require("./location-configs.js");
-const {configureEmitter, emit, getMessagesForPlayer} = require("./message-box.js");
-const {authLookup, players, GlobalState} = require("./startup.js");
+const {authLookup} = require("./startup.js");
 
 function onConnection(io, socket, userId) {
 
@@ -37,7 +36,8 @@ function onConnection(io, socket, userId) {
 		}
 
 		socket.join(gameId);
-		player.configureEmitter(socket);
+		// TODO: Message all of the player's devices, not just the latest.
+		player.configureEmitter(io.to(gameId), socket);
 
 		// Send the serializable subset of Player.
 		const playerData = game.players.map(player => ({
@@ -47,20 +47,17 @@ function onConnection(io, socket, userId) {
 			balance: player.balance,
 			placeIdx: player.placeIdx,
 			jailDays: player.jailDays,
-			numJailCards: player.numJailCards
+			numJailCards: player.numJailCards,
+			savedMessages: player.savedMessages
 		}));
 
 		const monopolies = MONOPOLIES.filter(monopoly => hasAchievedColoredMonopoly(monopoly, player));
 
-		// TODO
-		// const savedMessages = getMessagesForPlayer(player.num);
-
 		player.emit("start-up", {
 			playerData,
 			locationData: game.places,
-			savedMessages: game.savedMessages,
 			monopolies,
-			currentPlayerId: game.currentPlayer.num,
+			currentPlayerId: game.currentPlayerId,
 			yourPlayerId: player.num,
 			tax: game.tax
 		});
@@ -68,7 +65,7 @@ function onConnection(io, socket, userId) {
 
 	// Turn actions
 	socket.on("advance-turn", () => {
-		advanceTurn();
+		advanceTurn(player, game);
 	});
 
 	socket.on("execute-turn", ({playerId}) => {

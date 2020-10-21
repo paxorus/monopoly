@@ -1,7 +1,5 @@
 const {places, propertyComparator, MONOPOLIES, Railroads, Utilities} = require("./location-configs.js");
-const {players, GlobalState} = require("./startup.js");
 const {obeyLocation} = require("./obey-location.js");
-const {emit} = require("./message-box.js");
 
 function rollDice() {
 	return Math.ceil(6 * Math.random());
@@ -12,11 +10,11 @@ function concludeTurn(mover) {
 	mover.emit("allow-conclude-turn");
 }
 
-function advanceTurn() {
-	const nextPlayer = players[(GlobalState.currentPlayer.num + 1) % players.length];
-	GlobalState.currentPlayer = nextPlayer;
-	emit.all("advance-turn", {
-		nextPlayerId: nextPlayer.num
+function advanceTurn(mover, game) {
+	const nextPlayerId = (game.currentPlayerId + 1) % game.players.length;
+	game.currentPlayer = nextPlayerId;
+	mover.emitToAll("advance-turn", {
+		nextPlayerId
 	});
 }
 
@@ -119,7 +117,7 @@ function purchaseProperty(mover, placeIdx) {
 	mover.updateBalance(-place.price);
 	place.ownerNum = mover.num;
 	mover.log("Congratulations, " + mover.name + "! You now own " + place.name + "!");
-	emit.all("purchase-property", {playerId: mover.num, placeIdx});
+	mover.emitToAll("purchase-property", {playerId: mover.num, placeIdx});
 
 	// Check for a new monopoly.
 	const monopoly = MONOPOLIES.find(monopoly => monopoly.includes(placeIdx));
@@ -134,7 +132,7 @@ function purchaseProperty(mover, placeIdx) {
 function hasAchievedColoredMonopoly(monopoly, player) {
 	return monopoly !== undefined
 		&& monopoly !== Railroads && monopoly !== Utilities
-		&& monopoly.every(placeIdx => player.game.places[placeIdx].ownerNum === player.num);
+		&& monopoly.every(placeIdx => places[placeIdx].ownerNum === player.num);
 }
 
 function concatenatePropertyNames(names) {
@@ -192,7 +190,7 @@ function useGetOutOfJailFreeCard(player) {
 	}
 
 	player.getOutOfJail();
-	emit.all("use-jail-card", {playerId: player.num})
+	player.emitToAll("use-jail-card", {playerId: player.num})
 }
 
 function mortgageProperty(player, placeIdx) {
@@ -200,7 +198,7 @@ function mortgageProperty(player, placeIdx) {
 	place.isMortgaged = true;
 	player.updateBalance(place.price / 2);
 	player.log(`Mortgaged ${place.name} for $${place.price / 2}.`);
-	emit.all("mortgage-property", {playerId: player.num, placeIdx});
+	player.emitToAll("mortgage-property", {playerId: player.num, placeIdx});
 }
 
 function unmortgageProperty(player, placeIdx) {
@@ -208,7 +206,7 @@ function unmortgageProperty(player, placeIdx) {
 	place.isMortgaged = false;
 	player.updateBalance(- place.price / 2);
 	player.log(`Unmortgaged ${place.name} for $${place.price / 2}.`);
-	emit.all("unmortgage-property", {playerId: player.num, placeIdx});
+	player.emitToAll("unmortgage-property", {playerId: player.num, placeIdx});
 }
 
 module.exports = {

@@ -13,7 +13,7 @@ import {buildAllViews, GlobalState} from "./game-board.js";
 import {log} from "./message-box.js";
 import Player from "./player.js";
 
-function startUp({playerData, locationData, savedMessages, monopolies, yourPlayerId, currentPlayerId, tax}) {
+function startUp({playerData, locationData, monopolies, yourPlayerId, currentPlayerId, tax}) {
 
 	const players = playerData.map(({name, num, spriteFileName, balance}) => {
 		const player = new Player(name, num, spriteFileName);
@@ -67,6 +67,8 @@ function startUp({playerData, locationData, savedMessages, monopolies, yourPlaye
 		});
 	});
 
+	// TODO: Display other users' actions.
+	const savedMessages = playerData[yourPlayerId].savedMessages;
 	if (savedMessages.length === 0) {// If it's the first turn
 		if (yourPlayerId === currentPlayerId) {
 			$("#initial-interactive").css("display", "block");
