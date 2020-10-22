@@ -59,8 +59,7 @@ module.exports = class Player {
 	}
 
 	emitToAll(eventName, message) {
-		this.io.emit(eventName, message);
-		this.saveMessage(eventName, message);
+		this.game.players.forEach(player => player.emit(eventName, message));
 	}
 
 	saveMessage(eventName, message) {
@@ -76,7 +75,7 @@ module.exports = class Player {
 			case "advance-turn":
 				if (this.num === message.nextPlayerId) {
 					// Clear messages when going to show player the "Execute Turn" button.
-					this.savedMessages = [];
+					this.savedMessages = [[eventName, message]];
 				} else {
 					this.savedMessages.push([eventName, message]);
 				}

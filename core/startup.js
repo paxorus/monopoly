@@ -26,8 +26,7 @@ function startGame(game) {
 	});
 
 	// Choose starting player.
-	const currentPlayerId = Math.floor(Math.random() * players.length);
-	game.currentPlayerId = currentPlayerId;
+	game.currentPlayerId = Math.floor(Math.random() * players.length);
 
 	game.players = players;
 	game.hasStarted = true;

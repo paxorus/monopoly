@@ -195,6 +195,7 @@ function obeyChanceSquare(mover) {
 				mover.updateBalance(200);
 			}
 			mover.updateLocation(Locations.ReadingRailroad);
+			return obeyLocation(mover);
 			break;
 		case 14: case 15: {
 			mover.log("Advance to the nearest railroad. If Unowned, you may buy it from the bank. If Owned, pay owner twice the rental to which they are otherwise entitled.");

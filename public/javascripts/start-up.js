@@ -42,7 +42,7 @@ function startUp({playerData, locationData, monopolies, yourPlayerId, currentPla
 		}
 	});
 
-	locationData.forEach(({placeIdx, ownerNum, houseCount, isMortgaged}) => {
+	locationData.forEach(({ownerNum, houseCount, isMortgaged}, placeIdx) => {
 		if (ownerNum === -1 || ownerNum === undefined) {
 			return;
 		}
@@ -69,15 +69,19 @@ function startUp({playerData, locationData, monopolies, yourPlayerId, currentPla
 
 	// TODO: Display other users' actions.
 	const savedMessages = playerData[yourPlayerId].savedMessages;
+
 	if (savedMessages.length === 0) {// If it's the first turn
 		if (yourPlayerId === currentPlayerId) {
+			// "Start Game"
 			$("#initial-interactive").css("display", "block");
 		} else {
+			// "It's _'s turn."
 			$("#waiting-on-player").css("display", "block");
 			$("#current-player-name").text(players[currentPlayerId].name);
 		}
 	} else {
 		$("#interactive").css("display", "block");
+
 		savedMessages
 			.filter(([eventName, message]) => eventName === "log")
 			.forEach(([eventName, message]) => log(message));
