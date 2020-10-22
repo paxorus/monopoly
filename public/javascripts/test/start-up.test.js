@@ -1,4 +1,5 @@
 import assert from "./assert.js";
+import {places} from "../location-configs.js";
 import {startUp} from "../start-up.js";
 
 function houseImageNames(placeIdx) {
@@ -8,35 +9,40 @@ function houseImageNames(placeIdx) {
 
 describe("Start Up", () => {
 	describe("#startUp()", () => {
+		const basePlayer = {
+			balance: 1500,
+			placeIdx: 0,
+			savedMessages: []
+		};
+
 		const playerData = [
-			new Player("Boop", 0, "/0/0d/025Pikachu.png"),
-			new Player("Boop", 1, "/0/0d/025Pikachu.png"),
-			new Player("Boop", 2, "/0/0d/025Pikachu.png"),
-			new Player("Boop", 3, "/0/0d/025Pikachu.png"),
-			new Player("Boop", 4, "/0/0d/025Pikachu.png")
+			{name: "Boop", num: 0, spriteFileName: "/0/0d/025Pikachu.png", ...basePlayer},
+			{name: "Boop", num: 1, spriteFileName: "/0/0d/025Pikachu.png", ...basePlayer},
+			{name: "Boop", num: 2, spriteFileName: "/0/0d/025Pikachu.png", ...basePlayer},
+			{name: "Boop", num: 3, spriteFileName: "/0/0d/025Pikachu.png", ...basePlayer},
+			{name: "Boop", num: 4, spriteFileName: "/0/0d/025Pikachu.png", ...basePlayer}
 		];
 
 		playerData[0].balance = 800;
 		playerData[1].placeIdx = 14;// Virginia Avenue
+		playerData[0].savedMessages = [
+			["log", "some message"],
+			["offer-unowned-property", {placeIdx: 3}]
+		];
 
 		playerData[2].jailDays = 1;
 		playerData[2].numJailCards = 2;
 		playerData[2].placeIdx = 10;
 
-		const locationData = [
-			{placeIdx: 11, ownerNum: 0, houseCount: 2, isMortgaged: false},
-			{placeIdx: 16, ownerNum: 0, houseCount: 0, isMortgaged: false},
-			{placeIdx: 18, ownerNum: 0, houseCount: 0, isMortgaged: false},
-			{placeIdx: 19, ownerNum: 0, houseCount: 0, isMortgaged: false}
-		];
+		places[11].ownerNum = 0;
+		places[11].houseCount = 2;
+		places[16].ownerNum = 0;
+		places[18].ownerNum = 0;
+		places[19].ownerNum = 0;
 
 		startUp({
 			playerData,
-			locationData,
-			savedMessages: [
-				["log", "some message"],
-				["offer-unowned-property", {placeIdx: 3}]
-			],
+			locationData: places,
 			monopolies: [[16, 18, 19]],
 			yourPlayerId: 0,
 			currentPlayerId: 0,
