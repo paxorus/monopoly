@@ -1,20 +1,18 @@
-const {places, Locations, MONOPOLIES} = require("./location-configs.js");
-const {emit} = require("./message-box.js");
-const {players, GlobalState} = require("./startup.js");
+const {Locations, MONOPOLIES} = require("./location-configs.js");
 
 const AdvanceToNextPlayer = false;
 const WaitForUserResponse = true;
 
 function obeyLocation(mover) {
 	// On location change (from a roll, chance card, or comm chest card), follow the rules of that square.
-	const place = places[mover.placeIdx];
+	const place = mover.game.places[mover.placeIdx];
 	if (place.price !== 0) {
 		if (place.ownerNum === -1) {
 			mover.emit("offer-unowned-property", {placeIdx: mover.placeIdx});
 			return WaitForUserResponse;
 		} else if (place.ownerNum != mover.num) {
 			// Owned: pay rent to the owner.
-			const owner = players[place.ownerNum];
+			const owner = mover.game.players[place.ownerNum];
 			const rent = determineRent(mover, owner, place);
 			payRent(mover, owner, rent);
 			return AdvanceToNextPlayer;
@@ -30,7 +28,7 @@ function determineRent(mover, owner, place) {
 	}
 
 	const propertyGroup = MONOPOLIES.find(group => group.includes(mover.placeIdx));
-	const ownershipCount = propertyGroup.filter(placeIdx => places[placeIdx].ownerNum === owner.num).length;
+	const ownershipCount = propertyGroup.filter(placeIdx => mover.game.places[placeIdx].ownerNum === owner.num).length;
 
 	switch (mover.placeIdx) {
 		case Locations.ElectricCompany: case Locations.WaterWorks:
@@ -75,18 +73,21 @@ function obeySpecialSquare(mover) {
 			break;
 		case Locations.IncomeTax:
 			mover.updateBalance(-200);
-			GlobalState.addToTax(200);
+			mover.game.tax += 200;
+			mover.emitToAll("update-tax", {tax: mover.game.tax});
 			mover.log("You paid $200 income tax.");
 			break;
 		case Locations.LuxuryTax:
 			mover.updateBalance(-100);
-			GlobalState.addToTax(100);
+			mover.game.tax += 100;
+			mover.emitToAll("update-tax", {tax: mover.game.tax});
 			mover.log("You paid $100 luxury tax.");
 			break;
 		case Locations.FreeParking:
-			const tax = GlobalState.tax;
+			const tax = mover.game.tax;
 			mover.updateBalance(tax);
-			GlobalState.clearTax();
+			mover.game.tax = 0;
+			mover.emitToAll("update-tax", {tax: 0});
 			if (tax > 0) {
 				mover.log("You collected $" + tax + " from free parking!");
 			} else {
@@ -161,53 +162,59 @@ function obeyChanceSquare(mover) {
 			break;
 		case 10:
 			mover.log("You have been elected chairman of the board. Pay each player $50.");
-			players.forEach(player => {
+			mover.game.players.forEach(player => {
 				player.updateBalance(50);
 			});
-			mover.updateBalance(-50 * players.length);
+			mover.updateBalance(-50 * mover.game.players.length);
 			break;
 		case 11:
 			mover.log('Go to jail. Go directly to jail, do not pass "Go", do not collect $200.');
 			mover.goToJail();
 			break;
-		case 12:
+		case 12: {
 			mover.log("Advance to the nearest utility. If Unowned, you may buy it from the bank. If Owned, pay owner a total ten times amount thrown on dice.");
 			if (mover.placeIdx >= Locations.ElectricCompany && mover.placeIdx < Locations.WaterWorks) {
 				mover.updateLocation(Locations.WaterWorks);
 			} else {
 				mover.updateLocation(Locations.ElectricCompany);
 			}
-			if (places[mover.placeIdx].ownerNum === -1) {
+
+			const game = mover.game;
+			if (game.places[mover.placeIdx].ownerNum === -1) {
 				return obeyLocation(mover);
-			} else if (places[mover.placeIdx].ownerNum != mover.num) {
-				const owner = players[places[mover.placeIdx].ownerNum];
+			} else if (game.places[mover.placeIdx].ownerNum != mover.num) {
+				const owner = game.players[game.places[mover.placeIdx].ownerNum];
 				const [roll1, roll2] = mover.latestRoll;
 				payRent(mover, owner, 10 * (roll1 + roll2));
 			}
 			break;
+		}
 		case 13:
 			mover.log('Take a trip to Reading Railroad. If you pass "Go" collect $200.');
 			if (mover.placeIdx > Locations.ReadingRailroad) {
 				mover.updateBalance(200);
 			}
 			mover.updateLocation(Locations.ReadingRailroad);
+			return obeyLocation(mover);
 			break;
-		case 14: case 15:
+		case 14: case 15: {
 			mover.log("Advance to the nearest railroad. If Unowned, you may buy it from the bank. If Owned, pay owner twice the rental to which they are otherwise entitled.");
 			const rangeIdx = Math.floor((mover.placeIdx + 5) % 40 / 10);// What side of the board are we on if we step forward 5?
 			const nearestRailroadIdx = 10 * rangeIdx + 5;// Map that side to its railroad.
 
 			mover.updateLocation(nearestRailroadIdx);
-			const railroad = places[nearestRailroadIdx];
+			const game = mover.game;
+			const railroad = game.places[nearestRailroadIdx];
 			if (railroad.ownerNum === -1) {
 				return obeyLocation(mover);
-			} else if (players[railroad.ownerNum] != mover) {
+			} else if (game.players[railroad.ownerNum] != mover) {
 				// Control the rent properly.
-				const owner = players[railroad.ownerNum];
+				const owner = game.players[railroad.ownerNum];
 				const rent = determineRent(mover, owner, railroad);
 				payRent(owner, 2 * rent);
 			}
 			break;
+		}
 	}
 
 	return AdvanceToNextPlayer;
@@ -238,8 +245,8 @@ function obeyCommunityChestSquare(mover) {
 			break;
 		case 5:
 			mover.log("It is your birthday. Collect $10 from every player.");
-			mover.updateBalance(10 * players.length);
-			players.forEach(player => {
+			mover.updateBalance(10 * mover.game.players.length);
+			mover.game.players.forEach(player => {
 				player.updateBalance(-10);
 			});
 			break;
@@ -293,7 +300,7 @@ function obeyCommunityChestSquare(mover) {
 }
 
 function countOwnedBuildings(owner) {
-	return places.filter(place => place.ownerNum === owner.num)
+	return owner.game.places.filter(place => place.ownerNum === owner.num)
 		.reduce(({houses, hotels}, place) => {
 			const houseCount = place.houseCount;
 			if (houseCount === 5) {
@@ -309,7 +316,7 @@ function countOwnedBuildings(owner) {
 
 function addGetOutOfJailFreeCard(mover) {
 	mover.numJailCards ++;
-	emit.all("add-jail-card", {playerId: mover.num});
+	mover.emitToAll("add-jail-card", {playerId: mover.num});
 }
 
 function useGetOutOfJailFreeCard(player) {

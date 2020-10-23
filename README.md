@@ -16,8 +16,6 @@ The Pokemon sprites are loaded from Bulbapedia.
 * Losing and exiting the game.
 
 #### App Essentials
-* Registration page
-* Rooms (currently only one game at a time is supported)
 * Auction
 * Trades
 * DB persistence (currently all state is held in-memory)
@@ -26,7 +24,6 @@ The Pokemon sprites are loaded from Bulbapedia.
 ## Improvements
 #### Cosmetics
 * Customizing (name/sprite)
-* Adjust number of players
 
 #### Interconnectivity
 * Embolden the rent that is in effect on the display card.
@@ -34,8 +31,6 @@ The Pokemon sprites are loaded from Bulbapedia.
 * Historical logs such as inter-player rent and all tenants for a property.
 
 #### Security
-* Authenticate and authorize users on every server request.
-* Hide the secret key (currently in the URL) as a UUID as a cookie or localStorage.
 * Generate an expiring link for users to log in on a new device.
 
 #### Code

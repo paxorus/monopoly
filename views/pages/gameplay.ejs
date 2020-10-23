@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html><head><title>Monopoly Game</title>
+<link href="/stylesheets/shared.css" rel="stylesheet"></link>
 <link href="/stylesheets/main.css" rel="stylesheet"></link>
 </head>
 <body>
@@ -8,8 +9,6 @@
 <script type="module">
 	import {initializeGame} from "/javascripts/event-handlers.js";
 
-	const secretKey = "<%= secretKey %>";
-	window.secretKey = secretKey;
-	initializeGame(secretKey);
+	initializeGame("<%= gameId %>");
 </script>
 </body></html>

@@ -1,0 +1,47 @@
+body {
+	background-size: cover;
+	font-size: 15px;
+	color: black;
+	font-family: Verdana;
+}
+
+/* Multi-purpose buttons */
+.button {
+	font-size: 15px;
+	background-color: #08C;
+	padding: 5px;
+	color: white;
+	cursor: pointer;
+}
+.button:hover {
+	filter: saturate(125%);
+}
+.button:active {
+	/*background-color: #E80;*/
+	filter: saturate(75%);
+}
+
+.button-negative {
+	font-size: 15px;
+	background-color: #E63;
+	padding: 5px;
+	color: white;
+	cursor: pointer;
+}
+.button-negative:hover {
+	filter: saturate(125%);
+}
+.button-negative:active {
+	filter: saturate(75%);
+}
+
+.button-disabled {
+	filter: saturate(0%);
+	cursor: not-allowed;
+}
+.button-disabled:hover {
+	filter: saturate(0%);
+}
+.button-disabled:active {
+	filter: saturate(0%);
+}

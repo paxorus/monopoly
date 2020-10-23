@@ -41,7 +41,7 @@ window.hideLocationCard = hideLocationCard;
 import {log} from "/javascripts/message-box.js";
 window.log = log;
 
-const socket = io();
+const socket = io("/gameplay");
 window.socket = socket;
 
 socket.on("start-up", startUp);
@@ -129,9 +129,9 @@ socket.on("unmortgage-property", ({playerId, placeIdx}) => {
 	unmortgageProperty(GlobalState.players[playerId], placeIdx);
 });
 
-function initializeGame() {
+function initializeGame(gameId) {
 	socket.emit("start-up", {
-		secretKey
+		gameId
 	});
 }
 

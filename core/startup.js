@@ -1,8 +1,7 @@
+const Data = require("./data.js");
 const Player = require("./player.js");
-const {createPlayerMessageBoxes, emit} = require("./message-box.js");
+const {LocationInfo} = require("./location-configs.js");
 
-// Shared state
-// Players are hard-coded for now.
 const Sprite = {
 	SWAMPERT_MEGA: "/9/98/260Swampert-Mega.png",
 	BLAZIKEN_MEGA: "/f/fa/257Blaziken-Mega.png",
@@ -19,39 +18,32 @@ const Sprite = {
 
 const LEGENDARY_MODE = false;
 
-const players = [
-	new Player("Prakhar", 0, LEGENDARY_MODE ? Sprite.KYOGRE_PRIMAL : Sprite.SWAMPERT_MEGA),
-	new Player("Jerry", 1, LEGENDARY_MODE ? Sprite.GROUDON_PRIMAL : Sprite.BLAZIKEN_MEGA)
-	// new Player("Kanav", 2, LEGENDARY_MODE ? Sprite.RAYQUAZA_MEGA : Sprite.SCEPTILE_MEGA),
-	// new Player("Ashwin", 3, LEGENDARY_MODE ? Sprite.DIALGA : Sprite.CHARIZARD_MEGA_Y),
-	// new Player("Michael", 4, LEGENDARY_MODE ? Sprite.ZEKROM : Sprite.SALAMENCE_MEGA)
-];
+function startGame(game) {
+	// Build the player for each user.
+	// TODO: Names and sprites should be customizable.
+	const players = Object.entries(game.lobby).map(([userId, {name, sprite}], idx) => {
+		return new Player(name, userId, idx, sprite, game);
+	});
 
-// To serve the right experience to the right user.
-const authLookup = {
-	"prakhar": players[0],
-	"jerry": players[1]
-};
+	// Choose starting player.
+	game.currentPlayerId = Math.floor(Math.random() * players.length);
 
-// TODO: Game state should be isolated into rooms.
-const GlobalState = {
-	currentPlayer: undefined,
-	tax: 0,
-	addToTax: taxDelta => {
-		this.tax += taxDelta;
-		emit.all("update-tax", {tax: this.tax});
-	},
-	clearTax: () => {
-		this.tax = 0;
-		emit.all("update-tax", {tax: 0});
-	},
-	hasGameStarted: false
-};
+	game.players = players;
+	game.hasStarted = true;
 
-createPlayerMessageBoxes(players);
+	game.tax = 0;
+	game.monopolies = [];
+
+	game.places = LocationInfo.map(place =>
+		place.price > 0 ? ({
+			ownerNum: -1,
+			houseCount: 0,
+			isMortgaged: false,
+			...place
+		}) : place
+	);
+}
 
 module.exports = {
-	GlobalState,
-	players,
-	authLookup
+	startGame
 };
