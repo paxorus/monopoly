@@ -5,19 +5,109 @@
 let games = {
 	"oiwftflpzyhsxjgarpla": {
 		id: "oiwftflpzyhsxjgarpla",
-		name: "my game",
+		name: "Friday night chillin",
+		adminId: "heerffgylfgxuslpsujz",
+		createTime: 1598213805058,
+		lastUpdateTime: 1603492053331,
+		hasStarted: true,
+		hasCompleted: false,
+		lobby: {},
+		monopolies: [],
+		locationData: [
+			{placeIdx: 1, ownerNum: 0, houseCount: 2, isMortgaged: false},
+			{placeIdx: 3, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 5, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 6, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 8, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 9, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 11, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 12, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 13, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 14, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 15, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 16, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 18, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 19, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 21, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 23, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 24, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 25, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 26, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 27, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 28, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 29, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 31, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 32, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 34, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 35, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 37, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 39, ownerNum: -1, houseCount: 0, isMortgaged: false}
+		],
+		currentPlayerId: 0,
+		playerData: [
+			{
+				name: "Prakhar",
+				userId: "heerffgylfgxuslpsujz",
+				num: 0,
+				spriteFileName: "/5/58/384Rayquaza-Mega.png",
+				latestRoll: null,
+				rollCount: null,
+				balance: 1500,
+				placeIdx: 0,
+				jailDays: null,
+				numJailCards: 1,
+				savedMessages: []
+			},
+			{
+				name: "Willy",
+				userId: "nnkciawfaytxwwtxgxue",
+				num: 1,
+				spriteFileName: "/8/81/644Zekrom.png",
+				latestRoll: null,
+				rollCount: null,
+				balance: 800,
+				placeIdx: 6,
+				jailDays: null,
+				numJailCards: 0,
+				savedMessages: []
+			}
+
+		]
+	},
+	"oiwftflpzyhsxjgarplb": {
+		id: "oiwftflpzyhsxjgarplb",
+		name: "Saturday night chillin",
 		adminId: "heerffgylfgxuslpsujz",
 		createTime: 1598213805058,
 		hasStarted: false,
 		hasCompleted: false,
-		lobby: {}
+		lobby: {
+			"heerffgylfgxuslpsujz": {
+				name: "boop-star",
+				sprite: "/8/8a/483Dialga.png"
+			}		
+		}
+	},
+	"oiwftflpzyhsxjgarplc": {
+		id: "oiwftflpzyhsxjgarplc",
+		name: "Sunday night chillin",
+		adminId: "heerffgylfgxuslpsujz",
+		createTime: 1598213805058,
+		hasStarted: false,
+		hasCompleted: false,
+		lobby: {
+			"heerffgylfgxuslpsujz": {
+				name: "boop-star",
+				sprite: "/8/8a/483Dialga.png"
+			}
+		}
 	}
 };
 
 let users = {
 	"heerffgylfgxuslpsujz": {
 		secretKey: "icmufmqrjuybromognhx",
-		gameIds: ["oiwftflpzyhsxjgarpla"]
+		gameIds: ["oiwftflpzyhsxjgarpla", "oiwftflpzyhsxjgarplb", "oiwftflpzyhsxjgarplc"]
 	},
 	"nnkciawfaytxwwtxgxue": {
 		secretKey: "eplwdiketejjznludrvq",

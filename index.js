@@ -44,19 +44,19 @@ app.get("/", function(req, res) {
 			return;
 		}
 
-		const player = Data.users[userId];
+		const user = Data.users[userId];
 
 		// TODO: have page ajax-get the below info after page load
-		const playerGames = player.gameIds.map(gameId => Data.games[gameId]);
-		const inProgressGames = playerGames.filter(game => ! game.hasCompleted);
-		const completedGames = playerGames.filter(game => game.hasCompleted);
+		const userGames = user.gameIds.map(gameId => Data.games[gameId]);
+		const inProgressGames = userGames.filter(game => ! game.hasCompleted).map(game => summarizeGame(game, userId));
+		const completedGames = userGames.filter(game => game.hasCompleted).map(game => summarizeGame(game, userId));
 		res.render("pages/landing", {
 			inProgressGames,
 			completedGames,
 			yourId: userId
 		});
 	} else {
-		// New player.
+		// New user.
 		const userId = setNewPlayerAndCookies(res);
 		res.render("pages/landing", {
 			inProgressGames: [],
@@ -118,7 +118,7 @@ app.get("/game/:gameId", function(req, res) {
 			gameCreateTime: game.createTime,
 			gameId: game.id,
 			yourId: userId,
-			joinedPlayerNames: Object.keys(game.lobby).map(lobbyMember => lobbyMember.name),
+			joinedPlayerNames: Object.values(game.lobby).map(lobbyMember => lobbyMember.name),
 			hasJoinedGame: Object.keys(game.lobby).includes(userId)
 		});
 	}
@@ -264,4 +264,122 @@ function randomId() {
 	}
 
 	return id;
+}
+
+function summarizeGame(game, yourId) {
+
+	const timeSinceCreated = describeTimeSince(game.createTime);
+
+	if (game.hasStarted) {
+		// Summarize the gameplay
+		const timeSinceUpdated = describeTimeSince(game.lastUpdateTime);
+
+		const numOwnedProperties = game.places.filter(place => place.price > 0 && place.ownerNum !== -1).length;
+
+		const creatorName = game.playerData.find(player => player.userId === game.adminId).name;
+
+		const yourName = game.playerData.find(player => player.userId === yourId).name;
+		const waitingOnName = game.playerData[game.currentPlayerId].name;
+
+		const playerData = game.playerData.map(player => ({
+			name: player.name,
+			netWorth: player.balance
+		}));
+
+		return {
+			id: game.id,
+			name: game.name,
+			timeSinceCreated,
+			creatorName,
+			yourName,
+			hasStarted: true,
+			timeSinceUpdated,
+			numOwnedProperties,
+			playerData,
+			waitingOnName
+		};
+	} else {
+		// Summarize the lobby
+		const playerNames = Object.values(game.lobby).map(lobbyMember => lobbyMember.name);
+		const creatorName = game.lobby[game.adminId].name;
+		const yourName = game.lobby[yourId].name;
+
+		return {
+			id: game.id,
+			name: game.name,
+			timeSinceCreated,
+			creatorName,
+			yourName,
+			hasStarted: false,
+			playerNames			
+		}
+	}
+}
+
+function describeTimeSince(then) {
+	const MINUTE = 60;
+	const HOUR = 60 * MINUTE;
+	const DAY = 24 * HOUR;
+	const WEEK = 7 * DAY;
+	const MONTH = 30 * DAY;
+	const YEAR = 365 * DAY;
+
+	const now = +new Date();
+	const ageInSeconds = (now - then) / 1000;
+
+	if (ageInSeconds < MINUTE) {
+		return "a few seconds ago";
+	}
+
+	if (ageInSeconds < 2 * MINUTE) {
+		return "over a minute ago";
+	}
+
+	if (ageInSeconds < HOUR) {
+		const ageInMinutes = Math.floor(ageInSeconds / MINUTE);
+		return `${ageInMinutes} minutes ago`;
+	}
+
+	if (ageInSeconds < 2 * HOUR) {
+		return "over an hour ago";
+	}
+
+	if (ageInSeconds < DAY) {
+		const ageInHours = Math.floor(ageInSeconds / HOUR);
+		return `${ageInHours} hours ago`;
+	}
+
+	if (ageInSeconds < 2 * DAY) {
+		return "over a day ago";
+	}
+
+	if (ageInSeconds < WEEK) {
+		const ageInDays = Math.floor(ageInSeconds / DAY);
+		return `${ageInDays} days ago`;
+	}
+
+	if (ageInSeconds < 2 * WEEK) {
+		return "over a week ago";
+	}
+
+	if (ageInSeconds < MONTH) {
+		const ageInWeeks = Math.floor(ageInSeconds / WEEK);
+		return `${ageInWeeks} weeks ago`;
+	}
+
+	if (ageInSeconds < 2 * MONTH) {
+		return "over a month ago";
+	}
+
+	if (ageInSeconds < YEAR) {
+		const ageInMonths = Math.floor(ageInSeconds / MONTH);
+		return `${ageInMonths} months ago`;
+	}
+
+	if (ageInSeconds < 2 * YEAR) {
+		return "over a year ago";
+	}
+
+	const ageInYears = Math.floor(ageInSeconds / YEAR);
+	return `${ageInYears} years ago`;
 }

@@ -4,30 +4,70 @@
 <style>
 #invalid-name-message {font-size: 12px; height: 15px}
 .highlight-invalid-message {color: red}
-#page-container {background-color: rgba(255, 255, 255, 0.3);}
+#page-container {margin: 40px}
+.text-input {padding: 5px; border: 3px #DDD solid; font-weight: bold;}
+
+.link {text-decoration: none; color: black}
+.game-summary-tile {display: inline-block; padding: 10px; width: 375px; height: 200px;}
 </style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css" integrity="sha512-/zs32ZEJh+/EO2N1b0PEdoA10JkdC3zJ8L5FTiQu82LR9S/rOQNfQN7U59U9BC12swNeRAz3HSzIL2vpp4fv3w==" crossorigin="anonymous" />
 </head>
-<body style="background-image: url('images/background-monopoly.png')">
+<body>
 
 <div id="page-container">
-<h1>Current Games</h1>
+<h1>Welcome to Web Monopoly!</h1>
+
+<input class="text-input" type="text" placeholder="Create a new game" />
+
+<h2>In-Progress Games</h2>
 <% if (inProgressGames.length > 0) { %>
 	<% for (let i = 0; i < inProgressGames.length; i ++) { %>
-		<a href="/game/<%= inProgressGames[i].id %>">
-		<div>
-			Admin: <%= inProgressGames[i].adminId === yourId ? "You" : inProgressGames[i].adminId %>
-			<br />
-			Game: <%= inProgressGames[i].name %>
-			<br />
-			Created: <%= new Date(inProgressGames[i].createTime) %>
-		</div>
+		<% const game = inProgressGames[i]; %>
+		<a href="/game/<%=game.id %>" class="link">
+		<% if (game.hasStarted) { %>
+			<div class="game-summary-tile" style="background-color: #ccffd0">
+				<div style="float: left">
+					<b><%= game.name %></b>
+					<ul>
+						<% for (let j = 0; j < game.playerData.length; j ++) { %>
+							<% const player = game.playerData[j]; %>
+							<li><%= player.name %> - $<%= player.netWorth %></li>
+						<% } %>
+					</ul>
+					<div style="font-size: 10px">Created <%= game.timeSinceCreated %> by <%= game.creatorName === game.yourName ? "you" : game.creatorName %></div>
+					<div style="font-size: 12px">0 turns &bull; 0 properties</div>
+				</div>
+				<div style="float: left">
+					<canvas id="player-performance-<%= game.id %>" width="175" height="175"></canvas>
+				</div>
+			</div>
+		<% } else { %>
+			<div class="game-summary-tile" style="background-color: #d7e2f5">
+				<b><%= game.name %></b>
+				<br />
+				Created by <%= game.creatorName === game.yourName ? "you" : game.creatorName %>
+				<br />
+				<ul>
+					<% for (let j = 0; j < game.playerNames.length; j ++) { %>
+						<% const playerName = game.playerNames[j]; %>
+						<li><%= playerName %></li>
+					<% } %>
+				</ul>
+				<br />
+				Created <%= game.timeSinceCreated %>
+				<br />
+			</div>			
+		<% } %>
 		</a>
 	<% } %>
 <% } else { %>
 	<div>None</div>
 <% } %>
 
-<h1>Completed Games</h1>
+<br />
+
+<h2>Completed Games</h2>
 <% if (completedGames.length > 0) { %>
 	<% for (let i = 0; i < completedGames.length; i ++) { %>
 		<div>
@@ -52,6 +92,57 @@
 </form>
 </div>
 
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw==" crossorigin="anonymous"></script>
+
 <script src="/javascripts/third-party/jquery.js"></script>
 <script src="/javascripts/landing/create-game.js"></script>
+
+<script>
+const inProgressGames = <%- JSON.stringify(inProgressGames) %>;
+const completedGames = <%- JSON.stringify(completedGames) %>;
+const startedGames = [...inProgressGames, ...completedGames].filter(game => game.hasStarted);
+
+// Generate pie charts for each game to display player net worths.
+startedGames.forEach(game => {
+	const ctx = $(`#player-performance-${game.id}`)[0].getContext("2d");
+	const myChart = new Chart(ctx, {
+		type: "doughnut",
+		data: {
+			labels: game.playerData.map(player => player.name),
+			datasets: [{
+				data: game.playerData.map(player => player.netWorth),
+				backgroundColor: [
+					"rgb(255, 99, 132)",
+					"rgb(54, 162, 235)",
+					"rgb(255, 206, 86)",
+					"rgb(75, 192, 192)",
+					"rgb(153, 102, 255)",
+					"rgb(255, 159, 64)"
+				],
+				// borderColor: [
+				// 	'rgba(255, 99, 132, 1)',
+				// 	'rgba(54, 162, 235, 1)',
+				// 	'rgba(255, 206, 86, 1)',
+				// 	'rgba(75, 192, 192, 1)',
+				// 	'rgba(153, 102, 255, 1)',
+				// 	'rgba(255, 159, 64, 1)'
+				// ],
+				borderWidth: 0
+			}]
+		},
+		options: {
+	        tooltips: {
+	            callbacks: {
+	                label: function(tooltipItem, {datasets, labels}) {
+	                    const netWorth = datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+	                    return `$${netWorth}`;
+	                }
+	            }
+	        }
+		}
+	});
+
+});
+</script>
 </body></html>

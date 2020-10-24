@@ -11,7 +11,8 @@ const {
 	unmortgageProperty,
 	useGetOutOfJailFreeCard
 } = require("./execute-turn.js");
-const {MONOPOLIES} = require("./location-configs.js");
+const {LocationInfo, MONOPOLIES} = require("./location-configs.js");
+const Player = require("./player.js");
 const {authLookup} = require("./startup.js");
 
 function onConnection(io, socket, userId) {
@@ -22,16 +23,20 @@ function onConnection(io, socket, userId) {
 
 	socket.on("disconnect", () => {
 		console.log("a user disconnected");
+		if (player !== undefined) {
+			player.configureEmitter(null, null);			
+		}
 	});
 
 	socket.on("start-up", ({gameId}) => {
 		// Look up (game, user).
 		game = Data.games[gameId];
+		game.players = game.playerData.map(playerConfig => Player.build(playerConfig, game));
 		player = game.players.find(_player => _player.userId === userId);
 
 		if (player === undefined) {
 			console.error(`User ${userId} does not have a player in game ${gameId}.`);
-			console.error(game.players);
+			console.error(game.playerData);
 			return;
 		}
 
@@ -39,23 +44,19 @@ function onConnection(io, socket, userId) {
 		// TODO: Message all of the player's devices, not just the latest.
 		player.configureEmitter(io.to(gameId), socket);
 
-		// Send the serializable subset of Player.
-		const playerData = game.players.map(player => ({
-			name: player.name,
-			num: player.num,
-			spriteFileName: player.spriteFileName,
-			balance: player.balance,
-			placeIdx: player.placeIdx,
-			jailDays: player.jailDays,
-			numJailCards: player.numJailCards,
-			savedMessages: player.savedMessages
-		}));
+		const placeStateMap = Object.fromEntries(game.locationData.map(placeState => [placeState.placeIdx, placeState]));
+		game.places = LocationInfo.map((placeConfig, placeIdx) =>
+			placeConfig.price > 0 ? {
+				...placeStateMap[placeIdx],
+				...placeConfig
+			} : placeConfig
+		);
 
 		const monopolies = MONOPOLIES.filter(monopoly => hasAchievedColoredMonopoly(monopoly, player));
 
 		player.emit("start-up", {
-			playerData,
-			locationData: game.places,
+			playerData: game.playerData,
+			locationData: game.locationData,
 			monopolies,
 			currentPlayerId: game.currentPlayerId,
 			yourPlayerId: player.num,

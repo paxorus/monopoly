@@ -22,30 +22,45 @@ module.exports = class Player {
 
 	decrementJailDays(jailDays) {
 		this.jailDays --;
-		this.io.emit("update-jail-days", {playerId: this.num, jailDays: this.jailDays});
+
+		if (this.io !== null) {
+			this.io.emit("update-jail-days", {playerId: this.num, jailDays: this.jailDays});
+		}
 	}
 
 	goToJail() {
 		this.log("You will be in jail for 3 turns!");
 		this.updateLocation(Locations.Jail);
 		this.jailDays = 3;
-		this.io.emit("go-to-jail", {playerId: this.num});
+
+		if (this.io !== null) {
+			this.io.emit("go-to-jail", {playerId: this.num});
+		}
 	}
 
 	getOutOfJail() {
 		this.log("You are now out of jail!");
 		this.jailDays = 0;
-		this.io.emit("get-out-of-jail", {playerId: this.num});
+
+		if (this.io !== null) {
+			this.io.emit("get-out-of-jail", {playerId: this.num});
+		}
 	}
 
 	updateBalance(income) {
 		this.balance += income;
-		this.io.emit("update-balance", {playerId: this.num, balance: this.balance});
+
+		if (this.io !== null) {
+			this.io.emit("update-balance", {playerId: this.num, balance: this.balance});
+		}
 	}
 
 	updateLocation(newLocation) {
 		this.placeIdx = newLocation;
-		this.io.emit("update-location", {playerId: this.num, placeIdx: this.placeIdx});
+
+		if (this.io !== null) {
+			this.io.emit("update-location", {playerId: this.num, placeIdx: this.placeIdx});
+		}
 	}
 
 	configureEmitter(io, socket) {
@@ -54,15 +69,17 @@ module.exports = class Player {
 	}
 
 	emit(eventName, message) {
-		this.socket.emit(eventName, message);
-		this.saveMessage(eventName, message);
+		if (this.socket !== null) {
+			this.socket.emit(eventName, message);			
+		}
+		this._saveMessage(eventName, message);
 	}
 
 	emitToAll(eventName, message) {
 		this.game.players.forEach(player => player.emit(eventName, message));
 	}
 
-	saveMessage(eventName, message) {
+	_saveMessage(eventName, message) {
 		// Save messages of a player's most recent turn, to re-serve them on a page load.
 		switch (eventName) {
 			case "allow-conclude-turn":
@@ -85,5 +102,29 @@ module.exports = class Player {
 
 	log(message) {
 		this.emit("log", message);
+	}
+
+	static build({
+		name,
+		userId,
+		num,
+		spriteFileName,
+		latestRoll,
+		rollCount,
+		balance,
+		placeIdx,
+		jailDays,
+		numJailCards,
+		savedMessages
+	}, game) {
+		const player = new Player(name, userId, num, spriteFileName, game);
+		player.latestRoll = latestRoll;
+		player.rollCount = rollCount;
+		player.balance = balance;
+		player.placeIdx = placeIdx;
+		player.jailDays = jailDays;
+		player.numJailCards = numJailCards;
+		player.savedMessages = savedMessages;
+		return player;
 	}
 }
