@@ -4,11 +4,12 @@
 <style>
 #invalid-name-message {font-size: 12px; height: 15px}
 .highlight-invalid-message {color: red}
-#page-container {margin: 40px}
+#page-container {margin: 20px; margin-top: 30px;}
 .text-input {padding: 5px; border: 3px #DDD solid; font-weight: bold;}
 
 .link {text-decoration: none; color: black}
-.game-summary-tile {display: inline-block; padding: 10px; width: 375px; height: 200px;}
+.game-summary-tile {float: left; padding: 10px; margin-right: 10px; margin-bottom: 10px; width: 250px; height: 200px; position: relative;}
+.player-donut-chart {padding-top: 10px; cursor: auto;}
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css" integrity="sha512-/zs32ZEJh+/EO2N1b0PEdoA10JkdC3zJ8L5FTiQu82LR9S/rOQNfQN7U59U9BC12swNeRAz3HSzIL2vpp4fv3w==" crossorigin="anonymous" />
@@ -26,37 +27,31 @@
 		<% const game = inProgressGames[i]; %>
 		<a href="/game/<%=game.id %>" class="link">
 		<% if (game.hasStarted) { %>
+			<!-- Display a tile, summarizing the game. -->
 			<div class="game-summary-tile" style="background-color: #ccffd0">
-				<div style="float: left">
-					<b><%= game.name %></b>
-					<ul>
-						<% for (let j = 0; j < game.playerData.length; j ++) { %>
-							<% const player = game.playerData[j]; %>
-							<li><%= player.name %> - $<%= player.netWorth %></li>
-						<% } %>
-					</ul>
-					<div style="font-size: 10px">Created <%= game.timeSinceCreated %> by <%= game.creatorName === game.yourName ? "you" : game.creatorName %></div>
-					<div style="font-size: 12px">0 turns &bull; 0 properties</div>
+				<b><%= game.name %></b>
+				<div style="position: absolute; bottom: 15px">
+					<div style="font-size: 10px; color: #777">Created <%= game.timeSinceCreated %> by <%= game.creatorName === game.yourName ? "you" : game.creatorName %></div>
+					<div style="font-size: 12px">0 turns &bull; <%= game.numOwnedProperties %> <%= game.numOwnedProperties === 1 ? "property" : "properties" %> sold</div>
 				</div>
-				<div style="float: left">
-					<canvas id="player-performance-<%= game.id %>" width="175" height="175"></canvas>
-				</div>
+				<canvas class="player-donut-chart" id="player-performance-<%= game.id %>"></canvas>
 			</div>
 		<% } else { %>
+			<!-- Display a tile, summarizing the lobby. -->
 			<div class="game-summary-tile" style="background-color: #d7e2f5">
-				<b><%= game.name %></b>
+				<b style="color: #777"><%= game.name %></b>
 				<br />
-				Created by <%= game.creatorName === game.yourName ? "you" : game.creatorName %>
-				<br />
-				<ul>
+				<ul style="font-size: 14px; padding-left: 30px">
 					<% for (let j = 0; j < game.playerNames.length; j ++) { %>
 						<% const playerName = game.playerNames[j]; %>
 						<li><%= playerName %></li>
 					<% } %>
 				</ul>
 				<br />
-				Created <%= game.timeSinceCreated %>
-				<br />
+				<div style="position: absolute; bottom: 15px">
+					<div style="font-size: 10px; color: #777">Created <%= game.timeSinceCreated %> by <%= game.creatorName === game.yourName ? "you" : game.creatorName %></div>
+					<div style="font-size: 12px">In Lobby</div>
+				</div>
 			</div>			
 		<% } %>
 		</a>
@@ -65,7 +60,8 @@
 	<div>None</div>
 <% } %>
 
-<br />
+<!-- Clear the floating. -->
+<br style="clear: both" />
 
 <h2>Completed Games</h2>
 <% if (completedGames.length > 0) { %>
@@ -82,7 +78,7 @@
 	<div>None</div>
 <% } %>
 
-<form id="new-game-form" style="display: inline-block">
+<!-- <form id="new-game-form" style="display: inline-block">
 	<center>
 	<h1>Create New Game</h1>
 	Name: <input id="game-name-field" type="text" />
@@ -90,7 +86,7 @@
 	<div id="create-game" class="button button-disabled" style="display: inline-block;">Create</div>
 	</center>
 </form>
-</div>
+ --></div>
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw==" crossorigin="anonymous"></script>
@@ -105,7 +101,10 @@ const startedGames = [...inProgressGames, ...completedGames].filter(game => game
 
 // Generate pie charts for each game to display player net worths.
 startedGames.forEach(game => {
-	const ctx = $(`#player-performance-${game.id}`)[0].getContext("2d");
+	const canvas = $(`#player-performance-${game.id}`)[0];
+	// Clicking the canvas should not load the game page.
+	canvas.addEventListener("click", event => event.preventDefault());
+	const ctx = canvas.getContext("2d");
 	const myChart = new Chart(ctx, {
 		type: "doughnut",
 		data: {
@@ -120,29 +119,23 @@ startedGames.forEach(game => {
 					"rgb(153, 102, 255)",
 					"rgb(255, 159, 64)"
 				],
-				// borderColor: [
-				// 	'rgba(255, 99, 132, 1)',
-				// 	'rgba(54, 162, 235, 1)',
-				// 	'rgba(255, 206, 86, 1)',
-				// 	'rgba(75, 192, 192, 1)',
-				// 	'rgba(153, 102, 255, 1)',
-				// 	'rgba(255, 159, 64, 1)'
-				// ],
 				borderWidth: 0
 			}]
 		},
 		options: {
-	        tooltips: {
-	            callbacks: {
-	                label: function(tooltipItem, {datasets, labels}) {
-	                    const netWorth = datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-	                    return `$${netWorth}`;
-	                }
-	            }
-	        }
+			tooltips: {
+				callbacks: {
+					label: function(tooltipItem, {datasets, labels}) {
+						const netWorth = datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+						return `$${netWorth}`;
+					}
+				}
+			},
+			legend: {
+				position: "left"
+			}
 		}
 	});
-
 });
 </script>
 </body></html>

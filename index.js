@@ -274,7 +274,7 @@ function summarizeGame(game, yourId) {
 		// Summarize the gameplay
 		const timeSinceUpdated = describeTimeSince(game.lastUpdateTime);
 
-		const numOwnedProperties = game.places.filter(place => place.price > 0 && place.ownerNum !== -1).length;
+		const numOwnedProperties = game.locationData.filter(place => place.ownerNum !== -1).length;
 
 		const creatorName = game.playerData.find(player => player.userId === game.adminId).name;
 
