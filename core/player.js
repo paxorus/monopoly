@@ -115,7 +115,8 @@ class Player {
 
 			case "advance-turn":
 				if (this.num === message.nextPlayerId) {
-					// Clear messages when going to show player the "Execute Turn" button.
+					// If it's now this player's turn, clear messages from last turn before showing
+					// player the "Execute Turn" button.
 					this.savedMessages = [[eventName, message]];
 				} else {
 					this.savedMessages.push([eventName, message]);

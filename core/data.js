@@ -8,6 +8,7 @@ let games = {
 		name: "Friday night chillin",
 		adminId: "heerffgylfgxuslpsujz",
 		createTime: 1598213805058,
+		numTurns: 25,
 		lastUpdateTime: 1603492053331,
 		hasStarted: true,
 		hasCompleted: false,
@@ -56,20 +57,25 @@ let games = {
 				placeIdx: 0,
 				jailDays: null,
 				numJailCards: 1,
-				savedMessages: []
+				savedMessages: [
+					["advance-turn", {nextPlayerId: 0}]
+				]
 			},
 			{
 				name: "Willy",
 				userId: "nnkciawfaytxwwtxgxue",
 				num: 1,
-				spriteFileName: "https://archives.bulbagarden.net/media/upload/a/af/644Zekrom-Activated.png",
+				spriteFileName: "https://cdn2.bulbagarden.net/upload/thumb/8/81/644Zekrom.png/375px-644Zekrom.png",
 				latestRoll: null,
 				rollCount: null,
 				balance: 800,
 				placeIdx: 6,
 				jailDays: null,
 				numJailCards: 0,
-				savedMessages: []
+				savedMessages: [
+					["advance-turn", {nextPlayerId: 1}],
+					["log", "you already went, dude"]
+				]
 			}
 
 		]

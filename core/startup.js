@@ -23,6 +23,9 @@ const LEGENDARY_MODE = false;
  * the client reload the page.
  */
 function startGame(game) {
+	game.numTurns = 0;
+	game.lastUpdateTime = null;
+
 	// Build the player for each user.
 	// TODO: Names and sprites should be customizable.
 	const playerData = Object.entries(game.lobby).map(([userId, {name, sprite}], idx) => {

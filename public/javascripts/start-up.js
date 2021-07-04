@@ -13,7 +13,7 @@ import {buildAllViews, GlobalState} from "./game-board.js";
 import {log} from "./message-box.js";
 import Player from "./player.js";
 
-function startUp({playerData, locationData, monopolies, yourPlayerId, currentPlayerId, tax}) {
+function startUp({playerData, locationData, monopolies, yourPlayerId, currentPlayerId, tax, numTurns}) {
 
 	const players = playerData.map(({name, num, spriteFileName, balance}) => {
 		const player = new Player(name, num, spriteFileName);
@@ -68,9 +68,8 @@ function startUp({playerData, locationData, monopolies, yourPlayerId, currentPla
 	});
 
 	// TODO: Display other users' actions.
-	const savedMessages = playerData[yourPlayerId].savedMessages;
 
-	if (savedMessages.length === 0) {// If it's the first turn
+	if (numTurns === 0) {// If it's the first turn
 		if (yourPlayerId === currentPlayerId) {
 			// "Start Game"
 			$("#initial-interactive").css("display", "block");
@@ -82,10 +81,15 @@ function startUp({playerData, locationData, monopolies, yourPlayerId, currentPla
 	} else {
 		$("#interactive").css("display", "block");
 
+		const savedMessages = playerData[yourPlayerId].savedMessages;
+
 		savedMessages
 			.filter(([eventName, message]) => eventName === "log")
 			.forEach(([eventName, message]) => log(message));
 
+		// If the last message was a call-to-action, repeat it. There is at least
+		// one saved message if a player has clicked "Start Game", which is the
+		// initial "advance-turn" message indicating the previous player has gone.
 		const [finalEventName, finalMessage] = savedMessages[savedMessages.length - 1];
 		switch (finalEventName) {
 			// Offers

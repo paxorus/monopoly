@@ -70,8 +70,17 @@
 			<div class="game-summary-tile" style="background-color: #ccffd0">
 				<b><%= game.name %></b>
 				<div style="position: absolute; bottom: 15px">
+					<div style="font-size: 12px">
+						It's <%= (game.waitingOnName === game.yourName) ? "your" : `${game.waitingOnName}'s` %> move.
+					</div>
+
+					<% if (game.numTurns > 0) { %>
+					<div style="font-size: 10px; color: #777">
+						Last move <%= game.timeSinceUpdated %>.
+					</div>
+					<% } %>
+					<div style="font-size: 12px"><%= game.numTurns %> turns &bull; <%= game.numOwnedProperties %> <%= game.numOwnedProperties === 1 ? "property" : "properties" %> sold</div>
 					<div style="font-size: 10px; color: #777">Created <%= game.timeSinceCreated %> by <%= game.creatorName === game.yourName ? "you" : game.creatorName %></div>
-					<div style="font-size: 12px">0 turns &bull; <%= game.numOwnedProperties %> <%= game.numOwnedProperties === 1 ? "property" : "properties" %> sold</div>
 				</div>
 				<canvas class="player-donut-chart" id="player-performance-<%= game.id %>"></canvas>
 				<div class="tile-overlay" style="display: none">

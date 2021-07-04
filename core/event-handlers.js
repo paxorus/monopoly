@@ -60,7 +60,8 @@ function onConnection(io, socket, userId) {
 			monopolies,
 			currentPlayerId: game.currentPlayerId,
 			yourPlayerId: player.num,
-			tax: game.tax
+			tax: game.tax,
+			numTurns: game.numTurns
 		});
 	});
 

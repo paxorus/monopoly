@@ -13,6 +13,8 @@ function concludeTurn(mover) {
 function advanceTurn(mover, game) {
 	const nextPlayerId = (game.currentPlayerId + 1) % game.players.length;
 	game.currentPlayerId = nextPlayerId;
+	game.lastUpdateTime = +new Date();
+	game.numTurns ++;
 	mover.emitToAll("advance-turn", {
 		nextPlayerId
 	});
