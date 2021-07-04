@@ -15,12 +15,37 @@
 	to {transform: scale(1);}
 }
 
+#game-name-field {display: inline-block;}
 #invalid-name-message {font-size: 12px; height: 15px}
 .highlight-invalid-message {color: red}
+
+#full-page-overlay {
+	height: 100%;
+	width: 100%;
+	background-color: black;
+	position: absolute;
+	top: 0;
+	left: 0;
+	opacity: 0;
+	z-index: -1;
+}
+#new-game-form-modal {
+	z-index: 3;
+	display: none;
+	position: absolute;
+	top: 100%;
+	width: 500px;
+	left: 50%;
+	margin-left: -250px;
+	background-color: white;
+	border-radius: 3px;
+	padding: 10px;
+}
+
 #page-container {margin: 20px; margin-top: 30px;}
 .text-input {padding: 5px; border: 3px #DDD solid; font-weight: bold;}
-
 .link {text-decoration: none; color: black}
+
 .game-summary-tile {
 	float: left;
 	padding: 10px;
@@ -58,7 +83,8 @@
 <div id="page-container">
 <h1>Welcome to Web Monopoly!</h1>
 
-<input class="text-input" type="text" placeholder="Create a new game" />
+<!-- Create New Game button -->
+<div id="create-game" class="button" style="display: inline-block;">Create</div>
 
 <h2>In-Progress Games</h2>
 <% if (inProgressGames.length > 0) { %>
@@ -132,16 +158,15 @@
 	<div>None</div>
 <% } %>
 
-<!-- <form id="new-game-form" style="display: inline-block">
-	<center>
-	<h1>Create New Game</h1>
-	Name: <input id="game-name-field" type="text" />
-	<div id="invalid-name-message"></div>
-	<div id="create-game" class="button button-disabled" style="display: inline-block;">Create</div>
-	</center>
-</form>
- --></div>
+</div>
 
+<!-- Overlay for modal -->
+<div id="full-page-overlay"></div>
+
+<!-- Create New Game modal -->
+<div id="new-game-form-modal">
+	<%- include("../partials/new-game-form") %>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw==" crossorigin="anonymous"></script>
 
@@ -215,5 +240,60 @@ $(".game-summary-tile").on("animationstart", event => {
 // 	// event.
 // 	return false;
 // })
+
+// Modal open and close
+$("#create-game").click(event => {
+	$("#full-page-overlay").css("z-index", 2);
+	$("#new-game-form-modal").css("display", "block");
+
+	animate({
+		steps: 10,
+		durationMs: 50,
+		styles: [
+			{element: "#full-page-overlay", property: "opacity", from: 0, to: 0.8},
+			{element: "#page-container", property: "filter", from: 0, to: 10, format: num => `blur(${num}px)`},
+			{element: "#new-game-form-modal", property: "top", from: 100, to: 20, format: num => `${num}%`}
+		]
+	});
+});
+
+function closeNewGameModal() {
+	animate({
+		steps: 10,
+		durationMs: 50,
+		styles: [
+			{element: "#full-page-overlay", property: "opacity", from: 0.8, to: 0},
+			{element: "#page-container", property: "filter", from: 10, to: 0, format: num => `blur(${num}px)`},
+			{element: "#new-game-form-modal", property: "top", from: 20, to: -50, format: num => `${num}%`}
+		],
+		then: () => {
+			$("#full-page-overlay").css("z-index", -1);
+			$("#new-game-form-modal").css("display", "none");
+		}
+	});
+}
+
+function animate({steps, durationMs, styles, then}) {
+	function _animate(step) {
+		styles.forEach(({element, property, from, to, format}) => {
+			const styleValue = (to - from) / steps * step + from;
+			const formattedStyleValue = format ? format(styleValue) : styleValue;
+			$(element).css(property, formattedStyleValue);
+		});
+
+		if (step < steps) {
+			setTimeout(() => _animate(step + 1), durationMs / steps);
+		} else {
+			if (then) {
+				then();
+			}
+		}
+	}
+
+	_animate(0);
+}
+
 </script>
+
+<script src="javascripts/landing/create-game.js"></script>
 </body></html>

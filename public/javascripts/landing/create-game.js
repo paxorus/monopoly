@@ -1,3 +1,5 @@
+$("#close-modal-x").click(window.closeNewGameModal);
+
 // Don't reload page on input Enter or button click.
 $("#new-game-form").submit(event => event.preventDefault());
 
