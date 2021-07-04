@@ -12,7 +12,7 @@ const {
 	useGetOutOfJailFreeCard
 } = require("./execute-turn.js");
 const {LocationInfo, MONOPOLIES} = require("./location-configs.js");
-const Player = require("./player.js");
+const {Player} = require("./player.js");
 const {authLookup} = require("./startup.js");
 
 function onConnection(io, socket, userId) {
@@ -31,7 +31,7 @@ function onConnection(io, socket, userId) {
 	socket.on("start-up", ({gameId}) => {
 		// Look up (game, user).
 		game = Data.games[gameId];
-		game.players = game.playerData.map(playerConfig => Player.build(playerConfig, game));
+		game.players = game.playerData.map(playerRecord => new Player(playerRecord, game));
 		player = game.players.find(_player => _player.userId === userId);
 
 		if (player === undefined) {

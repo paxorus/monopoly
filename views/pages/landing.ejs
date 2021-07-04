@@ -2,13 +2,52 @@
 <html><head><title>Monopoly Game</title>
 <link href="/stylesheets/shared.css" rel="stylesheet"></link>
 <style>
+/* One visual flaw of CSS animations is that they are not interruptible.
+ * Hovering off the card while they are growing causes them to jump to scale(1.2)
+ * before they shrink.
+ */
+@keyframes grow-summary-tile {
+	from {transform: scale(1);}
+	to {transform: scale(1.2); filter: brightness(1.05);}
+}
+@keyframes shrink-summary-tile {
+	from {transform: scale(1.2);; filter: brightness(1.05);}
+	to {transform: scale(1);}
+}
+
 #invalid-name-message {font-size: 12px; height: 15px}
 .highlight-invalid-message {color: red}
 #page-container {margin: 20px; margin-top: 30px;}
 .text-input {padding: 5px; border: 3px #DDD solid; font-weight: bold;}
 
 .link {text-decoration: none; color: black}
-.game-summary-tile {float: left; padding: 10px; margin-right: 10px; margin-bottom: 10px; width: 250px; height: 200px; position: relative;}
+.game-summary-tile {
+	float: left;
+	padding: 10px;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	width: 250px;
+	height: 200px;
+	position: relative;
+}
+.game-summary-tile:hover {
+	animation-name: grow-summary-tile;
+	animation-duration: 0.5s;
+	animation-fill-mode: forwards;
+}
+.game-summary-tile-shrunken {
+	animation-name: shrink-summary-tile;
+	animation-duration: 0.5s;
+	animation-fill-mode: forwards;
+}
+.tile-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: inherit;
+	height: inherit;
+	pointer-events: none;
+}
 .player-donut-chart {padding-top: 10px; cursor: auto;}
 </style>
 
@@ -35,6 +74,9 @@
 					<div style="font-size: 12px">0 turns &bull; <%= game.numOwnedProperties %> <%= game.numOwnedProperties === 1 ? "property" : "properties" %> sold</div>
 				</div>
 				<canvas class="player-donut-chart" id="player-performance-<%= game.id %>"></canvas>
+				<div class="tile-overlay" style="display: none">
+					Return to Game
+				</div>
 			</div>
 		<% } else { %>
 			<!-- Display a tile, summarizing the lobby. -->
@@ -51,6 +93,9 @@
 				<div style="position: absolute; bottom: 15px">
 					<div style="font-size: 10px; color: #777">Created <%= game.timeSinceCreated %> by <%= game.creatorName === game.yourName ? "you" : game.creatorName %></div>
 					<div style="font-size: 12px">In Lobby</div>
+				</div>
+				<div class="tile-overlay" style="display: none">
+					Open Lobby
 				</div>
 			</div>			
 		<% } %>
@@ -137,5 +182,29 @@ startedGames.forEach(game => {
 		}
 	});
 });
+
+// Activate the animation of the card shrinking back only after the page has loaded.
+// This prevents the cards from an initial shrink on page load.
+$(".game-summary-tile").on("animationstart", event => {
+	$(event.target).toggleClass("game-summary-tile-shrunken", true);
+});
+
+// Display the text overlay while tile is in grown state.
+$(".game-summary-tile").on("animationend", event => {
+	if (event.originalEvent.animationName === "grow-summary-tile") {
+		$(event.target).children(".tile-overlay").css("display", "block");
+	}
+});
+$(".game-summary-tile").on("animationstart", event => {
+	if (event.originalEvent.animationName === "shrink-summary-tile") {
+		$(event.target).children(".tile-overlay").css("display", "none");
+	}
+});
+
+// $(".player-donut-chart").on("hover", event => {
+// 	event.stopPropagation();
+// 	// event.
+// 	return false;
+// })
 </script>
 </body></html>

@@ -16,16 +16,18 @@ Created: <%= new Date(gameCreateTime) %>
 <% } %>
 </ul>
 
-<div id="join-game" class="button" style="display: inline-block;">
-<% if (hasJoinedGame) { %>
-	Leave Game
-<% } else { %>
-	Join Game
-<% } %>
-</div>
 
 <% if (adminId === yourId) { %>
-<div id="start-game" class="button" style="display: inline-block;">Start Game</div>
+	<div id="start-game" class="button" style="display: inline-block;">Start Game</div>
+	<div id="delete-game" class="button" style="display: inline-block;">Delete Game</div>
+<% } else { %>
+	<div id="join-game" class="button" style="display: inline-block;">
+	<% if (hasJoinedGame) { %>
+		Leave Game
+	<% } else { %>
+		Join Game
+	<% } %>
+	</div>
 <% } %>
 
 <script src="/socket.io/socket.io.js"></script>
@@ -62,6 +64,10 @@ $("#join-game").click(event => {
 $("#start-game").click(event => {
 	// This will reload the page for all users.
 	socket.emit("start-game", {gameId});
+});
+
+$("#delete-game").click(event => {
+	alert("TODO!")
 });
 
 /**

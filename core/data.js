@@ -49,7 +49,7 @@ let games = {
 				name: "Prakhar",
 				userId: "heerffgylfgxuslpsujz",
 				num: 0,
-				spriteFileName: "/5/58/384Rayquaza-Mega.png",
+				spriteFileName: "https://cdn2.bulbagarden.net/upload/thumb/5/58/384Rayquaza-Mega.png/900px-384Rayquaza-Mega.png",
 				latestRoll: null,
 				rollCount: null,
 				balance: 1500,
@@ -62,7 +62,7 @@ let games = {
 				name: "Willy",
 				userId: "nnkciawfaytxwwtxgxue",
 				num: 1,
-				spriteFileName: "/8/81/644Zekrom.png",
+				spriteFileName: "https://archives.bulbagarden.net/media/upload/a/af/644Zekrom-Activated.png",
 				latestRoll: null,
 				rollCount: null,
 				balance: 800,
@@ -84,7 +84,7 @@ let games = {
 		lobby: {
 			"heerffgylfgxuslpsujz": {
 				name: "boop-star",
-				sprite: "/8/8a/483Dialga.png"
+				sprite: "https://cdn2.bulbagarden.net/upload/archive/8/8a/20190407154255%21483Dialga.png"
 			}		
 		}
 	},
@@ -98,7 +98,7 @@ let games = {
 		lobby: {
 			"heerffgylfgxuslpsujz": {
 				name: "boop-star",
-				sprite: "/8/8a/483Dialga.png"
+				sprite: "https://cdn2.bulbagarden.net/upload/archive/8/8a/20190407154255%21483Dialga.png"
 			}
 		}
 	}

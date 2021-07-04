@@ -116,7 +116,7 @@ function buildPlayerDashboards(players) {
 
 		const sprite = document.createElement("img");
 		sprite.className = "display-sprite";
-		sprite.src = "https://cdn.bulbagarden.net/upload" + player.spriteFileName;
+		sprite.src = player.spriteFileName;
 
 		const location = document.createElement("span");
 		location.id = "loc" + i;

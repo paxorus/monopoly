@@ -1,23 +1,47 @@
 const {Locations} = require("./location-configs.js");
 
-module.exports = class Player {
-	constructor(name, userId, num, spriteFileName, game) {
+/**
+ * A representation of a player that is safe for transmission and DB persistence.
+ * Namely, it does not reference the Game or Socket objects.
+ */
+class PlayerRecord {
+	constructor(name, userId, num, spriteFileName) {
 		this.name = name;
 		this.userId = userId;
 		this.num = num;
 		this.spriteFileName = spriteFileName;
-		this.game = game;
 
 		this.latestRoll = null;
 		this.rollCount = 0;
 		this.balance = 1500;
 		this.placeIdx = Locations.Go;
-		
+
 		this.jailDays = 0;
 		this.numJailCards = 0;
 
-		this.socket = null;
 		this.savedMessages = [];
+	}
+}
+
+class Player {
+	constructor(playerRecord, game) {
+		this.name = playerRecord.name;
+		this.userId = playerRecord.userId;
+		this.num = playerRecord.num;
+		this.spriteFileName = playerRecord.spriteFileName;
+
+		this.latestRoll = playerRecord.latestRoll;
+		this.rollCount = playerRecord.rollCount;
+		this.balance = playerRecord.balance;
+		this.placeIdx = playerRecord.placeIdx;
+		
+		this.jailDays = playerRecord.jailDays;
+		this.numJailCards = playerRecord.numJailCards;
+
+		this.savedMessages = playerRecord.savedMessages;
+
+		this.game = game;
+		this.socket = null;
 	}
 
 	decrementJailDays(jailDays) {
@@ -103,28 +127,9 @@ module.exports = class Player {
 	log(message) {
 		this.emit("log", message);
 	}
+}
 
-	static build({
-		name,
-		userId,
-		num,
-		spriteFileName,
-		latestRoll,
-		rollCount,
-		balance,
-		placeIdx,
-		jailDays,
-		numJailCards,
-		savedMessages
-	}, game) {
-		const player = new Player(name, userId, num, spriteFileName, game);
-		player.latestRoll = latestRoll;
-		player.rollCount = rollCount;
-		player.balance = balance;
-		player.placeIdx = placeIdx;
-		player.jailDays = jailDays;
-		player.numJailCards = numJailCards;
-		player.savedMessages = savedMessages;
-		return player;
-	}
+module.exports = {
+	PlayerRecord,
+	Player
 }
