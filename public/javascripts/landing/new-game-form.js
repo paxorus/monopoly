@@ -1,5 +1,12 @@
 $("#close-modal-x").click(window.closeNewGameModal);
 
+$(".player-icon").click(event => {
+	const imgNode = event.target;
+	$("#player-icon-hidden-field").val(imgNode.src);
+	$(".player-icon").css("filter", "brightness(0.25)");
+	$(imgNode.parentNode).css("filter", "brightness(1.0)");
+})
+
 // Don't reload page on input Enter or button click.
 $("#new-game-form").submit(event => event.preventDefault());
 

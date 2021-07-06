@@ -1,7 +1,8 @@
+const Data = require("./data.js");
 const {Locations} = require("./location-configs.js");
 
 /**
- * A representation of a player that is safe for transmission and DB persistence.
+ * A serializable representation of a player.
  * Namely, it does not reference the Game or Socket objects.
  */
 class PlayerRecord {
@@ -37,11 +38,11 @@ class Player {
 		
 		this.jailDays = playerRecord.jailDays;
 		this.numJailCards = playerRecord.numJailCards;
-
 		this.savedMessages = playerRecord.savedMessages;
 
 		this.game = game;
-		this.socket = null;
+		this.sockets = [];
+		this.io = null;
 	}
 
 	decrementJailDays(jailDays) {
@@ -82,20 +83,26 @@ class Player {
 	updateLocation(newLocation) {
 		this.placeIdx = newLocation;
 
+		// TODO: Why not use emitToAll() here?
 		if (this.io !== null) {
 			this.io.emit("update-location", {playerId: this.num, placeIdx: this.placeIdx});
 		}
 	}
 
 	configureEmitter(io, socket) {
-		this.socket = socket;
+		this.sockets.push(socket);
 		this.io = io;
+		console.log(this.num, this.sockets.length)
+	}
+
+	removeEmitter(socket) {
+		this.sockets.remove(socket);
+		console.log(this.num, this.sockets.length)
 	}
 
 	emit(eventName, message) {
-		if (this.socket !== null) {
-			this.socket.emit(eventName, message);			
-		}
+		// console.log(eventName, message, this.num);
+		this.sockets.forEach(socket => socket.emit(eventName, message));
 		this._saveMessage(eventName, message);
 	}
 
@@ -110,16 +117,16 @@ class Player {
 			case "offer-pay-out-of-jail":
 			case "offer-unowned-property":
 			case "log":
-				this.savedMessages.push([eventName, message]);
+				this.addToSavedMessages([eventName, message]);
 				break;
 
 			case "advance-turn":
 				if (this.num === message.nextPlayerId) {
 					// If it's now this player's turn, clear messages from last turn before showing
 					// player the "Execute Turn" button.
-					this.savedMessages = [[eventName, message]];
+					this.setSavedMessages([[eventName, message]]);
 				} else {
-					this.savedMessages.push([eventName, message]);
+					this.addToSavedMessages([eventName, message]);
 				}
 				break;
 		}
@@ -128,9 +135,30 @@ class Player {
 	log(message) {
 		this.emit("log", message);
 	}
+
+	getSavedMessages() {
+		return this.savedMessages;
+	}
+
+	setSavedMessages(savedMessages) {
+		this.savedMessages = savedMessages;
+		this.game.playerData[this.num].savedMessages = savedMessages;// Persist
+	}
+
+	addToSavedMessages(message) {
+		this.savedMessages.push(message);
+		this.game.playerData[this.num].savedMessages.push(message);// Persist
+	}
 }
+
+const PlayerIcons = [
+	"https://cdn2.bulbagarden.net/upload/thumb/5/58/384Rayquaza-Mega.png/900px-384Rayquaza-Mega.png",
+	"https://cdn2.bulbagarden.net/upload/thumb/8/81/644Zekrom.png/375px-644Zekrom.png",
+	"https://cdn2.bulbagarden.net/upload/archive/8/8a/20190407154255%21483Dialga.png"
+];
 
 module.exports = {
 	PlayerRecord,
-	Player
-}
+	Player,
+	PlayerIcons
+};

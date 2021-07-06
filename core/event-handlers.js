@@ -1,4 +1,6 @@
 const Data = require("./data.js");
+const {Game} = require("./game.js");
+const MemStore = require("./in-memory-store.js");
 const {
 	advanceTurn,
 	buyHouse,
@@ -12,8 +14,20 @@ const {
 	useGetOutOfJailFreeCard
 } = require("./execute-turn.js");
 const {LocationInfo, MONOPOLIES} = require("./location-configs.js");
-const {Player} = require("./player.js");
-const {authLookup} = require("./startup.js");
+
+
+function fetchGame(gameId) {
+	if (gameId in MemStore.games) {
+		// Fetch from cache.
+		return MemStore.games[gameId];
+	}
+
+	// Fetch from DB, then cache.
+	const gameRecord = Data.games[gameId];
+	const game = new Game(gameRecord);
+	MemStore.games[gameId] = game;
+	return game;
+}
 
 function onConnection(io, socket, userId) {
 
@@ -24,14 +38,17 @@ function onConnection(io, socket, userId) {
 	socket.on("disconnect", () => {
 		console.log("a user disconnected");
 		if (player !== undefined) {
-			player.configureEmitter(null, null);			
+			player.removeEmitter(socket);			
 		}
 	});
 
+	/**
+	 * When user loads gameplay page.
+	 */
 	socket.on("start-up", ({gameId}) => {
-		// Look up (game, user).
-		game = Data.games[gameId];
-		game.players = game.playerData.map(playerRecord => new Player(playerRecord, game));
+		// Look up game and player by (game ID, user ID).
+		game = fetchGame(gameId);
+
 		player = game.players.find(_player => _player.userId === userId);
 
 		if (player === undefined) {
@@ -41,18 +58,10 @@ function onConnection(io, socket, userId) {
 		}
 
 		socket.join(gameId);
-		// TODO: Message all of the player's devices, not just the latest.
+
 		player.configureEmitter(io.to(gameId), socket);
 
-		const placeStateMap = Object.fromEntries(game.locationData.map(placeState => [placeState.placeIdx, placeState]));
-		game.places = LocationInfo.map((placeConfig, placeIdx) =>
-			placeConfig.price > 0 ? {
-				...placeStateMap[placeIdx],
-				...placeConfig
-			} : placeConfig
-		);
-
-		const monopolies = MONOPOLIES.filter(monopoly => hasAchievedColoredMonopoly(monopoly, player));
+		const monopolies = this.monopolies = MONOPOLIES.filter(monopoly => hasAchievedColoredMonopoly(monopoly, player));
 
 		player.emit("start-up", {
 			playerData: game.playerData,

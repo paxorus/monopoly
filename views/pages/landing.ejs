@@ -11,7 +11,9 @@
 <h1>Welcome to Web Monopoly!</h1>
 
 <!-- Create New Game button -->
-<div id="create-game" class="button" style="display: inline-block;">Create</div>
+<div id="open-new-game-modal" class="button" style="display: inline-block;">
+	+ Create a New Game
+</div>
 
 <h2>In-Progress Games</h2>
 <% if (inProgressGames.length > 0) { %>
@@ -98,7 +100,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw==" crossorigin="anonymous"></script>
 
 <script src="/javascripts/third-party/jquery.js"></script>
-<script src="/javascripts/landing/create-game.js"></script>
 
 <script>
 const inProgressGames = <%- JSON.stringify(inProgressGames) %>;
@@ -169,7 +170,7 @@ $(".game-summary-tile").on("animationstart", event => {
 // })
 
 // Modal open and close
-$("#create-game").click(event => {
+$("#open-new-game-modal").click(event => {
 	$("#full-page-overlay").css("z-index", 2);
 	$("#new-game-form-modal").css("display", "block");
 
@@ -222,5 +223,6 @@ function animate({steps, durationMs, styles, then}) {
 
 </script>
 
-<script src="javascripts/landing/create-game.js"></script>
+<script src="/javascripts/landing/new-game-form.js"></script>
+
 </body></html>

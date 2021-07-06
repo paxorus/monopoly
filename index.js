@@ -5,8 +5,9 @@ const cookie = require("cookie");
 const cookieParser = require("cookie-parser");
 
 const Data = require("./core/data.js");
+const MemStore = require("./core/in-memory-store.js");
 const {onConnection} = require("./core/event-handlers.js");
-const {startGame} = require("./core/startup.js");
+const {PlayerIcons, PlayerRecord} = require("./core/player.js");
 const describeTimeSince = require("./core/age-to-text-helper.js")
 
 const app = express();
@@ -54,7 +55,8 @@ app.get("/", function(req, res) {
 		res.render("pages/landing", {
 			inProgressGames,
 			completedGames,
-			yourId: userId
+			yourId: userId,
+			playerIcons: PlayerIcons
 		});
 	} else {
 		// New user.
@@ -62,7 +64,8 @@ app.get("/", function(req, res) {
 		res.render("pages/landing", {
 			inProgressGames: [],
 			completedGames: [],
-			yourId: userId
+			yourId: userId,
+			playerIcons: PlayerIcons
 		});
 	}
 });
@@ -187,19 +190,26 @@ io.of("/lobby").on("connection", socket => {
 		console.log(`${userId} left game ${_gameId}`);
 	});
 
+	// When admin starts the game from the lobby.
 	socket.on("start-game", () => {
 
-		const game = Data.games[_gameId];
+		const lobbyRecord = Data.games[_gameId];
 
-		if (game.adminId !== userId) {
+		if (lobbyRecord.adminId !== userId) {
 			res.status(401);
 			res.send("401 (Unauthorized): You are not the admin of this game");
 			return;
 		}
 
-		// Bootstrap game state to be playable.
-		startGame(game);
+		const gameRecord = new GameRecord(lobbyRecord);
 
+		// Build in-memory structures from records.
+		MemStore.games[_gameId] = new Game(gameRecord);
+
+		// Persist game record, overwriting lobby record.
+		Data.games[_gameId] = gameRecord;
+
+		// Cause everyone in the lobby to reload the page.
 		io.of("/lobby").to(`lobby-${_gameId}`).emit("start-game");
 	});
 

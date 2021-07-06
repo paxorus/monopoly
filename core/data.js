@@ -13,6 +13,7 @@ let games = {
 		hasStarted: true,
 		hasCompleted: false,
 		lobby: {},
+		tax: 125,
 		monopolies: [],
 		locationData: [
 			{placeIdx: 1, ownerNum: 0, houseCount: 2, isMortgaged: false},
