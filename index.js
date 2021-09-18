@@ -5,6 +5,7 @@ const cookie = require("cookie");
 const cookieParser = require("cookie-parser");
 
 const Data = require("./core/data.js");
+const {Game, GameRecord} = require("./core/game.js");
 const MemStore = require("./core/in-memory-store.js");
 const {onConnection} = require("./core/event-handlers.js");
 const {PlayerIcons, PlayerRecord} = require("./core/player.js");
@@ -25,7 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Monkey patch
 Array.prototype.remove = function (x) {
-	const idx = this.findIndex(y => y === x);
+	const idx = this.indexOf(x);
 	if (idx !== -1) {
 		this.splice(idx, 1);
 	}
@@ -210,7 +211,7 @@ io.of("/lobby").on("connection", socket => {
 			return;
 		}
 
-		const gameRecord = new GameRecord(lobbyRecord);
+		const gameRecord = GameRecord.prototype.buildFromLobby(lobbyRecord);
 
 		// Build in-memory structures from records.
 		MemStore.games[_gameId] = new Game(gameRecord);
@@ -223,7 +224,7 @@ io.of("/lobby").on("connection", socket => {
 	});
 
 	socket.on("disconnect", () => {
-		console.log(`${userId} left lobby ${_gameId}`);
+		console.log(`${userId} closed lobby ${_gameId}`);
 	});
 });
 

@@ -92,12 +92,12 @@ class Player {
 	configureEmitter(io, socket) {
 		this.sockets.push(socket);
 		this.io = io;
-		console.log(this.num, this.sockets.length)
+		console.log(`add socket for player ${this.num}: ${this.sockets.length} total`);
 	}
 
 	removeEmitter(socket) {
 		this.sockets.remove(socket);
-		console.log(this.num, this.sockets.length)
+		console.log(`remove socket for player ${this.num}: ${this.sockets.length} total`);
 	}
 
 	emit(eventName, message) {
@@ -148,6 +148,22 @@ class Player {
 	addToSavedMessages(message) {
 		this.savedMessages.push(message);
 		this.game.playerData[this.num].savedMessages.push(message);// Persist
+	}
+
+	serialize() {
+		const record = new PlayerRecord(this.name, this.userId, this.num, this.spriteFileName);
+
+		record.latestRoll = this.latestRoll;
+		record.rollCount = this.rollCount;
+		record.balance = this.balance;
+		record.placeIdx = this.placeIdx;
+
+		record.jailDays = this.jailDays;
+		record.numJailCards = this.numJailCards;
+
+		record.savedMessages = this.savedMessages;
+
+		return record;
 	}
 }
 

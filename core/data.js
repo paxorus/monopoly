@@ -92,7 +92,7 @@ let games = {
 			"heerffgylfgxuslpsujz": {
 				name: "boop-star",
 				sprite: "https://cdn2.bulbagarden.net/upload/archive/8/8a/20190407154255%21483Dialga.png"
-			}		
+			}
 		}
 	},
 	"oiwftflpzyhsxjgarplc": {

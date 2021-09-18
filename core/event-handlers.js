@@ -33,10 +33,10 @@ function onConnection(io, socket, userId) {
 
 	let game, player;
 
-	console.log("a user connected");
+	console.log(`${userId} opened a game`);
 
 	socket.on("disconnect", () => {
-		console.log("a user disconnected");
+		console.log(`${userId} closed a game`);
 		if (player !== undefined) {
 			player.removeEmitter(socket);			
 		}
@@ -53,7 +53,7 @@ function onConnection(io, socket, userId) {
 
 		if (player === undefined) {
 			console.error(`User ${userId} does not have a player in game ${gameId}.`);
-			console.error(game.playerData);
+			console.error(game.players);
 			return;
 		}
 
@@ -63,14 +63,16 @@ function onConnection(io, socket, userId) {
 
 		const monopolies = this.monopolies = MONOPOLIES.filter(monopoly => hasAchievedColoredMonopoly(monopoly, player));
 
+		const gameRecord = game.serialize();
+
 		player.emit("start-up", {
-			playerData: game.playerData,
-			locationData: game.locationData,
 			monopolies,
-			currentPlayerId: game.currentPlayerId,
 			yourPlayerId: player.num,
-			tax: game.tax,
-			numTurns: game.numTurns
+			playerData: gameRecord.playerData,
+			locationData: gameRecord.locationData,
+			currentPlayerId: gameRecord.currentPlayerId,
+			tax: gameRecord.tax,
+			numTurns: gameRecord.numTurns
 		});
 	});
 
