@@ -38,7 +38,7 @@ const myId = "<%= yourId %>";
 
 const socket = io("/lobby");
 
-socket.emit("join-lobby", {gameId});
+socket.emit("open-lobby", {gameId});
 
 let hasJoinedGame = <%= hasJoinedGame %>;
 
@@ -49,12 +49,12 @@ const playerIds = <%- JSON.stringify(joinedPlayerNames) %>;
  */
 $("#join-game").click(event => {
 	if (hasJoinedGame) {
-		socket.emit("leave-game");
+		socket.emit("leave-lobby");
 		$("#join-game").text("Join Game");
 		hasJoinedGame = false;
 		removePlayerFromList(myId);
 	} else {
-		socket.emit("join-game");
+		socket.emit("join-lobby");
 		$("#join-game").text("Leave Game");
 		hasJoinedGame = true;
 		addPlayerToList(myId);
@@ -73,9 +73,9 @@ $("#delete-game").click(event => {
 /**
  * Socket event handlers.
  */
-socket.on("join-game", ({userId}) => addPlayerToList(userId));
+socket.on("join-lobby", ({userId}) => addPlayerToList(userId));
 
-socket.on("leave-game", ({userId}) => removePlayerFromList(userId));
+socket.on("leave-lobby", ({userId}) => removePlayerFromList(userId));
 
 socket.on("start-game", () => location.reload());
 

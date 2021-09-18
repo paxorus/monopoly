@@ -28,9 +28,23 @@ $("#game-name-field").on("blur", event => {
 
 $("#create-game").click(event => {
 	const gameName = $("#game-name-field").val();
+	const adminDisplayName = $("#player-name-field").val();
+	const adminSpriteSrc = $("#player-icon-hidden-field").val();
+
 	const {isValid} = isValidString(gameName);
 	if (isValid) {
-		location.href = `/action/create-game/${gameName}`;
+		$.ajax({
+			url: "/action/create-game",
+			method: "POST",
+			success: function(data) {
+				location.href = `/game/${data.newGameId}`;
+			},
+			data: {
+				gameName,
+				adminDisplayName,
+				adminSpriteSrc
+			}
+		});
 	}
 });
 

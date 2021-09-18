@@ -20,6 +20,9 @@ app.use(cookieParser());
 app.set("views", __dirname + "/views");
 app.set("view engine", "ejs");
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // Monkey patch
 Array.prototype.remove = function (x) {
 	const idx = this.findIndex(y => y === x);
@@ -70,8 +73,9 @@ app.get("/", function(req, res) {
 	}
 });
 
-app.get("/action/create-game/:gameName", function(req, res) {
-	const {gameName} = req.params;
+app.post("/action/create-game", function(req, res) {
+	const {gameName, adminDisplayName, adminSpriteSrc} = req.body;
+
 	const {userId} = req.cookies;
 	const gameId = randomId();
 	const newGame = {
@@ -81,13 +85,18 @@ app.get("/action/create-game/:gameName", function(req, res) {
 		createTime: +new Date(),
 		hasStarted: false,
 		hasCompleted: false,
-		lobby: {}
+		lobby: {
+			// Admin is always in the lobby. They cannot leave it, only disband.
+			[userId]: {name: adminDisplayName, sprite: adminSpriteSrc}
+		}
 	};
 	// TODO: blocking game registration
 	Data.games[gameId] = newGame;
 	Data.users[userId].gameIds.push(gameId);
 
-	res.redirect(`/game/${gameId}`);
+	res.send({
+		newGameId: gameId
+	});
 });
 
 app.get("/game/:gameId", function(req, res) {
@@ -156,13 +165,13 @@ io.of("/lobby").on("connection", socket => {
 
 	let _gameId;
 
-	socket.on("join-lobby", ({gameId}) => {
+	socket.on("open-lobby", ({gameId}) => {
 		_gameId = gameId;
 		socket.join(`lobby-${gameId}`);
-		console.log(`${userId} joined lobby ${_gameId}`);
+		console.log(`${userId} opened lobby ${_gameId}`);
 	});
 
-	socket.on("join-game", () => {
+	socket.on("join-lobby", () => {
 		const game = Data.games[_gameId];
 		if (Object.keys(game.lobby).includes(userId)) {
 			return;
@@ -172,22 +181,22 @@ io.of("/lobby").on("connection", socket => {
 			return;
 		}
 
-		socket.to(`lobby-${_gameId}`).emit("join-game", {userId});
+		socket.to(`lobby-${_gameId}`).emit("join-lobby", {userId});
 		// Player images are hard-coded for now.
 		Data.games[_gameId].lobby[userId] = {name: userId, sprite: "/8/8a/483Dialga.png"};
 		Data.users[userId].gameIds.push(_gameId);
-		console.log(`${userId} joined game ${_gameId}`);
+		console.log(`${userId} joined lobby ${_gameId}`);
 	});
 
-	socket.on("leave-game", () => {
+	socket.on("leave-lobby", () => {
 		const game = Data.games[_gameId];
 		if (game.hasStarted) {
 			return;
 		}
 
-		socket.to(`lobby-${_gameId}`).emit("leave-game", {userId});
+		socket.to(`lobby-${_gameId}`).emit("leave-lobby", {userId});
 		delete Data.games[_gameId].lobby[userId];
-		console.log(`${userId} left game ${_gameId}`);
+		console.log(`${userId} left lobby ${_gameId}`);
 	});
 
 	// When admin starts the game from the lobby.
