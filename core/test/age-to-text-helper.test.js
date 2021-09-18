@@ -16,7 +16,7 @@ describe("Age to Text Helper", () => {
 			const nowInMillis = +new Date();
 			_overrideNow(nowInMillis);
 
-			assert.equal("a few seconds ago", describeTimeSince(nowInMillis + SECOND));
+			assert.equal(describeTimeSince(nowInMillis + SECOND), "a few seconds ago");
 
 			_unoverrideNow();
 		});
@@ -25,39 +25,39 @@ describe("Age to Text Helper", () => {
 			const nowInMillis = +new Date();
 			_overrideNow(nowInMillis);
 
-			assert.equal("a few seconds ago", describeTimeSince(nowInMillis - SECOND));
-			assert.equal("a few seconds ago", describeTimeSince(nowInMillis - MINUTE + 1));
+			assert.equal(describeTimeSince(nowInMillis - SECOND), "a few seconds ago");
+			assert.equal(describeTimeSince(nowInMillis - MINUTE + 1), "a few seconds ago");
 
-			assert.equal("over a minute ago", describeTimeSince(nowInMillis - MINUTE));
-			assert.equal("over a minute ago", describeTimeSince(nowInMillis - 1.5 * MINUTE));
-			assert.equal("2 minutes ago", describeTimeSince(nowInMillis - 2 * MINUTE));
-			assert.equal("59 minutes ago", describeTimeSince(nowInMillis - HOUR + 1));
+			assert.equal(describeTimeSince(nowInMillis - MINUTE), "over a minute ago");
+			assert.equal(describeTimeSince(nowInMillis - 1.5 * MINUTE), "over a minute ago");
+			assert.equal(describeTimeSince(nowInMillis - 2 * MINUTE), "2 minutes ago");
+			assert.equal(describeTimeSince(nowInMillis - HOUR + 1), "59 minutes ago");
 			
-			assert.equal("over an hour ago", describeTimeSince(nowInMillis - HOUR));
-			assert.equal("over an hour ago", describeTimeSince(nowInMillis - 1.5 * HOUR));
-			assert.equal("2 hours ago", describeTimeSince(nowInMillis - 2 * HOUR));
-			assert.equal("23 hours ago", describeTimeSince(nowInMillis - DAY + 1));
+			assert.equal(describeTimeSince(nowInMillis - HOUR), "over an hour ago");
+			assert.equal(describeTimeSince(nowInMillis - 1.5 * HOUR), "over an hour ago");
+			assert.equal(describeTimeSince(nowInMillis - 2 * HOUR), "2 hours ago");
+			assert.equal(describeTimeSince(nowInMillis - DAY + 1), "23 hours ago");
 
-			assert.equal("over a day ago", describeTimeSince(nowInMillis - DAY));
-			assert.equal("over a day ago", describeTimeSince(nowInMillis - 1.5 * DAY));
-			assert.equal("2 days ago", describeTimeSince(nowInMillis - 2 * DAY));
-			assert.equal("6 days ago", describeTimeSince(nowInMillis - WEEK + 1));
+			assert.equal(describeTimeSince(nowInMillis - DAY), "over a day ago");
+			assert.equal(describeTimeSince(nowInMillis - 1.5 * DAY), "over a day ago");
+			assert.equal(describeTimeSince(nowInMillis - 2 * DAY), "2 days ago");
+			assert.equal(describeTimeSince(nowInMillis - WEEK + 1), "6 days ago");
 
-			assert.equal("over a week ago", describeTimeSince(nowInMillis - WEEK));
-			assert.equal("over a week ago", describeTimeSince(nowInMillis - 1.5 * WEEK));
-			assert.equal("2 weeks ago", describeTimeSince(nowInMillis - 2 * WEEK));
-			assert.equal("4 weeks ago", describeTimeSince(nowInMillis - MONTH + 1));
+			assert.equal(describeTimeSince(nowInMillis - WEEK), "over a week ago");
+			assert.equal(describeTimeSince(nowInMillis - 1.5 * WEEK), "over a week ago");
+			assert.equal(describeTimeSince(nowInMillis - 2 * WEEK), "2 weeks ago");
+			assert.equal(describeTimeSince(nowInMillis - MONTH + 1), "4 weeks ago");
 
-			assert.equal("over a month ago", describeTimeSince(nowInMillis - MONTH));
-			assert.equal("over a month ago", describeTimeSince(nowInMillis - 1.5 * MONTH));
-			assert.equal("2 months ago", describeTimeSince(nowInMillis - 2 * MONTH));
+			assert.equal(describeTimeSince(nowInMillis - MONTH), "over a month ago");
+			assert.equal(describeTimeSince(nowInMillis - 1.5 * MONTH), "over a month ago");
+			assert.equal(describeTimeSince(nowInMillis - 2 * MONTH), "2 months ago");
 			// Artifact of assuming a month is just 30 days.
-			assert.equal("12 months ago", describeTimeSince(nowInMillis - YEAR + 1));
+			assert.equal(describeTimeSince(nowInMillis - YEAR + 1), "12 months ago");
 
-			assert.equal("over a year ago", describeTimeSince(nowInMillis - YEAR));
-			assert.equal("over a year ago", describeTimeSince(nowInMillis - 1.5 * YEAR));
-			assert.equal("2 years ago", describeTimeSince(nowInMillis - 2 * YEAR));
-			assert.equal("50 years ago", describeTimeSince(nowInMillis - 50 * YEAR));
+			assert.equal(describeTimeSince(nowInMillis - YEAR), "over a year ago");
+			assert.equal(describeTimeSince(nowInMillis - 1.5 * YEAR), "over a year ago");
+			assert.equal(describeTimeSince(nowInMillis - 2 * YEAR), "2 years ago");
+			assert.equal(describeTimeSince(nowInMillis - 50 * YEAR), "50 years ago");
 
 			_unoverrideNow();
 		});

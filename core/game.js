@@ -6,7 +6,7 @@ const {Player, PlayerRecord} = require("./player.js");
  * Namely, it has PlayerRecord objects instead of Player objects.
  */
 class GameRecord {
-	constructor(gameId, gameName, adminId, playerRecords) {
+	constructor(gameId, gameName, adminId, playerRecords, placeRecords) {
 		this.id = gameId;
 		this.name = gameName;
 		this.adminId = adminId;
@@ -21,15 +21,7 @@ class GameRecord {
 
 		this.tax = 0;
 
-		// Create a copy of the locations.
-		this.locationData = LocationInfo.map(place =>
-			place.price > 0 ? ({
-				ownerNum: -1,
-				houseCount: 0,
-				isMortgaged: false,
-				...place
-			}) : place
-		);
+		this.placeRecords = placeRecords;
 
 		this.numTurns = 0;
 		this.lastUpdateTime = null;
@@ -44,7 +36,8 @@ class GameRecord {
 			lobbyRecord.id,
 			lobbyRecord.name,
 			lobbyRecord.adminId,
-			playerRecords
+			playerRecords,
+			PlacesArrayRecord.prototype.build()
 		);
 	}
 }
@@ -64,20 +57,13 @@ class Game {
 
 		this.players = gameRecord.playerData.map(playerRecord => new Player(playerRecord, this));
 
-		// const placeStateMap = Object.fromEntries(gameRecord.locationData.map(placeState => [placeState.placeIdx, placeState]));
-		// // TODO: What is this doing beyond the GameRecord?
-		// this.places = LocationInfo.map((placeConfig, placeIdx) =>
-		// 	placeConfig.price > 0 ? {
-		// 		...placeStateMap[placeIdx],
-		// 		...placeConfig
-		// 	} : placeConfig
-		// );
-		this.places = gameRecord.locationData;
+		this.places = PlacesArray.prototype.build(gameRecord.placeRecords);
 	}
 
 	serialize() {
 		const playerRecords = this.players.map(player => player.serialize());
-		const record = new GameRecord(this.id, this.name, this.adminId, playerRecords);
+		const placeRecords  = PlacesArray.prototype.serialize(this.placeRecords);
+		const record = new GameRecord(this.id, this.name, this.adminId, playerRecords, placeRecords);
 
 		record.createTime = this.createTime;
 		record.currentPlayerId = this.currentPlayerId;
@@ -93,7 +79,58 @@ class Game {
 	}
 }
 
+/**
+ * A serializable representation of PlacesArray.
+ * Namely, it only contains property state, so its fields are disjoint from LocationInfo and excludes
+ * any non-property locations.
+ */
+class PlacesArrayRecord {
+	build() {
+		// Initialize state for each property location. Add the place's index to identify the place after
+		// non-properties are removed.
+		return LocationInfo
+			.map((place, index) => [place.price, index])
+			.filter(([price, placeIdx]) => price > 0)
+			.map(([price, placeIdx]) => ({
+				placeIdx,
+				ownerNum: -1,
+				houseCount: 0,
+				isMortgaged: false
+			}));
+	}
+}
+
+class PlacesArray {
+
+	build(placeRecords) {
+		// Bootstrap the record's property state with LocationInfo.
+		const placeStateMap = Object.fromEntries(placeRecords.map(({placeIdx, ...placeState}) => [placeIdx, placeState]));
+
+		return LocationInfo.map((placeConfig, placeIdx) =>
+			placeConfig.price > 0 ? {
+				...placeStateMap[placeIdx],
+				...placeConfig
+			} : placeConfig
+		);
+	}
+
+	serialize(placesArray) {
+		// Remove all non-property locations, and extract only the property state fields.
+		return placesArray
+			.map((place, index) => [place, index])
+			.filter(([place, placeIdx]) => place.price > 0)
+			.map(([place, placeIdx]) => ({
+				placeIdx,
+				ownerNum: place.ownerNum,
+				houseCount: place.houseCount,
+				isMortgaged: place.isMortgaged
+			}));
+	}
+}
+
 module.exports = {
 	Game,
-	GameRecord
+	GameRecord,
+	PlacesArray,
+	PlacesArrayRecord
 };
