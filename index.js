@@ -9,7 +9,7 @@ const {Game, GameRecord} = require("./core/game.js");
 const MemStore = require("./core/in-memory-store.js");
 const {onConnection} = require("./core/event-handlers.js");
 const {PlayerIcons, PlayerRecord} = require("./core/player.js");
-const describeTimeSince = require("./core/age-to-text-helper.js")
+const {describeTimeSince} = require("./core/age-to-text-helper.js")
 
 const app = express();
 const server = http.createServer(app);

@@ -1,4 +1,19 @@
-module.exports = function describeTimeSince(then) {
+let overrideNow = undefined;
+
+function getNow() {
+	// Allow an override time fixture for DI testing.
+	return (overrideNow !== undefined) ? overrideNow : +new Date();
+}
+
+function _overrideNow(nowInMillis) {
+	overrideNow = nowInMillis;
+}
+
+function _unoverrideNow() {
+	overrideNow = undefined;
+}
+
+function describeTimeSince(then) {
 	const MINUTE = 60;
 	const HOUR = 60 * MINUTE;
 	const DAY = 24 * HOUR;
@@ -6,7 +21,7 @@ module.exports = function describeTimeSince(then) {
 	const MONTH = 30 * DAY;
 	const YEAR = 365 * DAY;
 
-	const now = +new Date();
+	const now = getNow();
 	const ageInSeconds = (now - then) / 1000;
 
 	if (ageInSeconds < MINUTE) {
@@ -65,3 +80,9 @@ module.exports = function describeTimeSince(then) {
 	const ageInYears = Math.floor(ageInSeconds / YEAR);
 	return `${ageInYears} years ago`;
 }
+
+module.exports = {
+	describeTimeSince,
+	_overrideNow,
+	_unoverrideNow
+};
