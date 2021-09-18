@@ -29,7 +29,7 @@ function fetchGame(gameId) {
 	return game;
 }
 
-function onConnection(io, socket, userId) {
+function onGameplayConnection(gameplayIo, socket, userId) {
 
 	let game, player;
 
@@ -59,7 +59,7 @@ function onConnection(io, socket, userId) {
 
 		socket.join(gameId);
 
-		player.configureEmitter(io.to(gameId), socket);
+		player.configureEmitter(gameplayIo.to(gameId), socket);
 
 		const monopolies = this.monopolies = MONOPOLIES.filter(monopoly => hasAchievedColoredMonopoly(monopoly, player));
 
@@ -118,5 +118,5 @@ function onConnection(io, socket, userId) {
 };
 
 module.exports = {
-	onConnection
+	onGameplayConnection
 };

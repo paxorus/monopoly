@@ -5,11 +5,10 @@ const cookie = require("cookie");
 const cookieParser = require("cookie-parser");
 
 const Data = require("./core/data.js");
-const {Game, GameRecord} = require("./core/game.js");
-const MemStore = require("./core/in-memory-store.js");
-const {onConnection} = require("./core/event-handlers.js");
-const {PlayerIcons, PlayerRecord} = require("./core/player.js");
-const {describeTimeSince} = require("./core/age-to-text-helper.js")
+const {onGameplayConnection} = require("./core/gameplay-event-handlers.js");
+const {onLobbyConnection} = require("./core/lobby-event-handlers.js");
+const {PlayerIcons} = require("./core/player.js");
+const {summarizeGame} = require("./core/summarize-game.js");
 
 const app = express();
 const server = http.createServer(app);
@@ -40,7 +39,7 @@ io.of("/gameplay").on("connection", socket => {
 		return;
 	}
 
-	onConnection(io.of("/gameplay"), socket, userId);
+	onGameplayConnection(io.of("/gameplay"), socket, userId);
 });
 
 app.get("/", function(req, res) {
@@ -125,7 +124,6 @@ app.get("/game/:gameId", function(req, res) {
 		res.render("pages/gameplay", {gameId});
 	} else {
 		// Render lobby.
-		// const {userId} = req.cookies;
 		res.render("pages/lobby", {
 			adminId: game.adminId,
 			gameName: game.name,
@@ -162,70 +160,7 @@ io.of("/lobby").on("connection", socket => {
 		return;
 	}
 
-	// const player = players[userId];// Needed?
-
-	let _gameId;
-
-	socket.on("open-lobby", ({gameId}) => {
-		_gameId = gameId;
-		socket.join(`lobby-${gameId}`);
-		console.log(`${userId} opened lobby ${_gameId}`);
-	});
-
-	socket.on("join-lobby", () => {
-		const game = Data.games[_gameId];
-		if (Object.keys(game.lobby).includes(userId)) {
-			return;
-		}
-
-		if (game.hasStarted) {
-			return;
-		}
-
-		socket.to(`lobby-${_gameId}`).emit("join-lobby", {userId});
-		// Player images are hard-coded for now.
-		Data.games[_gameId].lobby[userId] = {name: userId, sprite: "/8/8a/483Dialga.png"};
-		Data.users[userId].gameIds.push(_gameId);
-		console.log(`${userId} joined lobby ${_gameId}`);
-	});
-
-	socket.on("leave-lobby", () => {
-		const game = Data.games[_gameId];
-		if (game.hasStarted) {
-			return;
-		}
-
-		socket.to(`lobby-${_gameId}`).emit("leave-lobby", {userId});
-		delete Data.games[_gameId].lobby[userId];
-		console.log(`${userId} left lobby ${_gameId}`);
-	});
-
-	// When admin starts the game from the lobby.
-	socket.on("start-game", () => {
-
-		const lobbyRecord = Data.games[_gameId];
-
-		if (lobbyRecord.adminId !== userId) {
-			res.status(401);
-			res.send("401 (Unauthorized): You are not the admin of this game");
-			return;
-		}
-
-		const gameRecord = GameRecord.prototype.buildFromLobby(lobbyRecord);
-
-		// Build in-memory structures from records.
-		MemStore.games[_gameId] = new Game(gameRecord);
-
-		// Persist game record, overwriting lobby record.
-		Data.games[_gameId] = gameRecord;
-
-		// Cause everyone in the lobby to reload the page.
-		io.of("/lobby").to(`lobby-${_gameId}`).emit("start-game");
-	});
-
-	socket.on("disconnect", () => {
-		console.log(`${userId} closed lobby ${_gameId}`);
-	});
+	onLobbyConnection(io.of("/lobby"), socket, userId);
 });
 
 function httpAuthenticatePlayer(res, userId, secretKey) {
@@ -285,56 +220,4 @@ function randomId() {
 	}
 
 	return id;
-}
-
-function summarizeGame(game, yourId) {
-	return (game.hasStarted) ? summarizeGamePlay(game, yourId) : summarizeLobby(game, yourId);
-}
-
-function summarizeGamePlay(game, yourId) {
-	const timeSinceCreated = describeTimeSince(game.createTime);
-	const timeSinceUpdated = game.lastUpdateTime ? describeTimeSince(game.lastUpdateTime) : "never";
-
-	const numOwnedProperties = game.locationData.filter(place => place.ownerNum !== -1).length;
-
-	const creatorName = game.playerData.find(player => player.userId === game.adminId).name;
-
-	const yourName = game.playerData.find(player => player.userId === yourId).name;
-	const waitingOnName = game.playerData[game.currentPlayerId].name;
-
-	const playerData = game.playerData.map(player => ({
-		name: player.name,
-		netWorth: player.balance
-	}));
-
-	return {
-		id: game.id,
-		name: game.name,
-		timeSinceCreated,
-		creatorName,
-		yourName,
-		hasStarted: true,
-		timeSinceUpdated,
-		numTurns: game.numTurns,
-		numOwnedProperties,
-		playerData,
-		waitingOnName
-	};
-}
-
-function summarizeLobby(game, yourId) {
-	const timeSinceCreated = describeTimeSince(game.createTime);
-	const playerNames = Object.values(game.lobby).map(lobbyMember => lobbyMember.name);
-	const creatorName = game.lobby[game.adminId].name;
-	const yourName = game.lobby[yourId].name;
-
-	return {
-		id: game.id,
-		name: game.name,
-		timeSinceCreated,
-		creatorName,
-		yourName,
-		hasStarted: false,
-		playerNames
-	};
 }
