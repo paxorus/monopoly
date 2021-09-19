@@ -1,4 +1,6 @@
-const Data = require("./data.js");
+const Data = require("../storage/data.js");
+const {Game} = require("../models/game.js");
+const MemStore = require("../storage/in-memory-store.js");
 const {
 	advanceTurn,
 	buyHouse,
@@ -10,23 +12,43 @@ const {
 	sellHouse,
 	unmortgageProperty,
 	useGetOutOfJailFreeCard
-} = require("./execute-turn.js");
-const {MONOPOLIES} = require("./location-configs.js");
-const {authLookup} = require("./startup.js");
+} = require("../game-logic/execute-turn.js");
+const {LocationInfo, MONOPOLIES} = require("../game-logic/location-configs.js");
 
-function onConnection(io, socket, userId) {
+
+function fetchGame(gameId) {
+	if (gameId in MemStore.games) {
+		// Fetch from cache.
+		return MemStore.games[gameId];
+	}
+
+	// Fetch from DB, then cache.
+	const gameRecord = Data.games[gameId];
+	const game = new Game(gameRecord);
+	MemStore.games[gameId] = game;
+	return game;
+}
+
+function onGameplayConnection(gameplayIo, socket, userId) {
 
 	let game, player;
 
-	console.log("a user connected");
+	console.log(`${userId} opened a game`);
 
 	socket.on("disconnect", () => {
-		console.log("a user disconnected");
+		console.log(`${userId} closed a game`);
+		if (player !== undefined) {
+			player.removeEmitter(socket);			
+		}
 	});
 
+	/**
+	 * When user loads gameplay page.
+	 */
 	socket.on("start-up", ({gameId}) => {
-		// Look up (game, user).
-		game = Data.games[gameId];
+		// Look up game and player by (game ID, user ID).
+		game = fetchGame(gameId);
+
 		player = game.players.find(_player => _player.userId === userId);
 
 		if (player === undefined) {
@@ -36,30 +58,21 @@ function onConnection(io, socket, userId) {
 		}
 
 		socket.join(gameId);
-		// TODO: Message all of the player's devices, not just the latest.
-		player.configureEmitter(io.to(gameId), socket);
 
-		// Send the serializable subset of Player.
-		const playerData = game.players.map(player => ({
-			name: player.name,
-			num: player.num,
-			spriteFileName: player.spriteFileName,
-			balance: player.balance,
-			placeIdx: player.placeIdx,
-			jailDays: player.jailDays,
-			numJailCards: player.numJailCards,
-			savedMessages: player.savedMessages
-		}));
+		player.configureEmitter(gameplayIo.to(gameId), socket);
 
-		const monopolies = MONOPOLIES.filter(monopoly => hasAchievedColoredMonopoly(monopoly, player));
+		const monopolies = this.monopolies = MONOPOLIES.filter(monopoly => hasAchievedColoredMonopoly(monopoly, player));
+
+		const gameRecord = game.serialize();
 
 		player.emit("start-up", {
-			playerData,
-			locationData: game.places,
 			monopolies,
-			currentPlayerId: game.currentPlayerId,
 			yourPlayerId: player.num,
-			tax: game.tax
+			playerData: gameRecord.playerData,
+			locationData: gameRecord.locationData,
+			currentPlayerId: gameRecord.currentPlayerId,
+			tax: gameRecord.tax,
+			numTurns: gameRecord.numTurns
 		});
 	});
 
@@ -105,5 +118,5 @@ function onConnection(io, socket, userId) {
 };
 
 module.exports = {
-	onConnection
+	onGameplayConnection
 };

@@ -1,10 +1,10 @@
 const assert = require("assert");
-const {obeyLocation} = require("../obey-location.js");
+const {obeyLocation} = require("../../game-logic/obey-location.js");
 
-describe("Obey Location", function () {
+describe("Obey Location", () => {
 
-	describe("#obeyLocation()", function () {
-		it("should offer property if unowned", function () {
+	describe("#obeyLocation()", () => {
+		it("should offer property if unowned", () => {
 			const emitted = [];
 			obeyLocation({
 				placeIdx: 1,

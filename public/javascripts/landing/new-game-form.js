@@ -1,3 +1,12 @@
+$("#close-modal-x").click(window.closeNewGameModal);
+
+$(".player-icon").click(event => {
+	const imgNode = event.target;
+	$("#player-icon-hidden-field").val(imgNode.src);
+	$(".player-icon").css("filter", "brightness(0.25)");
+	$(imgNode.parentNode).css("filter", "brightness(1.0)");
+})
+
 // Don't reload page on input Enter or button click.
 $("#new-game-form").submit(event => event.preventDefault());
 
@@ -19,9 +28,23 @@ $("#game-name-field").on("blur", event => {
 
 $("#create-game").click(event => {
 	const gameName = $("#game-name-field").val();
+	const adminDisplayName = $("#player-name-field").val();
+	const adminSpriteSrc = $("#player-icon-hidden-field").val();
+
 	const {isValid} = isValidString(gameName);
 	if (isValid) {
-		location.href = `/action/create-game/${gameName}`;
+		$.ajax({
+			url: "/action/create-game",
+			method: "POST",
+			success: function(data) {
+				location.href = `/game/${data.newGameId}`;
+			},
+			data: {
+				gameName,
+				adminDisplayName,
+				adminSpriteSrc
+			}
+		});
 	}
 });
 

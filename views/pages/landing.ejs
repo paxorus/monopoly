@@ -1,33 +1,78 @@
 <!DOCTYPE html>
 <html><head><title>Monopoly Game</title>
 <link href="/stylesheets/shared.css" rel="stylesheet"></link>
-<style>
-#invalid-name-message {font-size: 12px; height: 15px}
-.highlight-invalid-message {color: red}
-#page-container {background-color: rgba(255, 255, 255, 0.3);}
-</style>
+<link rel="stylesheet" href="stylesheets/landing.css" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css" integrity="sha512-/zs32ZEJh+/EO2N1b0PEdoA10JkdC3zJ8L5FTiQu82LR9S/rOQNfQN7U59U9BC12swNeRAz3HSzIL2vpp4fv3w==" crossorigin="anonymous" />
 </head>
-<body style="background-image: url('images/background-monopoly.png')">
+<body>
 
 <div id="page-container">
-<h1>Current Games</h1>
+<h1>Welcome to Web Monopoly!</h1>
+
+<!-- Create New Game button -->
+<div id="open-new-game-modal" class="button" style="display: inline-block;">
+	+ Create a New Game
+</div>
+
+<h2>In-Progress Games</h2>
 <% if (inProgressGames.length > 0) { %>
 	<% for (let i = 0; i < inProgressGames.length; i ++) { %>
-		<a href="/game/<%= inProgressGames[i].id %>">
-		<div>
-			Admin: <%= inProgressGames[i].adminId === yourId ? "You" : inProgressGames[i].adminId %>
-			<br />
-			Game: <%= inProgressGames[i].name %>
-			<br />
-			Created: <%= new Date(inProgressGames[i].createTime) %>
-		</div>
+		<% const game = inProgressGames[i]; %>
+		<a href="/game/<%=game.id %>" class="link">
+		<% if (game.hasStarted) { %>
+			<!-- Display a tile, summarizing the game. -->
+			<div class="game-summary-tile" style="background-color: #ccffd0">
+				<b><%= game.name %></b>
+				<div style="position: absolute; bottom: 15px">
+					<div style="font-size: 12px">
+						It's <%= (game.waitingOnName === game.yourName) ? "your" : `${game.waitingOnName}'s` %> move.
+					</div>
+
+					<% if (game.numTurns > 0) { %>
+					<div style="font-size: 10px; color: #777">
+						Last move <%= game.timeSinceUpdated %>.
+					</div>
+					<% } %>
+					<div style="font-size: 12px"><%= game.numTurns %> turns &bull; <%= game.numOwnedProperties %> <%= game.numOwnedProperties === 1 ? "property" : "properties" %> sold</div>
+					<div style="font-size: 10px; color: #777">Created <%= game.timeSinceCreated %> by <%= game.creatorName === game.yourName ? "you" : game.creatorName %></div>
+				</div>
+				<canvas class="player-donut-chart" id="player-performance-<%= game.id %>"></canvas>
+				<div class="tile-overlay" style="display: none">
+					Return to Game
+				</div>
+			</div>
+		<% } else { %>
+			<!-- Display a tile, summarizing the lobby. -->
+			<div class="game-summary-tile" style="background-color: #d7e2f5">
+				<b style="color: #777"><%= game.name %></b>
+				<br />
+				<ul style="font-size: 14px; padding-left: 30px">
+					<% for (let j = 0; j < game.playerNames.length; j ++) { %>
+						<% const playerName = game.playerNames[j]; %>
+						<li><%= playerName %></li>
+					<% } %>
+				</ul>
+				<br />
+				<div style="position: absolute; bottom: 15px">
+					<div style="font-size: 10px; color: #777">Created <%= game.timeSinceCreated %> by <%= game.creatorName === game.yourName ? "you" : game.creatorName %></div>
+					<div style="font-size: 12px">In Lobby</div>
+				</div>
+				<div class="tile-overlay" style="display: none">
+					Open Lobby
+				</div>
+			</div>			
+		<% } %>
 		</a>
 	<% } %>
 <% } else { %>
 	<div>None</div>
 <% } %>
 
-<h1>Completed Games</h1>
+<!-- Clear the floating. -->
+<br style="clear: both" />
+
+<h2>Completed Games</h2>
 <% if (completedGames.length > 0) { %>
 	<% for (let i = 0; i < completedGames.length; i ++) { %>
 		<div>
@@ -42,16 +87,142 @@
 	<div>None</div>
 <% } %>
 
-<form id="new-game-form" style="display: inline-block">
-	<center>
-	<h1>Create New Game</h1>
-	Name: <input id="game-name-field" type="text" />
-	<div id="invalid-name-message"></div>
-	<div id="create-game" class="button button-disabled" style="display: inline-block;">Create</div>
-	</center>
-</form>
 </div>
 
+<!-- Overlay for modal -->
+<div id="full-page-overlay"></div>
+
+<!-- Create New Game modal -->
+<div id="new-game-form-modal">
+	<%- include("../partials/new-game-form") %>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw==" crossorigin="anonymous"></script>
+
 <script src="/javascripts/third-party/jquery.js"></script>
-<script src="/javascripts/landing/create-game.js"></script>
+
+<script>
+const inProgressGames = <%- JSON.stringify(inProgressGames) %>;
+const completedGames = <%- JSON.stringify(completedGames) %>;
+const startedGames = [...inProgressGames, ...completedGames].filter(game => game.hasStarted);
+
+// Generate pie charts for each game to display player net worths.
+startedGames.forEach(game => {
+	const canvas = $(`#player-performance-${game.id}`)[0];
+	// Clicking the canvas should not load the game page.
+	canvas.addEventListener("click", event => event.preventDefault());
+	const ctx = canvas.getContext("2d");
+	const myChart = new Chart(ctx, {
+		type: "doughnut",
+		data: {
+			labels: game.playerData.map(player => player.name),
+			datasets: [{
+				data: game.playerData.map(player => player.netWorth),
+				backgroundColor: [
+					"rgb(255, 99, 132)",
+					"rgb(54, 162, 235)",
+					"rgb(255, 206, 86)",
+					"rgb(75, 192, 192)",
+					"rgb(153, 102, 255)",
+					"rgb(255, 159, 64)"
+				],
+				borderWidth: 0
+			}]
+		},
+		options: {
+			tooltips: {
+				callbacks: {
+					label: function(tooltipItem, {datasets, labels}) {
+						const netWorth = datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+						return `$${netWorth}`;
+					}
+				}
+			},
+			legend: {
+				position: "left"
+			}
+		}
+	});
+});
+
+// Activate the animation of the card shrinking back only after the page has loaded.
+// This prevents the cards from an initial shrink on page load.
+$(".game-summary-tile").on("animationstart", event => {
+	$(event.target).toggleClass("game-summary-tile-shrunken", true);
+});
+
+// Display the text overlay while tile is in grown state.
+$(".game-summary-tile").on("animationend", event => {
+	if (event.originalEvent.animationName === "grow-summary-tile") {
+		$(event.target).children(".tile-overlay").css("display", "block");
+	}
+});
+$(".game-summary-tile").on("animationstart", event => {
+	if (event.originalEvent.animationName === "shrink-summary-tile") {
+		$(event.target).children(".tile-overlay").css("display", "none");
+	}
+});
+
+// $(".player-donut-chart").on("hover", event => {
+// 	event.stopPropagation();
+// 	// event.
+// 	return false;
+// })
+
+// Modal open and close
+$("#open-new-game-modal").click(event => {
+	$("#full-page-overlay").css("z-index", 2);
+	$("#new-game-form-modal").css("display", "block");
+
+	animate({
+		steps: 10,
+		durationMs: 50,
+		styles: [
+			{element: "#full-page-overlay", property: "opacity", from: 0, to: 0.8},
+			{element: "#page-container", property: "filter", from: 0, to: 10, format: num => `blur(${num}px)`},
+			{element: "#new-game-form-modal", property: "top", from: 100, to: 20, format: num => `${num}%`}
+		]
+	});
+});
+
+function closeNewGameModal() {
+	animate({
+		steps: 10,
+		durationMs: 50,
+		styles: [
+			{element: "#full-page-overlay", property: "opacity", from: 0.8, to: 0},
+			{element: "#page-container", property: "filter", from: 10, to: 0, format: num => `blur(${num}px)`},
+			{element: "#new-game-form-modal", property: "top", from: 20, to: -50, format: num => `${num}%`}
+		],
+		then: () => {
+			$("#full-page-overlay").css("z-index", -1);
+			$("#new-game-form-modal").css("display", "none");
+		}
+	});
+}
+
+function animate({steps, durationMs, styles, then}) {
+	function _animate(step) {
+		styles.forEach(({element, property, from, to, format}) => {
+			const styleValue = (to - from) / steps * step + from;
+			const formattedStyleValue = format ? format(styleValue) : styleValue;
+			$(element).css(property, formattedStyleValue);
+		});
+
+		if (step < steps) {
+			setTimeout(() => _animate(step + 1), durationMs / steps);
+		} else {
+			if (then) {
+				then();
+			}
+		}
+	}
+
+	_animate(0);
+}
+
+</script>
+
+<script src="/javascripts/landing/new-game-form.js"></script>
+
 </body></html>

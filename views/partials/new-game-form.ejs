@@ -1,0 +1,27 @@
+<style>
+	#close-modal-x {position: absolute; right: 10px; top: 10px; cursor: pointer}
+
+	.player-icon {cursor: pointer; filter: brightness(0.25);}
+	.player-icon:hover {filter: brightness(1.0);}
+</style>
+
+<h2>Create a New Game</h2><img id="close-modal-x" src="images/close-modal-x.svg">
+
+Enter a name for the game:
+<input id="game-name-field" class="text-input" type="text" placeholder="Game name" />
+<div id="invalid-name-message"></div>
+
+Enter your name:
+<input id="player-name-field" class="text-input" type="text" placeholder="Player name" />
+
+<p>Pick your icon:
+	<input id="player-icon-hidden-field" style="display: none" type="text" />
+	<br />
+	<% for (let i = 0; i < playerIcons.length; i ++) { %>
+		<span class="player-icon">
+			<img src="<%= playerIcons[i] %>" height="100" />
+		</span>
+	<% } %>
+</p>
+
+<div id="create-game" class="button" style="float: right">Create Game</div>

@@ -77,7 +77,7 @@ export default class Player {
 		const circ = document.createElement("img");
 		circ.id = "marker" + this.num;
 		circ.className = "circ";
-		circ.src = "https://cdn.bulbagarden.net/upload" + this.spriteFileName;
+		circ.src = this.spriteFileName;
 		circ.addEventListener("click", event => {
 			slide(this.num);
 			event.stopPropagation();

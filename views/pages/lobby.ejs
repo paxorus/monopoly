@@ -16,16 +16,18 @@ Created: <%= new Date(gameCreateTime) %>
 <% } %>
 </ul>
 
-<div id="join-game" class="button" style="display: inline-block;">
-<% if (hasJoinedGame) { %>
-	Leave Game
-<% } else { %>
-	Join Game
-<% } %>
-</div>
 
 <% if (adminId === yourId) { %>
-<div id="start-game" class="button" style="display: inline-block;">Start Game</div>
+	<div id="start-game" class="button" style="display: inline-block;">Start Game</div>
+	<div id="disband-lobby" class="button" style="display: inline-block;">Disband Lobby</div>
+<% } else { %>
+	<div id="join-game" class="button" style="display: inline-block;">
+	<% if (hasJoinedGame) { %>
+		Leave Game
+	<% } else { %>
+		Join Game
+	<% } %>
+	</div>
 <% } %>
 
 <script src="/socket.io/socket.io.js"></script>
@@ -36,7 +38,7 @@ const myId = "<%= yourId %>";
 
 const socket = io("/lobby");
 
-socket.emit("join-lobby", {gameId});
+socket.emit("open-lobby", {gameId});
 
 let hasJoinedGame = <%= hasJoinedGame %>;
 
@@ -47,12 +49,12 @@ const playerIds = <%- JSON.stringify(joinedPlayerNames) %>;
  */
 $("#join-game").click(event => {
 	if (hasJoinedGame) {
-		socket.emit("leave-game");
+		socket.emit("leave-lobby");
 		$("#join-game").text("Join Game");
 		hasJoinedGame = false;
 		removePlayerFromList(myId);
 	} else {
-		socket.emit("join-game");
+		socket.emit("join-lobby");
 		$("#join-game").text("Leave Game");
 		hasJoinedGame = true;
 		addPlayerToList(myId);
@@ -64,12 +66,16 @@ $("#start-game").click(event => {
 	socket.emit("start-game", {gameId});
 });
 
+$("#delete-game").click(event => {
+	alert("TODO!")
+});
+
 /**
  * Socket event handlers.
  */
-socket.on("join-game", ({userId}) => addPlayerToList(userId));
+socket.on("join-lobby", ({userId}) => addPlayerToList(userId));
 
-socket.on("leave-game", ({userId}) => removePlayerFromList(userId));
+socket.on("leave-lobby", ({userId}) => removePlayerFromList(userId));
 
 socket.on("start-game", () => location.reload());
 

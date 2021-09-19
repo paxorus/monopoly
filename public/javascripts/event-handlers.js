@@ -66,6 +66,7 @@ socket.on("allow-conclude-turn", () => {
 });
 
 socket.on("advance-turn", ({nextPlayerId}) => {
+	console.log("advance-turn", nextPlayerId);
 	updateTurn(nextPlayerId);
 });
 
