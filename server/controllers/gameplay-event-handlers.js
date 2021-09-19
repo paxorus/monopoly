@@ -61,6 +61,7 @@ function onGameplayConnection(gameplayIo, socket, userId) {
 
 		player.configureEmitter(gameplayIo.to(gameId), socket);
 
+		// TODO: Is `this.monopolies` a typo?
 		const monopolies = this.monopolies = MONOPOLIES.filter(monopoly => hasAchievedColoredMonopoly(monopoly, player));
 
 		const gameRecord = game.serialize();
@@ -74,9 +75,12 @@ function onGameplayConnection(gameplayIo, socket, userId) {
 			tax: gameRecord.tax,
 			numTurns: gameRecord.numTurns
 		});
+
+		return [player, game];
 	});
 
 	// Turn actions
+	// TODO: None of these socket events need to send playerId. The issuing user is already authenticated.
 	socket.on("advance-turn", () => {
 		advanceTurn(player, game);
 	});
