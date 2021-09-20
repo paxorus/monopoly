@@ -8,8 +8,9 @@ describe("Gameplay Event Handlers", () => {
 
 	describe("#onGameplayConnection()", () => {
 
-		// TODO: test game not found in Data (and MemStore), player not found in game. Test "start-up" never received.
 		let actualGameActionCalls = [];
+
+		const dummyPlayerRecords = [new PlayerRecord("my player name", "my user id", 0, "my player sprite")];
 
 		const {onGameplayConnection} = proxyquire("../../controllers/gameplay-event-handlers.js", {
 			// Stub the game logic functions.
@@ -28,15 +29,61 @@ describe("Gameplay Event Handlers", () => {
 			// Plant a mock game.
 			"../storage/data.js": {
 				"games": {
-					"my game id": new GameRecord("my game id", "my game name", "my admin id", [
-						new PlayerRecord("my player name", "my user id", 0, "my player sprite")
-					], [
+					"my game id": new GameRecord("my game id", "my game name", "my admin id", dummyPlayerRecords, [
 						{placeIdx: 37, ownerNum: 0, houseCount: 0, isMortgaged: true},
 						{placeIdx: 39, ownerNum: 0, houseCount: 2, isMortgaged: false}
-					])
+					]),
+					"my game id 2": new GameRecord("my game id 2", "this copy is in Data", "my admin id", dummyPlayerRecords, [])
 				}
+			},
+
+			"../storage/in-memory-store.js": {
+				"games": {
+					"my game id 2": new Game(new GameRecord(
+						"my game id 2", "this copy is in mem-store", "my admin id", dummyPlayerRecords, []
+					))
+				}				
 			}
 		});
+
+		const expectedSocketEvents = [
+			{
+				"clientEventName": "advance-turn",
+				"clientArgs": {}
+			},
+			{
+				"clientEventName": "execute-turn",
+				"clientArgs": {playerId: 0}
+			},
+			{
+				"clientEventName": "respond-to-buy-offer",
+				"clientArgs": {playerId: 0, ifBuy: true}
+			},
+			{
+				"clientEventName": "buy-house",
+				"clientArgs": {playerId: 0, placeIdx: 5}
+			},
+			{
+				"clientEventName": "sell-house",
+				"clientArgs": {playerId: 0, placeIdx: 10}
+			},
+			{
+				"clientEventName": "use-jail-card",
+				"clientArgs": {playerId: 0}
+			},
+			{
+				"clientEventName": "pay-out-of-jail",
+				"clientArgs": {playerId: 0}
+			},
+			{
+				"clientEventName": "mortgage-property",
+				"clientArgs": {playerId: 0, placeIdx: 15}
+			},
+			{
+				"clientEventName": "unmortgage-property",
+				"clientArgs": {playerId: 0, placeIdx: 20}
+			}
+		];
 
 		const mockIo = {
 			to: function (roomName) {this.roomName = roomName; return this},
@@ -119,57 +166,24 @@ describe("Gameplay Event Handlers", () => {
 			const [player, game] = mockSocket.registeredCallbacks["start-up"]({gameId: "my game id"});
 
 			// Test each socket callback.
-			const expectedSocketEvents = [
-				{
-					"clientEventName": "advance-turn",
-					"clientArgs": {},
-					"gameActionArgs": [player, game]
-				},
-				{
-					"clientEventName": "execute-turn",
-					"clientArgs": {playerId: 0},
-					"gameActionArgs": [player]
-				},
-				{
-					"clientEventName": "respond-to-buy-offer",
-					"clientArgs": {playerId: 0, ifBuy: true},
-					"gameActionArgs": [player, true]
-				},
-				{
-					"clientEventName": "buy-house",
-					"clientArgs": {playerId: 0, placeIdx: 5},
-					"gameActionArgs": [player, 5]
-				},
-				{
-					"clientEventName": "sell-house",
-					"clientArgs": {playerId: 0, placeIdx: 10},
-					"gameActionArgs": [player, 10]
-				},
-				{
-					"clientEventName": "use-jail-card",
-					"clientArgs": {playerId: 0},
-					"gameActionArgs": [player]
-				},
-				{
-					"clientEventName": "pay-out-of-jail",
-					"clientArgs": {playerId: 0},
-					"gameActionArgs": [player]
-				},
-				{
-					"clientEventName": "mortgage-property",
-					"clientArgs": {playerId: 0, placeIdx: 15},
-					"gameActionArgs": [player, 15]
-				},
-				{
-					"clientEventName": "unmortgage-property",
-					"clientArgs": {playerId: 0, placeIdx: 20},
-					"gameActionArgs": [player, 20]
-				}
-			];
+			const expectedResults = {
+				"advance-turn": [player, game],
+				"execute-turn": [player],
+				"respond-to-buy-offer": [player, true],
+				"buy-house": [player, 5],
+				"sell-house": [player, 10],
+				"use-jail-card": [player],
+				"pay-out-of-jail": [player],
+				"mortgage-property": [player, 15],
+				"unmortgage-property": [player, 20]
+			};
 
-			expectedSocketEvents.forEach(({clientEventName, clientArgs, gameActionArgs}) => {
+			expectedSocketEvents.forEach(({clientEventName, clientArgs}) => {
 				mockSocket.registeredCallbacks[clientEventName](clientArgs);
-				assert.deepEqual(actualGameActionCalls.shift(), [clientEventName, gameActionArgs]);
+				const [actualEventName, actualGameActionArgs] = actualGameActionCalls.shift();
+
+				assert.equal(actualEventName, clientEventName);
+				assert.deepEqual(actualGameActionArgs, expectedResults[clientEventName]);
 			});
 
 			// Test there are no other calls to these callbacks.
@@ -179,12 +193,61 @@ describe("Gameplay Event Handlers", () => {
 
 			// Test there are no other registered event handlers on the socket.
 			const actualRegisteredEventNames = new Set(Object.keys(mockSocket.registeredCallbacks));
-			const expectedEventNames = new Set([
+			assert.deepEqual(actualRegisteredEventNames, new Set([
 				"start-up",
-				...expectedSocketEvents.map(({clientEventName}) => clientEventName),
+				...Object.keys(expectedResults),
 				"disconnect"
-			]);
-			assert.deepEqual(actualRegisteredEventNames, expectedEventNames);
+			]));
+		});
+
+		it("quits out on start-up if the user ID is not among the game's players", () => {
+			actualGameActionCalls = [];
+			mockIo.resetMock();
+			mockSocket.resetMock();
+
+			onGameplayConnection(mockIo, mockSocket, "unknown user id");
+			const actual = mockSocket.registeredCallbacks["start-up"]({gameId: "my game id"});
+
+			assert.equal(actual, undefined);
+		});
+
+		it("quits out on start-up if the game is not in Data or MemStore", () => {
+			actualGameActionCalls = [];
+			mockIo.resetMock();
+			mockSocket.resetMock();
+
+			onGameplayConnection(mockIo, mockSocket, "my user id");
+			const actual = mockSocket.registeredCallbacks["start-up"]({gameId: "unknown game id"});
+
+			assert.equal(actual, undefined);
+		});
+
+		it("prefers to fetch the game from MemStore over Data", () => {
+			actualGameActionCalls = [];
+			mockIo.resetMock();
+			mockSocket.resetMock();
+
+			onGameplayConnection(mockIo, mockSocket, "my user id");
+			const [player, game] = mockSocket.registeredCallbacks["start-up"]({gameId: "my game id 2"});
+
+			assert.equal(player.userId, "my user id");
+			assert.equal(game.id, "my game id 2");
+			assert.equal(game.name, "this copy is in mem-store");
+		});
+
+		it("cancels game actions that occur before start-up", () => {
+			actualGameActionCalls = [];
+			mockIo.resetMock();
+			mockSocket.resetMock();
+
+			onGameplayConnection(mockIo, mockSocket, "my user id");
+
+			[
+				...expectedSocketEvents,
+				{"clientEventName": "disconnect", "clientArgs": {}}
+			].map(({clientEventName, clientArgs}) => mockSocket.registeredCallbacks[clientEventName](clientArgs));
+
+			assert.deepEqual(actualGameActionCalls, []);
 		});
 	});
 });
