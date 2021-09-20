@@ -131,11 +131,11 @@ describe("Game", () => {
 
 			const actualGameRecord = actualGame.serialize();
 			const {placeRecords, ...actual} = actualGameRecord;
-			
+
 			const expected = {...gameRecord};
 			delete expected.placeRecords;
 
-			assert.equal(placeRecords.length, 40);
+			assert.equal(placeRecords.length, 28);
 			assert.deepEqual(actual, expected);
 		});
 	});

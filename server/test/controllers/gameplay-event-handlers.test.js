@@ -9,20 +9,20 @@ describe("Gameplay Event Handlers", () => {
 	describe("#onGameplayConnection()", () => {
 
 		// TODO: test game not found in Data (and MemStore), player not found in game. Test "start-up" never received.
-		const gameLogicCalls = [];
+		let actualGameActionCalls = [];
 
 		const {onGameplayConnection} = proxyquire("../../controllers/gameplay-event-handlers.js", {
 			// Stub the game logic functions.
 			"../game-logic/execute-turn.js": {
-				advanceTurn() {gameLogicCalls.push(["advance-turn", [...arguments]])},
-				executeTurn() {gameLogicCalls.push(["execute-turn", [...arguments]])},
-				respondToBuyOffer() {gameLogicCalls.push(["respond-to-buy-offer", [...arguments]])},
-				buyHouse() {gameLogicCalls.push(["buy-house", [...arguments]])},
-				sellHouse() {gameLogicCalls.push(["sell-house", [...arguments]])},
-				useGetOutOfJailFreeCard() {gameLogicCalls.push(["use-jail-card", [...arguments]])},
-				payOutOfJail() {gameLogicCalls.push(["pay-out-of-jail", [...arguments]])},
-				mortgageProperty() {gameLogicCalls.push(["mortgage-property", [...arguments]])},
-				unmortgageProperty() {gameLogicCalls.push(["unmortgage-property", [...arguments]])}
+				advanceTurn() {actualGameActionCalls.push(["advance-turn", [...arguments]])},
+				executeTurn() {actualGameActionCalls.push(["execute-turn", [...arguments]])},
+				respondToBuyOffer() {actualGameActionCalls.push(["respond-to-buy-offer", [...arguments]])},
+				buyHouse() {actualGameActionCalls.push(["buy-house", [...arguments]])},
+				sellHouse() {actualGameActionCalls.push(["sell-house", [...arguments]])},
+				useGetOutOfJailFreeCard() {actualGameActionCalls.push(["use-jail-card", [...arguments]])},
+				payOutOfJail() {actualGameActionCalls.push(["pay-out-of-jail", [...arguments]])},
+				mortgageProperty() {actualGameActionCalls.push(["mortgage-property", [...arguments]])},
+				unmortgageProperty() {actualGameActionCalls.push(["unmortgage-property", [...arguments]])}
 			},
 
 			// Plant a mock game.
@@ -30,41 +30,56 @@ describe("Gameplay Event Handlers", () => {
 				"games": {
 					"my game id": new GameRecord("my game id", "my game name", "my admin id", [
 						new PlayerRecord("my player name", "my user id", 0, "my player sprite")
-					], [])
+					], [
+						{placeIdx: 37, ownerNum: 0, houseCount: 0, isMortgaged: true},
+						{placeIdx: 39, ownerNum: 0, houseCount: 2, isMortgaged: false}
+					])
 				}
 			}
 		});
 
-		it("registers a socket callback to the proper game logic function for each gameplay client event", () => {
-			const mockIo = {
-				to: function (roomName) {this.roomName = roomName; return this}
-			};
-			const mockSocket = {
-				registeredCallbacks: {},
-				sentMessages: [],
-				on: function (eventName, callback) {this.registeredCallbacks[eventName] = callback},
-				join: function (roomName) {this.roomName = roomName},
-				emit: function (eventName, message) {this.sentMessages.push([eventName, message])}
-			};
+		const mockIo = {
+			to: function (roomName) {this.roomName = roomName; return this},
+			resetMock: function () {delete this.roomName}
+		};
+
+		const mockSocket = {
+			registeredCallbacks: {},
+			sentMessages: [],
+			on: function (eventName, callback) {this.registeredCallbacks[eventName] = callback},
+			join: function (roomName) {this.roomName = roomName},
+			emit: function (eventName, message) {this.sentMessages.push([eventName, message])},
+			resetMock: function () {
+				this.registeredCallbacks = [];
+				this.sentMessages = [];
+				delete this.roomName;
+			}
+		};
+
+		it("adds the socket to the room and locates the player and game on start-up, and removes the socket on disconnect", () => {
+			actualGameActionCalls = [];
+			mockIo.resetMock();
+			mockSocket.resetMock();
 
 			// Register the callbacks.
 			onGameplayConnection(mockIo, mockSocket, "my user id");
 
 			// For start-up, the socket and broadcaster IO should join a room, and the player should have
-			// their first socket configured, and a "start-up" event sending the game. The cached game
-			// and player objects in the onGameplayConnection make it possible to test subsequent callbacks.
-			// For testability, we return those objects here.
+			// their first socket configured, and a "start-up" event sending the game.
 			const [player, game] = mockSocket.registeredCallbacks["start-up"]({gameId: "my game id"});
 			assert.equal(mockSocket.roomName, "my game id");
 			assert.equal(mockIo.roomName, "my game id");
+			assert.equal(game.id, "my game id");
 			assert.deepEqual(player.sockets, [mockSocket]);
+
+			assert.equal(mockSocket.sentMessages[0][1].locationData.length, 28);
+			delete mockSocket.sentMessages[0][1].locationData;
 			assert.deepEqual(mockSocket.sentMessages, [
 				[
 					"start-up",
 					{
 						"currentPlayerId": 0,
-						"locationData": undefined,
-						"monopolies": [],
+						"monopolies": [[37, 39]],
 						"numTurns": 0,
 						"playerData": [
 							{
@@ -87,7 +102,21 @@ describe("Gameplay Event Handlers", () => {
 				]
 			]);
 
-			const actual = gameLogicCalls;
+			mockSocket.registeredCallbacks["disconnect"]();
+			assert.deepEqual(player.sockets, []);
+		});
+
+		it("registers a socket callback to the proper game logic function for each gameplay client event", () => {
+			actualGameActionCalls = [];
+			mockIo.resetMock();
+			mockSocket.resetMock();
+
+			// Register the callbacks.
+			onGameplayConnection(mockIo, mockSocket, "my user id");
+
+			// onGameplayConnection needs a "start-up" to find and cache the game and player objects in its closure,
+			// in order for subsequent callbacks to work.
+			const [player, game] = mockSocket.registeredCallbacks["start-up"]({gameId: "my game id"});
 
 			// Test each socket callback.
 			const expectedSocketEvents = [
@@ -140,14 +169,13 @@ describe("Gameplay Event Handlers", () => {
 
 			expectedSocketEvents.forEach(({clientEventName, clientArgs, gameActionArgs}) => {
 				mockSocket.registeredCallbacks[clientEventName](clientArgs);
-				assert.deepEqual(actual.shift(), [clientEventName, gameActionArgs]);
+				assert.deepEqual(actualGameActionCalls.shift(), [clientEventName, gameActionArgs]);
 			});
 
 			// Test there are no other calls to these callbacks.
-			assert.deepEqual(actual, []);
+			assert.deepEqual(actualGameActionCalls, []);
 
 			mockSocket.registeredCallbacks["disconnect"]();
-			assert.deepEqual(player.sockets, []);
 
 			// Test there are no other registered event handlers on the socket.
 			const actualRegisteredEventNames = new Set(Object.keys(mockSocket.registeredCallbacks));

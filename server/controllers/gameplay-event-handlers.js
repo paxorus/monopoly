@@ -61,8 +61,7 @@ function onGameplayConnection(gameplayIo, socket, userId) {
 
 		player.configureEmitter(gameplayIo.to(gameId), socket);
 
-		// TODO: Is `this.monopolies` a typo?
-		const monopolies = this.monopolies = MONOPOLIES.filter(monopoly => hasAchievedColoredMonopoly(monopoly, player));
+		const monopolies = MONOPOLIES.filter(monopoly => hasAchievedColoredMonopoly(monopoly, player));
 
 		const gameRecord = game.serialize();
 
@@ -70,7 +69,7 @@ function onGameplayConnection(gameplayIo, socket, userId) {
 			monopolies,
 			yourPlayerId: player.num,
 			playerData: gameRecord.playerData,
-			locationData: gameRecord.locationData,
+			locationData: gameRecord.placeRecords,
 			currentPlayerId: gameRecord.currentPlayerId,
 			tax: gameRecord.tax,
 			numTurns: gameRecord.numTurns

@@ -72,8 +72,6 @@ class Game {
 		record.numTurns = this.numTurns;
 		record.lastUpdateTime = this.lastUpdateTime;
 
-		record.placeRecords = this.places;
-
 		return record;
 	}
 }
