@@ -14,15 +14,15 @@ describe("Gameplay Event Handlers", () => {
 		const {onGameplayConnection} = proxyquire("../../controllers/gameplay-event-handlers.js", {
 			// Stub the game logic functions.
 			"../game-logic/execute-turn.js": {
-				advanceTurn() {gameLogicCalls.push(["advanceTurn", [...arguments]])},
-				executeTurn() {gameLogicCalls.push(["executeTurn", [...arguments]])},
-				respondToBuyOffer() {gameLogicCalls.push(["respondToBuyOffer", [...arguments]])},
-				buyHouse() {gameLogicCalls.push(["buyHouse", [...arguments]])},
-				sellHouse() {gameLogicCalls.push(["sellHouse", [...arguments]])},
-				useGetOutOfJailFreeCard() {gameLogicCalls.push(["useGetOutOfJailFreeCard", [...arguments]])},
-				payOutOfJail() {gameLogicCalls.push(["payOutOfJail", [...arguments]])},
-				mortgageProperty() {gameLogicCalls.push(["mortgageProperty", [...arguments]])},
-				unmortgageProperty() {gameLogicCalls.push(["unmortgageProperty", [...arguments]])}
+				advanceTurn() {gameLogicCalls.push(["advance-turn", [...arguments]])},
+				executeTurn() {gameLogicCalls.push(["execute-turn", [...arguments]])},
+				respondToBuyOffer() {gameLogicCalls.push(["respond-to-buy-offer", [...arguments]])},
+				buyHouse() {gameLogicCalls.push(["buy-house", [...arguments]])},
+				sellHouse() {gameLogicCalls.push(["sell-house", [...arguments]])},
+				useGetOutOfJailFreeCard() {gameLogicCalls.push(["use-jail-card", [...arguments]])},
+				payOutOfJail() {gameLogicCalls.push(["pay-out-of-jail", [...arguments]])},
+				mortgageProperty() {gameLogicCalls.push(["mortgage-property", [...arguments]])},
+				unmortgageProperty() {gameLogicCalls.push(["unmortgage-property", [...arguments]])}
 			},
 
 			// Plant a mock game.
@@ -50,7 +50,6 @@ describe("Gameplay Event Handlers", () => {
 			// Register the callbacks.
 			onGameplayConnection(mockIo, mockSocket, "my user id");
 
-			// Test each socket callback.
 			// For start-up, the socket and broadcaster IO should join a room, and the player should have
 			// their first socket configured, and a "start-up" event sending the game. The cached game
 			// and player objects in the onGameplayConnection make it possible to test subsequent callbacks.
@@ -58,6 +57,7 @@ describe("Gameplay Event Handlers", () => {
 			const [player, game] = mockSocket.registeredCallbacks["start-up"]({gameId: "my game id"});
 			assert.equal(mockSocket.roomName, "my game id");
 			assert.equal(mockIo.roomName, "my game id");
+			assert.deepEqual(player.sockets, [mockSocket]);
 			assert.deepEqual(mockSocket.sentMessages, [
 				[
 					"start-up",
@@ -89,35 +89,74 @@ describe("Gameplay Event Handlers", () => {
 
 			const actual = gameLogicCalls;
 
-			mockSocket.registeredCallbacks["advance-turn"]();
-			assert.deepEqual(actual.shift(), ["advanceTurn", [player, game]]);
+			// Test each socket callback.
+			const expectedSocketEvents = [
+				{
+					"clientEventName": "advance-turn",
+					"clientArgs": {},
+					"gameActionArgs": [player, game]
+				},
+				{
+					"clientEventName": "execute-turn",
+					"clientArgs": {playerId: 0},
+					"gameActionArgs": [player]
+				},
+				{
+					"clientEventName": "respond-to-buy-offer",
+					"clientArgs": {playerId: 0, ifBuy: true},
+					"gameActionArgs": [player, true]
+				},
+				{
+					"clientEventName": "buy-house",
+					"clientArgs": {playerId: 0, placeIdx: 5},
+					"gameActionArgs": [player, 5]
+				},
+				{
+					"clientEventName": "sell-house",
+					"clientArgs": {playerId: 0, placeIdx: 10},
+					"gameActionArgs": [player, 10]
+				},
+				{
+					"clientEventName": "use-jail-card",
+					"clientArgs": {playerId: 0},
+					"gameActionArgs": [player]
+				},
+				{
+					"clientEventName": "pay-out-of-jail",
+					"clientArgs": {playerId: 0},
+					"gameActionArgs": [player]
+				},
+				{
+					"clientEventName": "mortgage-property",
+					"clientArgs": {playerId: 0, placeIdx: 15},
+					"gameActionArgs": [player, 15]
+				},
+				{
+					"clientEventName": "unmortgage-property",
+					"clientArgs": {playerId: 0, placeIdx: 20},
+					"gameActionArgs": [player, 20]
+				}
+			];
 
-			mockSocket.registeredCallbacks["execute-turn"]({playerId: 0});
-			assert.deepEqual(actual.shift(), ["executeTurn", [player]]);
+			expectedSocketEvents.forEach(({clientEventName, clientArgs, gameActionArgs}) => {
+				mockSocket.registeredCallbacks[clientEventName](clientArgs);
+				assert.deepEqual(actual.shift(), [clientEventName, gameActionArgs]);
+			});
 
-			mockSocket.registeredCallbacks["respond-to-buy-offer"]({playerId: 0, ifBuy: true});
-			assert.deepEqual(actual.shift(), ["respondToBuyOffer", [player, true]]);
-
-			mockSocket.registeredCallbacks["buy-house"]({playerId: 0, placeIdx: 5});
-			assert.deepEqual(actual.shift(), ["buyHouse", [player, 5]]);
-
-			mockSocket.registeredCallbacks["sell-house"]({playerId: 0, placeIdx: 10});
-			assert.deepEqual(actual.shift(), ["sellHouse", [player, 10]]);
-
-			mockSocket.registeredCallbacks["use-jail-card"]({playerId: 0});
-			assert.deepEqual(actual.shift(), ["useGetOutOfJailFreeCard", [player]]);
-
-			mockSocket.registeredCallbacks["pay-out-of-jail"]({playerId: 0});
-			assert.deepEqual(actual.shift(), ["payOutOfJail", [player]]);
-
-			mockSocket.registeredCallbacks["mortgage-property"]({playerId: 0, placeIdx: 15});
-			assert.deepEqual(actual.shift(), ["mortgageProperty", [player, 15]]);
-
-			mockSocket.registeredCallbacks["unmortgage-property"]({playerId: 0, placeIdx: 20});
-			assert.deepEqual(actual.shift(), ["unmortgageProperty", [player, 20]]);
-
-			// Test there are no other callback calls.
+			// Test there are no other calls to these callbacks.
 			assert.deepEqual(actual, []);
+
+			mockSocket.registeredCallbacks["disconnect"]();
+			assert.deepEqual(player.sockets, []);
+
+			// Test there are no other registered event handlers on the socket.
+			const actualRegisteredEventNames = new Set(Object.keys(mockSocket.registeredCallbacks));
+			const expectedEventNames = new Set([
+				"start-up",
+				...expectedSocketEvents.map(({clientEventName}) => clientEventName),
+				"disconnect"
+			]);
+			assert.deepEqual(actualRegisteredEventNames, expectedEventNames);
 		});
 	});
 });

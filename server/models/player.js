@@ -1,3 +1,4 @@
+require("../array-monkey-patch.js");
 const Data = require("../storage/data.js");
 const {Locations} = require("../game-logic/location-configs.js");
 

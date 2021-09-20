@@ -23,14 +23,6 @@ app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Monkey patch
-Array.prototype.remove = function (x) {
-	const idx = this.indexOf(x);
-	if (idx !== -1) {
-		this.splice(idx, 1);
-	}
-};
-
 // GET pages
 app.get("/", getLandingPage);
 app.get("/game/:gameId", getGameplayOrLobbyPage);

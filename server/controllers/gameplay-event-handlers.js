@@ -38,7 +38,7 @@ function onGameplayConnection(gameplayIo, socket, userId) {
 	socket.on("disconnect", () => {
 		console.log(`${userId} closed a game`);
 		if (player !== undefined) {
-			player.removeEmitter(socket);			
+			player.removeEmitter(socket);
 		}
 	});
 
