@@ -26,13 +26,22 @@ describe("PlayerRecord", () => {
 
 describe("Player", () => {
 
-	const mockSocket = {
-		messages: [],
-		emit: function (message, data) {this.messages.push([message, data])},
-		resetMock: function () {this.messages = []}
-	};
+	class MockSocket {
+		constructor() {
+			this.messages = [];
+		}
 
-	const mockSocket2 = {...mockSocket};
+		emit(message, data) {
+			this.messages.push([message, data]);
+		}
+
+		resetMock() {
+			this.messages = [];
+		}
+	}
+
+	const mockSocket = new MockSocket();
+	const mockSocket2 = new MockSocket();
 
 	const mockIo = {
 		messages: [],
@@ -45,10 +54,10 @@ describe("Player", () => {
 			const player = new Player(new PlayerRecord("my name", "my id", 0, "my image"), {});
 			assert.deepEqual(player.sockets, []);
 
-			player.configureEmitter(mockIo, mockSocket);
+			player.configureEmitter(null, mockSocket);
 			assert.deepEqual(player.sockets, [mockSocket]);
 
-			player.configureEmitter(mockIo, mockSocket2);
+			player.configureEmitter(null, mockSocket2);
 			assert.deepEqual(player.sockets, [mockSocket, mockSocket2]);
 
 			player.removeEmitter(mockSocket2);
@@ -98,28 +107,28 @@ describe("Player", () => {
 
 	describe("#emitToAll()", () => {
 		it("emits to all players properly", () => {
-			mockIo.resetMock();
 			mockSocket.resetMock();
+			mockSocket2.resetMock();
 
 			const mockGame = {};
 			const player = new Player(new PlayerRecord("my name", "my id", 0, "my image"), mockGame);
 			const player2 = new Player(new PlayerRecord("their name", "their id", 1, "their image"), mockGame);
 			mockGame.players = [player, player2];
 
-			player.configureEmitter(mockIo, mockSocket);
+			player.configureEmitter(null, mockSocket);
+			player2.configureEmitter(null, mockSocket2);
+
 			player.emit("boop", {x: 10});
 			player.emitToAll("troop", {y: 20});
 
-			player.removeEmitter(mockSocket);
-			player.emitToAll("offline-event", {z: 15});
-
-			assert.deepEqual(player.savedMessages, []);
-			assert.deepEqual(player2.savedMessages, []);
 			assert.deepEqual(mockSocket.messages, [
 				["boop", {x: 10}],
 				["troop", {y: 20}]
 			]);
-			assert.deepEqual(mockIo.messages, []);
+
+			assert.deepEqual(mockSocket2.messages, [
+				["troop", {y: 20}]
+			]);
 		});
 	});
 
@@ -158,6 +167,52 @@ describe("Player", () => {
 				["log", "You will be in jail for 3 turns!"],
 				["log", "You are now out of jail!"]
 			]);
+		});
+	});
+
+	describe("#updateBalance()", () => {
+		it("increments the balance for all users", () => {
+			mockSocket.resetMock();
+			mockIo.resetMock();
+
+			const player = new Player(new PlayerRecord("my name", "my id", 0, "my image"), {});
+			player.configureEmitter(mockIo, mockSocket);
+
+			player.updateBalance(3);
+			assert.equal(player.balance, 1503);
+			assert.deepEqual(mockSocket.messages, []);
+			assert.deepEqual(mockIo.messages, [
+				["update-balance", {balance: 1503, playerId: 0}]
+			]);
+		});
+	});
+
+	describe("#updateLocation()", () => {
+		it("updates the location for all users", () => {
+			mockSocket.resetMock();
+			mockIo.resetMock();
+
+			const player = new Player(new PlayerRecord("my name", "my id", 0, "my image"), {});
+			player.configureEmitter(mockIo, mockSocket);
+
+			player.updateLocation(50);
+			assert.equal(player.placeIdx, 50);
+			assert.deepEqual(mockSocket.messages, []);
+			assert.deepEqual(mockIo.messages, [
+				["update-location", {placeIdx: 50, playerId: 0}]
+			]);
+		});
+	});
+
+	describe("#serialize()", () => {
+		it("serializes the player back into a record", () => {
+			const playerRecord = new PlayerRecord("my name", "my id", 0, "my image")
+			// The mock game and socket should get removed.
+			const player = new Player(playerRecord, {});
+			player.configureEmitter(mockIo, mockSocket);
+
+			const actual = player.serialize();
+			assert.deepEqual(playerRecord, actual);
 		});
 	});
 });
