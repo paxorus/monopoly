@@ -1,50 +1,51 @@
 const {describeTimeSince} = require("./age-to-text-helper.js");
 
 
-function summarizeGame(game, yourId) {
-	return (game.hasStarted) ? summarizeGamePlay(game, yourId) : summarizeLobby(game, yourId);
+function summarizeGame(gameRecord, yourId) {
+	return (gameRecord.hasStarted) ? summarizeGamePlay(gameRecord, yourId) : summarizeLobby(gameRecord, yourId);
 }
 
-function summarizeGamePlay(game, yourId) {
-	const timeSinceCreated = describeTimeSince(game.createTime);
-	const timeSinceUpdated = game.lastUpdateTime ? describeTimeSince(game.lastUpdateTime) : "never";
+function summarizeGamePlay(gameRecord, yourId) {
+	const timeSinceCreated = describeTimeSince(gameRecord.createTime);
+	const timeSinceUpdated = gameRecord.lastUpdateTime ? describeTimeSince(gameRecord.lastUpdateTime) : "never";
 
-	const numOwnedProperties = game.placeRecords.filter(place => place.ownerNum !== -1).length;
+	const numOwnedProperties = gameRecord.placeRecords.filter(place => place.ownerNum !== -1).length;
 
-	const creatorName = game.playerData.find(player => player.userId === game.adminId).name;
+	const creatorName = gameRecord.playerData.find(player => player.userId === gameRecord.adminId).name;
 
-	const yourName = game.playerData.find(player => player.userId === yourId).name;
-	const waitingOnName = game.playerData[game.currentPlayerId].name;
+	const yourName = gameRecord.playerData.find(player => player.userId === yourId).name;
+	const waitingOnName = gameRecord.playerData[gameRecord.currentPlayerId].name;
 
-	const playerData = game.playerData.map(player => ({
+	// TODO: Compute net worth by liquidating houses, properties, and GOOJF cards.
+	const playerData = gameRecord.playerData.map(player => ({
 		name: player.name,
 		netWorth: player.balance
 	}));
 
 	return {
-		id: game.id,
-		name: game.name,
+		id: gameRecord.id,
+		name: gameRecord.name,
 		timeSinceCreated,
 		creatorName,
 		yourName,
 		hasStarted: true,
 		timeSinceUpdated,
-		numTurns: game.numTurns,
+		numTurns: gameRecord.numTurns,
 		numOwnedProperties,
 		playerData,
 		waitingOnName
 	};
 }
 
-function summarizeLobby(game, yourId) {
-	const timeSinceCreated = describeTimeSince(game.createTime);
-	const playerNames = Object.values(game.lobby).map(lobbyMember => lobbyMember.name);
-	const creatorName = game.lobby[game.adminId].name;
-	const yourName = game.lobby[yourId].name;
+function summarizeLobby(gameRecord, yourId) {
+	const timeSinceCreated = describeTimeSince(gameRecord.createTime);
+	const playerNames = Object.values(gameRecord.lobby).map(lobbyMember => lobbyMember.name);
+	const creatorName = gameRecord.lobby[gameRecord.adminId].name;
+	const yourName = gameRecord.lobby[yourId].name;
 
 	return {
-		id: game.id,
-		name: game.name,
+		id: gameRecord.id,
+		name: gameRecord.name,
 		timeSinceCreated,
 		creatorName,
 		yourName,
