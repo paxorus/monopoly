@@ -1,5 +1,5 @@
 const assert = require("assert");
-const {summarizeGame} = require("../../friendliness/summarize-game.js");
+const {summarizeGame, summarizeLobby} = require("../../friendliness/summarize-game.js");
 const {GameRecord} = require("../../models/game.js");
 const {PlayerRecord} = require("../../models/player.js");
 const TimeNow = require("../../fickle/time-now.js");
@@ -12,8 +12,6 @@ describe("Summarize Game", () => {
 	const MINUTE = 60 * SECOND;
 	const HOUR = 60 * MINUTE;
 	const DAY = 24 * HOUR;
-	// const MONTH = 30 * DAY;
-	// const YEAR = 365 * DAY;
 
 	describe("#summarizeGame()", () => {
 		it("should summarize an in-progress game record", () => {
@@ -33,7 +31,6 @@ describe("Summarize Game", () => {
 
 			const expectedGameSummary = {
 				"creatorName": "admin name",
-				"hasStarted": true,
 				"id": "my game id",
 				"name": "my game name",
 				"numOwnedProperties": 2,
@@ -75,25 +72,22 @@ describe("Summarize Game", () => {
 				name: "my lobby name",
 				adminId: "admin id",
 				createTime: nowInMillis - 7 * HOUR,
-				hasStarted: false,
-				hasCompleted: false,
-				lobby: {
+				memberMap: {
 					"admin id": {name: "admin name"},
 					"my player id": {name: "my player name"}
 				}
 			};
 
-			assert.deepEqual(summarizeGame(lobbyRecord, myPlayerId), {
-				"creatorName": "admin name",
-				"hasStarted": false,
+			assert.deepEqual(summarizeLobby(lobbyRecord, myPlayerId), {
+				"adminId": "admin id",
+				"adminName": "admin name",
 				"id": "my lobby id",
 				"name": "my lobby name",
 				"playerNames": [
 					"admin name",
 					"my player name",
 				],
-				"timeSinceCreated": "7 hours ago",
-				"yourName": "my player name"
+				"timeSinceCreated": "7 hours ago"
 			});
 
 			TimeNow._uninject();

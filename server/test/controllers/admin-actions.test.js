@@ -19,10 +19,10 @@ describe("Admin Actions", () => {
 				send: function (x) {this.data = x}
 			};
 			const mockData = {
-				games: {},
+				lobbies: {},
 				users: {
 					"my user id": {
-						gameIds: []
+						lobbyIds: []
 					}
 				}
 			};
@@ -33,14 +33,12 @@ describe("Admin Actions", () => {
 
 			createGameLobby(mockRequest, mockResponse);
 
-			assert.deepEqual(mockData.games, {
+			assert.deepEqual(mockData.lobbies, {
 				"my game id": {
 					"adminId": "my user id",
 					"createTime": 1600000000000,
-					"hasCompleted": false,
-					"hasStarted": false,
 					"id": "my game id",
-					"lobby": {
+					"memberMap": {
 						"my user id": {
 							"name": "my player",
 							"sprite": "my player image"
@@ -52,7 +50,7 @@ describe("Admin Actions", () => {
 
 			assert.deepEqual(mockData.users, {
 				"my user id": {
-					"gameIds": [
+					"lobbyIds": [
 						"my game id"
 					]
 				}

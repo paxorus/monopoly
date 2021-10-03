@@ -4,46 +4,39 @@ const MemStore = require("../storage/in-memory-store.js");
 
 
 function onLobbyConnection(lobbyIo, socket, userId) {
-	let _gameId;
+	let _lobbyId;
 
-	socket.on("open-lobby", ({gameId}) => {
-		_gameId = gameId;
-		socket.join(`lobby-${gameId}`);
-		console.log(`${userId} opened lobby ${_gameId}`);
+	socket.on("open-lobby", ({lobbyId}) => {
+		_lobbyId = lobbyId;
+		socket.join(`lobby-${lobbyId}`);
+		console.log(`${userId} opened lobby ${lobbyId}`);
 	});
 
 	socket.on("join-lobby", () => {
-		const game = Data.games[_gameId];
-		if (Object.keys(game.lobby).includes(userId)) {
+		const lobby = Data.lobbies[_lobbyId];
+		if (userId in lobby) {
 			return;
 		}
 
-		if (game.hasStarted) {
-			return;
-		}
-
-		socket.to(`lobby-${_gameId}`).emit("join-lobby", {userId});
+		socket.to(`lobby-${_lobbyId}`).emit("join-lobby", {userId});
 		// Player images are hard-coded for now.
-		Data.games[_gameId].lobby[userId] = {name: userId, sprite: "/8/8a/483Dialga.png"};
-		Data.users[userId].gameIds.push(_gameId);
-		console.log(`${userId} joined lobby ${_gameId}`);
+		Data.lobbies[_lobbyId].lobby[userId] = {name: userId, sprite: "/8/8a/483Dialga.png"};
+		Data.users[userId].lobbyIds.push(_lobbyId);
+		console.log(`${userId} joined lobby ${_lobbyId}`);
 	});
 
 	socket.on("leave-lobby", () => {
-		const game = Data.games[_gameId];
-		if (game.hasStarted) {
-			return;
-		}
+		const lobby = Data.lobbies[_lobbyId];
 
-		socket.to(`lobby-${_gameId}`).emit("leave-lobby", {userId});
-		delete Data.games[_gameId].lobby[userId];
-		console.log(`${userId} left lobby ${_gameId}`);
+		socket.to(`lobby-${_lobbyId}`).emit("leave-lobby", {userId});
+		delete Data.lobbies[_lobbyId].lobby[userId];
+		console.log(`${userId} left lobby ${_lobbyId}`);
 	});
 
 	// When admin starts the game from the lobby.
-	socket.on("start-game", () => {
+	socket.on("convert-to-game", () => {
 
-		const lobbyRecord = Data.games[_gameId];
+		const lobbyRecord = Data.lobbies[_lobbyId];
 
 		if (lobbyRecord.adminId !== userId) {
 			res.status(401);
@@ -53,18 +46,22 @@ function onLobbyConnection(lobbyIo, socket, userId) {
 
 		const gameRecord = GameRecord.prototype.buildFromLobby(lobbyRecord);
 
+		delete Data.lobbies[_lobbyId];
+		Data.users[userId].lobbyIds.remove(_lobbyId);
+		Data.users[userId].gameIds.push(_lobbyId);
+
 		// Build in-memory structures from records.
-		MemStore.games[_gameId] = new Game(gameRecord);
+		MemStore.games[_lobbyId] = new Game(gameRecord);
 
 		// Persist game record, overwriting lobby record.
-		Data.games[_gameId] = gameRecord;
+		Data.games[_lobbyId] = gameRecord;
 
 		// Cause everyone in the lobby to reload the page.
-		lobbyIo.to(`lobby-${_gameId}`).emit("start-game");
+		lobbyIo.to(`lobby-${_lobbyId}`).emit("start-game");
 	});
 
 	socket.on("disconnect", () => {
-		console.log(`${userId} closed lobby ${_gameId}`);
+		console.log(`${userId} closed lobby ${_lobbyId}`);
 	});
 }
 

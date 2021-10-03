@@ -2,10 +2,6 @@ const {describeTimeSince} = require("./age-to-text-helper.js");
 
 
 function summarizeGame(gameRecord, yourId) {
-	return (gameRecord.hasStarted) ? summarizeGamePlay(gameRecord, yourId) : summarizeLobby(gameRecord, yourId);
-}
-
-function summarizeGamePlay(gameRecord, yourId) {
 	const timeSinceCreated = describeTimeSince(gameRecord.createTime);
 	const timeSinceUpdated = gameRecord.lastUpdateTime ? describeTimeSince(gameRecord.lastUpdateTime) : "never";
 
@@ -28,7 +24,6 @@ function summarizeGamePlay(gameRecord, yourId) {
 		timeSinceCreated,
 		creatorName,
 		yourName,
-		hasStarted: true,
 		timeSinceUpdated,
 		numTurns: gameRecord.numTurns,
 		numOwnedProperties,
@@ -37,23 +32,22 @@ function summarizeGamePlay(gameRecord, yourId) {
 	};
 }
 
-function summarizeLobby(gameRecord, yourId) {
-	const timeSinceCreated = describeTimeSince(gameRecord.createTime);
-	const playerNames = Object.values(gameRecord.lobby).map(lobbyMember => lobbyMember.name);
-	const creatorName = gameRecord.lobby[gameRecord.adminId].name;
-	const yourName = gameRecord.lobby[yourId].name;
+function summarizeLobby(lobbyRecord, yourId) {
+	const timeSinceCreated = describeTimeSince(lobbyRecord.createTime);
+	const playerNames = Object.values(lobbyRecord.memberMap).map(lobbyMember => lobbyMember.name);
+	const adminName = lobbyRecord.memberMap[lobbyRecord.adminId].name;
 
 	return {
-		id: gameRecord.id,
-		name: gameRecord.name,
+		id: lobbyRecord.id,
+		name: lobbyRecord.name,
 		timeSinceCreated,
-		creatorName,
-		yourName,
-		hasStarted: false,
+		adminName,
+		adminId: lobbyRecord.adminId,
 		playerNames
 	};
 }
 
 module.exports = {
-	summarizeGame
+	summarizeGame,
+	summarizeLobby
 };

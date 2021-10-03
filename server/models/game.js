@@ -3,6 +3,20 @@ const {getRandomInt} = require("../fickle/random-int.js");
 const {getTimeNow} = require("../fickle/time-now.js");
 const {PlacesArray, PlacesArrayRecord} = require("./places-array.js");
 
+class LobbyRecord {
+	constructor(id, name, adminId, adminName, adminSpriteSrc) {
+		this.id = id;
+		this.name = name;
+		this.adminId = adminId;
+		this.memberMap = {
+			// Admin is always in the lobby. They cannot leave it, only disband.
+			[adminId]: {name: adminName, sprite: adminSpriteSrc}
+		};
+
+		this.createTime = getTimeNow();
+	}
+}
+
 /**
  * A serializable representation of a game.
  * Namely, it has PlayerRecord objects instead of Player objects.
@@ -19,8 +33,6 @@ class GameRecord {
 		// Choose starting player at random.
 		this.currentPlayerId = getRandomInt(playerRecords.length);
 
-		this.hasStarted = true;
-
 		this.tax = 0;
 
 		this.placeRecords = placeRecords;
@@ -30,7 +42,7 @@ class GameRecord {
 	}
 
 	buildFromLobby(lobbyRecord) {
-		const playerRecords = Object.entries(lobbyRecord.lobby)
+		const playerRecords = Object.entries(lobbyRecord.memberMap)
 			.map(([userId, {name, sprite}], idx) => new PlayerRecord(name, userId, idx, sprite));
 
 		return new GameRecord(
@@ -66,7 +78,6 @@ class Game {
 
 		record.createTime = this.createTime;
 		record.currentPlayerId = this.currentPlayerId;
-		record.hasStarted = true;
 		record.tax = this.tax;
 
 		record.numTurns = this.numTurns;
@@ -78,5 +89,6 @@ class Game {
 
 module.exports = {
 	Game,
-	GameRecord
+	GameRecord,
+	LobbyRecord
 };

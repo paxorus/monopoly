@@ -12,7 +12,6 @@ describe("GameRecord", () => {
 				"adminId": "user id 2",
 				"createTime": 1600000000000,
 				"currentPlayerId": 1,
-				"hasStarted": true,
 				"id": "my game id",
 				"lastUpdateTime": null,
 				"name": "my game name",
@@ -65,7 +64,7 @@ describe("GameRecord", () => {
 				id: "my game id",
 				name: "my game name",
 				adminId: "user id 2",
-				lobby: {
+				memberMap: {
 					"user id 1": {name: "user name 1", sprite: "user sprite 1"},
 					"user id 2": {name: "user name 2", sprite: "user sprite 2"},
 					"user id 3": {name: "user name 3", sprite: "user sprite 3"}
@@ -96,7 +95,6 @@ describe("Game", () => {
 		playerData: [],// Player records are tested separately.
 		createTime: 1.6e12,
 		currentPlayerId: 2,
-		hasStarted: true,
 		tax: 250,
 		placeRecords: [],// Place array records are tested separately.
 		numTurns: 50,

@@ -33,12 +33,12 @@ Created: <%= new Date(gameCreateTime) %>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/javascripts/third-party/jquery.js"></script>
 <script>
-const gameId = "<%= gameId %>";
+const lobbyId = "<%= gameId %>";
 const myId = "<%= yourId %>";
 
 const socket = io("/lobby");
 
-socket.emit("open-lobby", {gameId});
+socket.emit("open-lobby", {lobbyId});
 
 let hasJoinedGame = <%= hasJoinedGame %>;
 
@@ -63,10 +63,10 @@ $("#join-game").click(event => {
 
 $("#start-game").click(event => {
 	// This will reload the page for all users.
-	socket.emit("start-game", {gameId});
+	socket.emit("convert-to-game");
 });
 
-$("#delete-game").click(event => {
+$("#disband-lobby").click(event => {
 	alert("TODO!")
 });
 

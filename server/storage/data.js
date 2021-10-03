@@ -1,7 +1,6 @@
 /**
- * In the future, all data should persist in a database, but still be cached here.
+ * In the future, all data should persist in a database, not sitting in-memory here.
  */
-
 let games = {
 	"oiwftflpzyhsxjgarpla": {
 		id: "oiwftflpzyhsxjgarpla",
@@ -10,9 +9,7 @@ let games = {
 		createTime: 1598213805058,
 		numTurns: 25,
 		lastUpdateTime: 1603492053331,
-		hasStarted: true,
 		hasCompleted: false,
-		lobby: {},
 		tax: 125,
 		monopolies: [],
 		placeRecords: [
@@ -80,15 +77,16 @@ let games = {
 			}
 
 		]
-	},
+	}
+};
+
+let lobbies = {
 	"oiwftflpzyhsxjgarplb": {
 		id: "oiwftflpzyhsxjgarplb",
 		name: "Saturday night chillin",
 		adminId: "heerffgylfgxuslpsujz",
 		createTime: 1598213805058,
-		hasStarted: false,
-		hasCompleted: false,
-		lobby: {
+		memberMap: {
 			"heerffgylfgxuslpsujz": {
 				name: "boop-star",
 				sprite: "https://cdn2.bulbagarden.net/upload/archive/8/8a/20190407154255%21483Dialga.png"
@@ -100,9 +98,7 @@ let games = {
 		name: "Sunday night chillin",
 		adminId: "heerffgylfgxuslpsujz",
 		createTime: 1598213805058,
-		hasStarted: false,
-		hasCompleted: false,
-		lobby: {
+		memberMap: {
 			"heerffgylfgxuslpsujz": {
 				name: "boop-star",
 				sprite: "https://cdn2.bulbagarden.net/upload/archive/8/8a/20190407154255%21483Dialga.png"
@@ -114,15 +110,18 @@ let games = {
 let users = {
 	"heerffgylfgxuslpsujz": {
 		secretKey: "icmufmqrjuybromognhx",
-		gameIds: ["oiwftflpzyhsxjgarpla", "oiwftflpzyhsxjgarplb", "oiwftflpzyhsxjgarplc"]
+		gameIds: ["oiwftflpzyhsxjgarpla"],
+		lobbyIds: ["oiwftflpzyhsxjgarplb", "oiwftflpzyhsxjgarplc"]
 	},
 	"nnkciawfaytxwwtxgxue": {
 		secretKey: "eplwdiketejjznludrvq",
-		gameIds: ["oiwftflpzyhsxjgarpla"]
+		gameIds: ["oiwftflpzyhsxjgarpla"],
+		lobbyIds: []
 	}
 };
 
 module.exports = {
 	games,
+	lobbies,
 	users
 };

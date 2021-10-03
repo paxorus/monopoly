@@ -1,6 +1,7 @@
 let Data = require("../storage/data.js");
 let {randomId} = require("../auth.js");
 const {getTimeNow} = require("../fickle/time-now.js");
+const {LobbyRecord} = require("../models/game.js");
 
 
 /* Dependency injections */
@@ -22,22 +23,9 @@ function createGameLobby(req, res) {
 	const {userId} = req.cookies;
 	const gameId = randomId();
 
-	// TODO: Can I use GameRecord here? Watch out for hasStarted.
-	const newGame = {
-		id: gameId,
-		name: gameName,
-		adminId: userId,
-		createTime: getTimeNow(),
-		hasStarted: false,
-		hasCompleted: false,
-		lobby: {
-			// Admin is always in the lobby. They cannot leave it, only disband.
-			[userId]: {name: adminDisplayName, sprite: adminSpriteSrc}
-		}
-	};
 	// TODO: game registration should be blocking DB write
-	Data.games[gameId] = newGame;
-	Data.users[userId].gameIds.push(gameId);
+	Data.lobbies[gameId] = new LobbyRecord(gameId, gameName, userId, adminDisplayName, adminSpriteSrc);
+	Data.users[userId].lobbyIds.push(gameId);
 
 	res.send({
 		newGameId: gameId

@@ -1,6 +1,6 @@
 const Data = require("../storage/data.js");
 const {PlayerIcons} = require("../models/player.js");
-const {summarizeGame} = require("../friendliness/summarize-game.js");
+const {summarizeGame, summarizeLobby} = require("../friendliness/summarize-game.js");
 const {setNewPlayerAndCookies, httpAuthenticatePlayer} = require("../auth.js");
 
 
@@ -17,9 +17,13 @@ function getLandingPage(req, res) {
 		const userGames = user.gameIds.map(gameId => Data.games[gameId]);
 		const inProgressGames = userGames.filter(game => ! game.hasCompleted).map(game => summarizeGame(game, userId));
 		const completedGames = userGames.filter(game => game.hasCompleted).map(game => summarizeGame(game, userId));
+
+		const lobbies = user.lobbyIds.map(lobbyId => summarizeLobby(Data.lobbies[lobbyId]), userId);
+
 		res.render("pages/landing", {
 			inProgressGames,
 			completedGames,
+			lobbies,
 			yourId: userId,
 			playerIcons: PlayerIcons
 		});
@@ -29,6 +33,7 @@ function getLandingPage(req, res) {
 		res.render("pages/landing", {
 			inProgressGames: [],
 			completedGames: [],
+			lobbies: [],
 			yourId: userId,
 			playerIcons: PlayerIcons
 		});
@@ -36,16 +41,6 @@ function getLandingPage(req, res) {
 }
 
 function getGameplayOrLobbyPage(req, res) {
-	const {gameId} = req.params;
-
-	const game = Data.games[gameId];
-	if (!game) {
-		res.render("pages/404", {
-			message: `Game ${gameId} not found.`
-		});
-		return;
-	}
-
 	let {userId, secretKey} = req.cookies;
 
 	if (userId === undefined) {// New visitor.
@@ -54,22 +49,33 @@ function getGameplayOrLobbyPage(req, res) {
 		return;
 	}
 
-	// TODO: Show game if complete.
-	if (game.hasStarted) {
+	const {gameId} = req.params;
+
+	if (gameId in Data.games) {
 		// Render game.
+		const game = Data.games[gameId];
 		res.render("pages/gameplay", {gameId});
-	} else {
-		// Render lobby.
-		res.render("pages/lobby", {
-			adminId: game.adminId,
-			gameName: game.name,
-			gameCreateTime: game.createTime,
-			gameId: game.id,
-			yourId: userId,
-			joinedPlayerNames: Object.values(game.lobby).map(lobbyMember => lobbyMember.name),
-			hasJoinedGame: Object.keys(game.lobby).includes(userId)
-		});
+		return;
 	}
+
+	if (gameId in Data.lobbies) {
+		// Render lobby.
+		const lobby = Data.lobbies[gameId];
+		res.render("pages/lobby", {
+			gameId: lobby.id,
+			adminId: lobby.adminId,
+			gameName: lobby.name,
+			gameCreateTime: lobby.createTime,
+			yourId: userId,
+			joinedPlayerNames: Object.values(lobby.memberMap).map(lobbyMember => lobbyMember.name),
+			hasJoinedGame: userId in lobby.memberMap
+		});
+		return;
+	}
+
+	res.render("pages/404", {
+		message: `Game ${gameId} not found.`
+	});
 }
 
 module.exports = {

@@ -22,6 +22,7 @@ describe("Auth", () => {
 				"users": {
 					[userId]: {
 						"gameIds": [],
+						"lobbyIds": [],
 						"secretKey": secretKey
 					},
 				}

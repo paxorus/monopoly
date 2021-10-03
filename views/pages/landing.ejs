@@ -16,11 +16,10 @@
 </div>
 
 <h2>In-Progress Games</h2>
-<% if (inProgressGames.length > 0) { %>
+<% if (inProgressGames.length > 0 || lobbies.length > 0) { %>
 	<% for (let i = 0; i < inProgressGames.length; i ++) { %>
 		<% const game = inProgressGames[i]; %>
 		<a href="/game/<%=game.id %>" class="link">
-		<% if (game.hasStarted) { %>
 			<!-- Display a tile, summarizing the game. -->
 			<div class="game-summary-tile" style="background-color: #ccffd0">
 				<b><%= game.name %></b>
@@ -42,27 +41,31 @@
 					Return to Game
 				</div>
 			</div>
-		<% } else { %>
+		</a>
+	<% } %>
+
+	<% for (let i = 0; i < lobbies.length; i ++) { %>
+		<% const lobby = lobbies[i]; %>
+		<a href="/game/<%=lobby.id %>" class="link">
 			<!-- Display a tile, summarizing the lobby. -->
 			<div class="game-summary-tile" style="background-color: #d7e2f5">
-				<b style="color: #777"><%= game.name %></b>
+				<b style="color: #777"><%= lobby.name %></b>
 				<br />
 				<ul style="font-size: 14px; padding-left: 30px">
-					<% for (let j = 0; j < game.playerNames.length; j ++) { %>
-						<% const playerName = game.playerNames[j]; %>
+					<% for (let j = 0; j < lobby.playerNames.length; j ++) { %>
+						<% const playerName = lobby.playerNames[j]; %>
 						<li><%= playerName %></li>
 					<% } %>
 				</ul>
 				<br />
 				<div style="position: absolute; bottom: 15px">
-					<div style="font-size: 10px; color: #777">Created <%= game.timeSinceCreated %> by <%= game.creatorName === game.yourName ? "you" : game.creatorName %></div>
+					<div style="font-size: 10px; color: #777">Created <%= lobby.timeSinceCreated %> by <%= lobby.adminId === yourId ? "you" : lobby.adminName %></div>
 					<div style="font-size: 12px">In Lobby</div>
 				</div>
 				<div class="tile-overlay" style="display: none">
 					Open Lobby
 				</div>
 			</div>			
-		<% } %>
 		</a>
 	<% } %>
 <% } else { %>
@@ -104,7 +107,7 @@
 <script>
 const inProgressGames = <%- JSON.stringify(inProgressGames) %>;
 const completedGames = <%- JSON.stringify(completedGames) %>;
-const startedGames = [...inProgressGames, ...completedGames].filter(game => game.hasStarted);
+const startedGames = [...inProgressGames, ...completedGames];
 
 // Generate pie charts for each game to display player net worths.
 startedGames.forEach(game => {
