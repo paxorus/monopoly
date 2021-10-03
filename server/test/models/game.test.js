@@ -1,5 +1,5 @@
 const assert = require("assert");
-const {GameRecord, Game} = require("../../models/game.js");
+const {GameRecord, Game, LobbyRecord} = require("../../models/game.js");
 const RandomInt = require("../../fickle/random-int.js");
 const TimeNow = require("../../fickle/time-now.js");
 
@@ -9,7 +9,7 @@ describe("GameRecord", () => {
 	describe("#buildFromLobby()", () => {
 		it("should build a game record from a lobby record", () => {
 			const expected = {
-				"adminId": "user id 2",
+				"adminId": "user id 1",
 				"createTime": 1600000000000,
 				"currentPlayerId": 1,
 				"id": "my game id",
@@ -60,16 +60,15 @@ describe("GameRecord", () => {
 				"tax": 0
 			};
 
-			const lobbyRecord = {
-				id: "my game id",
-				name: "my game name",
-				adminId: "user id 2",
-				memberMap: {
-					"user id 1": {name: "user name 1", sprite: "user sprite 1"},
-					"user id 2": {name: "user name 2", sprite: "user sprite 2"},
-					"user id 3": {name: "user name 3", sprite: "user sprite 3"}
-				}
-			};
+			const lobbyRecord = new LobbyRecord(
+				"my game id",
+				"my game name",
+				"user id 1",
+				"user name 1",
+				"user sprite 1"
+			);
+			lobbyRecord.addMember("user id 2", "user name 2", "user sprite 2");
+			lobbyRecord.addMember("user id 3", "user name 3", "user sprite 3");
 
 			TimeNow._inject(1.6e12);
 			RandomInt._inject(1);

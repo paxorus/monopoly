@@ -15,6 +15,13 @@ class LobbyRecord {
 
 		this.createTime = getTimeNow();
 	}
+
+	addMember(playerId, playerName, playerSpriteSrc) {
+		this.memberMap[playerId] = {
+			name: playerName,
+			sprite: playerSpriteSrc
+		};
+	}
 }
 
 /**

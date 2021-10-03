@@ -20,7 +20,7 @@ function onLobbyConnection(lobbyIo, socket, userId) {
 
 		socket.to(`lobby-${_lobbyId}`).emit("join-lobby", {userId});
 		// Player images are hard-coded for now.
-		Data.lobbies[_lobbyId].lobby[userId] = {name: userId, sprite: "/8/8a/483Dialga.png"};
+		Data.lobbies[_lobbyId].lobby.addMember(userId, userId, "/8/8a/483Dialga.png");
 		Data.users[userId].lobbyIds.push(_lobbyId);
 		console.log(`${userId} joined lobby ${_lobbyId}`);
 	});

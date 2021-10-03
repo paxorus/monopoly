@@ -1,6 +1,6 @@
 const assert = require("assert");
 const {summarizeGame, summarizeLobby} = require("../../friendliness/summarize-game.js");
-const {GameRecord} = require("../../models/game.js");
+const {GameRecord, LobbyRecord} = require("../../models/game.js");
 const {PlayerRecord} = require("../../models/player.js");
 const TimeNow = require("../../fickle/time-now.js");
 const RandomInt = require("../../fickle/random-int.js");
@@ -60,24 +60,17 @@ describe("Summarize Game", () => {
 
 		it("should summarize a lobby record", () => {
 			const nowInMillis = +new Date();
-			TimeNow._inject(nowInMillis);
+			TimeNow._inject(nowInMillis - 7 * HOUR);
 
 			const myPlayerId = "my player id";
 			const myPlayer = new PlayerRecord("my name", myPlayerId, 0, "my image");
 			myPlayer.balance = 1200;
 			const adminPlayer = new PlayerRecord("admin name", "admin id", 1, "admin image");
 
-			const lobbyRecord = {
-				id: "my lobby id",
-				name: "my lobby name",
-				adminId: "admin id",
-				createTime: nowInMillis - 7 * HOUR,
-				memberMap: {
-					"admin id": {name: "admin name"},
-					"my player id": {name: "my player name"}
-				}
-			};
+			const lobbyRecord = new LobbyRecord("my lobby id", "my lobby name", "admin id", "admin name", null);
+			lobbyRecord.addMember("my player id", "my player name", null);
 
+			TimeNow._inject(nowInMillis);
 			assert.deepEqual(summarizeLobby(lobbyRecord, myPlayerId), {
 				"adminId": "admin id",
 				"adminName": "admin name",
