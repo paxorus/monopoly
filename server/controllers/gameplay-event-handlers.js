@@ -22,23 +22,28 @@ function fetchGame(gameId) {
 		return MemStore.games[gameId];
 	}
 
-	// Fetch from DB, then cache.
-	const gameRecord = Data.games[gameId];
-	const game = new Game(gameRecord);
-	MemStore.games[gameId] = game;
-	return game;
+	if (gameId in Data.games) {
+		// Fetch from DB, then cache.
+		const gameRecord = Data.games[gameId];
+		const game = new Game(gameRecord);
+		MemStore.games[gameId] = game;
+		return game;
+	}
+
+	return undefined;
 }
 
 function onGameplayConnection(gameplayIo, socket, userId) {
 
-	let game, player;
+	let game = undefined;
+	let player = undefined;
 
 	console.log(`${userId} opened a game`);
 
 	socket.on("disconnect", () => {
 		console.log(`${userId} closed a game`);
 		if (player !== undefined) {
-			player.removeEmitter(socket);			
+			player.removeEmitter(socket);
 		}
 	});
 
@@ -49,11 +54,16 @@ function onGameplayConnection(gameplayIo, socket, userId) {
 		// Look up game and player by (game ID, user ID).
 		game = fetchGame(gameId);
 
+		if (game === undefined) {
+			console.error(`Game ${gameId} does not exist.`);
+			return;
+		}
+
 		player = game.players.find(_player => _player.userId === userId);
 
 		if (player === undefined) {
 			console.error(`User ${userId} does not have a player in game ${gameId}.`);
-			console.error(game.players);
+			console.error(game.players.map(player => player.userId));
 			return;
 		}
 
@@ -61,7 +71,7 @@ function onGameplayConnection(gameplayIo, socket, userId) {
 
 		player.configureEmitter(gameplayIo.to(gameId), socket);
 
-		const monopolies = this.monopolies = MONOPOLIES.filter(monopoly => hasAchievedColoredMonopoly(monopoly, player));
+		const monopolies = MONOPOLIES.filter(monopoly => hasAchievedColoredMonopoly(monopoly, player));
 
 		const gameRecord = game.serialize();
 
@@ -69,51 +79,72 @@ function onGameplayConnection(gameplayIo, socket, userId) {
 			monopolies,
 			yourPlayerId: player.num,
 			playerData: gameRecord.playerData,
-			locationData: gameRecord.locationData,
+			locationData: gameRecord.placeRecords,
 			currentPlayerId: gameRecord.currentPlayerId,
 			tax: gameRecord.tax,
 			numTurns: gameRecord.numTurns
 		});
+
+		return [player, game];
 	});
 
 	// Turn actions
+	// TODO: None of these socket events need to send playerId. The issuing user is already authenticated.
 	socket.on("advance-turn", () => {
-		advanceTurn(player, game);
+		if (player !== undefined) {
+			advanceTurn(player, game);
+		}
 	});
 
 	socket.on("execute-turn", ({playerId}) => {
-		executeTurn(player);
+		if (player !== undefined) {
+			executeTurn(player);
+		}
 	});
 
 	// Property actions
 	socket.on("respond-to-buy-offer", ({playerId, ifBuy}) => {
-		respondToBuyOffer(player, ifBuy);
+		if (player !== undefined) {
+			respondToBuyOffer(player, ifBuy);
+		}
 	});
 
 	socket.on("buy-house", ({playerId, placeIdx}) => {
-		buyHouse(player, placeIdx);
+		if (player !== undefined) {
+			buyHouse(player, placeIdx);
+		}
 	});
 
 	socket.on("sell-house", ({playerId, placeIdx}) => {
-		sellHouse(player, placeIdx);
+		if (player !== undefined) {
+			sellHouse(player, placeIdx);
+		}
 	});
 
 	// Jail actions
 	socket.on("use-jail-card", ({playerId}) => {
-		useGetOutOfJailFreeCard(player);
+		if (player !== undefined) {
+			useGetOutOfJailFreeCard(player);
+		}
 	});
 
 	socket.on("pay-out-of-jail", ({playerId}) => {
-		payOutOfJail(player);
+		if (player !== undefined) {
+			payOutOfJail(player);
+		}
 	});
 
 	// Mortgage rules
 	socket.on("mortgage-property", ({playerId, placeIdx}) => {
-		mortgageProperty(player, placeIdx);
+		if (player !== undefined) {
+			mortgageProperty(player, placeIdx);
+		}
 	});
 
 	socket.on("unmortgage-property", ({playerId, placeIdx}) => {
-		unmortgageProperty(player, placeIdx);
+		if (player !== undefined) {
+			unmortgageProperty(player, placeIdx);
+		}
 	});
 };
 

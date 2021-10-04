@@ -1,7 +1,28 @@
-const {LocationInfo} = require("../game-logic/location-configs.js");
 const {Player, PlayerRecord} = require("../models/player.js");
 const {getRandomInt} = require("../fickle/random-int.js");
 const {getTimeNow} = require("../fickle/time-now.js");
+const {PlacesArray, PlacesArrayRecord} = require("./places-array.js");
+
+class LobbyRecord {
+	constructor(id, name, adminId, adminName, adminSpriteSrc) {
+		this.id = id;
+		this.name = name;
+		this.adminId = adminId;
+		this.memberMap = {
+			// Admin is always in the lobby. They cannot leave it, only disband.
+			[adminId]: {name: adminName, sprite: adminSpriteSrc}
+		};
+
+		this.createTime = getTimeNow();
+	}
+
+	addMember(playerId, playerName, playerSpriteSrc) {
+		this.memberMap[playerId] = {
+			name: playerName,
+			sprite: playerSpriteSrc
+		};
+	}
+}
 
 /**
  * A serializable representation of a game.
@@ -19,8 +40,6 @@ class GameRecord {
 		// Choose starting player at random.
 		this.currentPlayerId = getRandomInt(playerRecords.length);
 
-		this.hasStarted = true;
-
 		this.tax = 0;
 
 		this.placeRecords = placeRecords;
@@ -30,7 +49,7 @@ class GameRecord {
 	}
 
 	buildFromLobby(lobbyRecord) {
-		const playerRecords = Object.entries(lobbyRecord.lobby)
+		const playerRecords = Object.entries(lobbyRecord.memberMap)
 			.map(([userId, {name, sprite}], idx) => new PlayerRecord(name, userId, idx, sprite));
 
 		return new GameRecord(
@@ -66,70 +85,17 @@ class Game {
 
 		record.createTime = this.createTime;
 		record.currentPlayerId = this.currentPlayerId;
-		record.hasStarted = true;
 		record.tax = this.tax;
 
 		record.numTurns = this.numTurns;
 		record.lastUpdateTime = this.lastUpdateTime;
 
-		record.placeRecords = this.places;
-
 		return record;
-	}
-}
-
-/**
- * A serializable representation of PlacesArray.
- * Namely, it only contains property state, so its fields are disjoint from LocationInfo and excludes
- * any non-property locations.
- */
-class PlacesArrayRecord {
-	build() {
-		// Initialize state for each property location. Add the place's index to identify the place after
-		// non-properties are removed.
-		return LocationInfo
-			.map((place, index) => [place.price, index])
-			.filter(([price, placeIdx]) => price > 0)
-			.map(([price, placeIdx]) => ({
-				placeIdx,
-				ownerNum: -1,
-				houseCount: 0,
-				isMortgaged: false
-			}));
-	}
-}
-
-class PlacesArray {
-
-	build(placeRecords) {
-		// Bootstrap the record's property state with LocationInfo.
-		const placeStateMap = Object.fromEntries(placeRecords.map(({placeIdx, ...placeState}) => [placeIdx, placeState]));
-
-		return LocationInfo.map((placeConfig, placeIdx) =>
-			placeConfig.price > 0 ? {
-				...placeStateMap[placeIdx],
-				...placeConfig
-			} : placeConfig
-		);
-	}
-
-	serialize(placesArray) {
-		// Remove all non-property locations, and extract only the property state fields.
-		return placesArray
-			.map((place, index) => [place, index])
-			.filter(([place, placeIdx]) => place.price > 0)
-			.map(([place, placeIdx]) => ({
-				placeIdx,
-				ownerNum: place.ownerNum,
-				houseCount: place.houseCount,
-				isMortgaged: place.isMortgaged
-			}));
 	}
 }
 
 module.exports = {
 	Game,
 	GameRecord,
-	PlacesArray,
-	PlacesArrayRecord
+	LobbyRecord
 };

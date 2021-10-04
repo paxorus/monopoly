@@ -20,6 +20,7 @@ function setNewPlayerAndCookies(res) {
 
 	Data.users[userId] = {
 		gameIds: [],
+		lobbyIds: [],
 		secretKey
 	};
 

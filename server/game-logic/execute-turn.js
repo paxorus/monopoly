@@ -1,8 +1,11 @@
 const {propertyComparator, LocationInfo, MONOPOLIES, Railroads, Utilities} = require("./location-configs.js");
 const {obeyLocation} = require("./obey-location.js");
+const {getRandomInt} = require("../fickle/random-int.js");
+const {getTimeNow} = require("../fickle/time-now.js");
+
 
 function rollDice() {
-	return Math.ceil(6 * Math.random());
+	return 1 + getRandomInt(6);
 }
 
 function concludeTurn(mover) {
@@ -13,7 +16,7 @@ function concludeTurn(mover) {
 function advanceTurn(mover, game) {
 	const nextPlayerId = (game.currentPlayerId + 1) % game.players.length;
 	game.currentPlayerId = nextPlayerId;
-	game.lastUpdateTime = +new Date();
+	game.lastUpdateTime = getTimeNow();
 	game.numTurns ++;
 	mover.emitToAll("advance-turn", {
 		nextPlayerId
@@ -42,7 +45,7 @@ function executeTurnInJail(mover) {
 
 	const roll1 = rollDice();
 	const roll2 = rollDice();
-	mover.log("You rolled " + roll1 + " and " + roll2 + ".");
+	mover.log(`You rolled a ${roll1} and a ${roll2}.`);
 	if (roll1 === roll2) {
 		mover.log("A double! You're free!");
 		mover.getOutOfJail();
@@ -214,11 +217,13 @@ function unmortgageProperty(player, placeIdx) {
 module.exports = {
 	advanceTurn,
 	buyHouse,
+	concludeTurn,
 	executeTurn,
 	hasAchievedColoredMonopoly,
 	mortgageProperty,
 	payOutOfJail,
 	respondToBuyOffer,
+	rollDice,
 	sellHouse,
 	unmortgageProperty,
 	useGetOutOfJailFreeCard
