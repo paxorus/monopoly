@@ -1,5 +1,8 @@
-# Online Monopoly
-===
+# Monopoly Online
+The backend uses Node.js and Socket.io.
+The frontend is built with jQuery and a bit of Chart.js.
+The backend and frontend tests use Mocha.js. The backend end tests also use proxyquire.
+
 The Pokemon sprites are loaded from Bulbapedia.
 
 ## House Rules

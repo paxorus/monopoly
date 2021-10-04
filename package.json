@@ -1,8 +1,7 @@
 {
   "name": "monopoly",
   "version": "1.0.0",
-  "description": "Single-device Monopoly on the Web",
-  "main": "index.js",
+  "description": "Real-time Web Monopoly",
   "dependencies": {
     "cookie-parser": "^1.4.5",
     "ejs": "^3.1.3",
