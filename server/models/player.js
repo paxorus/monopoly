@@ -21,6 +21,7 @@ class PlayerRecord {
 		this.jailDays = 0;
 		this.numJailCards = 0;
 
+		// TODO: Consider renaming to messagesToReplay.
 		this.savedMessages = [];
 	}
 }
@@ -108,6 +109,7 @@ class Player {
 	}
 
 	emitToAll(eventName, message) {
+		// TODO: Consider renaming to emitToEveryone(), since emit() emits to all devices.
 		this.game.players.forEach(player => player.emit(eventName, message));
 	}
 

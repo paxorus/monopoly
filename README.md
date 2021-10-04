@@ -12,33 +12,25 @@ The Pokemon sprites are loaded from Bulbapedia.
 
 ## Upcoming Features
 #### Game Essentials
-* Going broke, being forced to sell.
-* Losing and exiting the game.
-
-#### App Essentials
-* Auction
+* Player customization in the lobby (name/sprite)
 * Trades
-* DB persistence (currently all state is held in-memory)
-* Server error handling (currently a single bad request sends it down)
-
-## Improvements
-#### Cosmetics
-* Customizing (name/sprite)
+* Going broke, being forced to sell.
+* Auction
+* Losing and exiting the game.
 
 #### Interconnectivity
 * Embolden the rent that is in effect on the display card.
 * Hovering over the player HUD header should highlight all of their owned properties.
+
+#### Digital Benefits
+* Compute net worths for landing page game tiles
 * Historical logs such as inter-player rent and all tenants for a property.
+* Historical analytics such as net worth over time.
 
 #### Security
-* Generate an expiring link for users to log in on a new device.
+* Generate an expiring link so users can log in on a new device without a password (and effectively account).
 
-#### Code
-* Consider ReactJS instead of DOM API + jQuery.
-* Server-side unit tests.
-
-
-## Bugs
-* Player sprites should not be middle-aligned like the houses in left+right squares.
-* Does the server use GlobalState.currentPlayer or can I delete it?
-* Attach all event listeners in JS, instead of setting them on the window and letting HTML find them in the global space.
+#### Cosmetics
+* Display the dice sides instead of the numbers.
+* Animate the player's piece moving across the board.
+* Enrich the logged text so it's readable. At least widen it.

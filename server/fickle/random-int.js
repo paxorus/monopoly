@@ -1,15 +1,15 @@
-let injectedInt = undefined;
+let injectedInt = [];
 
 function getRandomInt(n) {
-	return (injectedInt !== undefined) ? injectedInt : Math.floor(Math.random() * n);	
+	return (injectedInt.length > 0) ? injectedInt.shift() : Math.floor(Math.random() * n);	
 }
 
-function _inject(int) {
-	injectedInt = int;
+function _inject(...ints) {
+	injectedInt = ints;
 }
 
 function _uninject() {
-	injectedInt = undefined;
+	// injectedInt = [];
 }
 
 module.exports = {
