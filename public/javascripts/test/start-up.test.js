@@ -9,6 +9,7 @@ function houseImageNames(placeIdx) {
 
 describe("Start Up", () => {
 	describe("#startUp()", () => {
+		const spriteFileName = "https://cdn2.bulbagarden.net/upload/archive/0/0d/20130810072317%21025Pikachu.png";
 		const basePlayer = {
 			balance: 1500,
 			placeIdx: 0,
@@ -16,11 +17,11 @@ describe("Start Up", () => {
 		};
 
 		const playerData = [
-			{name: "Boop", num: 0, spriteFileName: "/0/0d/025Pikachu.png", ...basePlayer},
-			{name: "Boop", num: 1, spriteFileName: "/0/0d/025Pikachu.png", ...basePlayer},
-			{name: "Boop", num: 2, spriteFileName: "/0/0d/025Pikachu.png", ...basePlayer},
-			{name: "Boop", num: 3, spriteFileName: "/0/0d/025Pikachu.png", ...basePlayer},
-			{name: "Boop", num: 4, spriteFileName: "/0/0d/025Pikachu.png", ...basePlayer}
+			{name: "Boop", num: 0, spriteFileName, ...basePlayer},
+			{name: "Boop", num: 1, spriteFileName, ...basePlayer},
+			{name: "Boop", num: 2, spriteFileName, ...basePlayer},
+			{name: "Boop", num: 3, spriteFileName, ...basePlayer},
+			{name: "Boop", num: 4, spriteFileName, ...basePlayer}
 		];
 
 		playerData[0].balance = 800;
