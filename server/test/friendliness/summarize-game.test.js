@@ -1,6 +1,6 @@
 const assert = require("assert");
 const {summarizeGame, summarizeLobby} = require("../../friendliness/summarize-game.js");
-const {GameRecord, LobbyRecord} = require("../../models/game.js");
+const {Game, GameRecord, Lobby, LobbyRecord} = require("../../models/game.js");
 const {PlayerRecord} = require("../../models/player.js");
 const TimeNow = require("../../fickle/time-now.js");
 const RandomInt = require("../../fickle/random-int.js");
@@ -14,7 +14,7 @@ describe("Summarize Game", () => {
 	const DAY = 24 * HOUR;
 
 	describe("#summarizeGame()", () => {
-		it("should summarize an in-progress game record", () => {
+		it("should summarize an in-progress game", () => {
 			const nowInMillis = +new Date();
 			TimeNow._inject(nowInMillis - 5 * DAY);// Game create time
 			RandomInt._inject(1);
@@ -24,10 +24,10 @@ describe("Summarize Game", () => {
 			myPlayer.balance = 1200;
 			const adminPlayer = new PlayerRecord("admin name", "admin id", 1, "admin image");
 
-			const gameRecord = new GameRecord("my game id", "my game name", "admin id", [
+			const gameRecord = new Game(new GameRecord("my game id", "my game name", "admin id", [
 				myPlayer,
 				adminPlayer
-			], [{ownerNum: myPlayerId}, {ownerNum: myPlayerId}]);
+			], [{ownerNum: 0, placeIdx: 1}, {ownerNum: 0, placeIdx: 3}]));
 
 			const expectedGameSummary = {
 				"creatorName": "admin name",
@@ -53,25 +53,17 @@ describe("Summarize Game", () => {
 
 			TimeNow._inject(nowInMillis);// Inject for age-to-text helper
 			assert.deepEqual(summarizeGame(gameRecord, myPlayerId), expectedGameSummary);
-
-			TimeNow._uninject();
-			RandomInt._uninject();
 		});
 
-		it("should summarize a lobby record", () => {
+		it("should summarize a lobby", () => {
 			const nowInMillis = +new Date();
 			TimeNow._inject(nowInMillis - 7 * HOUR);
 
-			const myPlayerId = "my player id";
-			const myPlayer = new PlayerRecord("my name", myPlayerId, 0, "my image");
-			myPlayer.balance = 1200;
-			const adminPlayer = new PlayerRecord("admin name", "admin id", 1, "admin image");
-
-			const lobbyRecord = new LobbyRecord("my lobby id", "my lobby name", "admin id", "admin name", null);
-			lobbyRecord.addMember("my player id", "my player name", null);
+			const lobby = new Lobby(new LobbyRecord("my lobby id", "my lobby name", "admin id", "admin name", null));
+			lobby.addMember("my player id", "my player name", null);
 
 			TimeNow._inject(nowInMillis);
-			assert.deepEqual(summarizeLobby(lobbyRecord, myPlayerId), {
+			assert.deepEqual(summarizeLobby(lobby, "my player id"), {
 				"adminId": "admin id",
 				"adminName": "admin name",
 				"id": "my lobby id",
@@ -82,8 +74,6 @@ describe("Summarize Game", () => {
 				],
 				"timeSinceCreated": "7 hours ago"
 			});
-
-			TimeNow._uninject();
 		});
 	});
 });

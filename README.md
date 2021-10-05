@@ -26,12 +26,13 @@ The Pokemon sprites are loaded from Bulbapedia.
 * Hovering over the player HUD header should highlight all of their owned properties.
 
 #### Digital Benefits
-* Compute net worths for landing page game tiles
+* Compute net worths for landing page game tiles.
 * Historical logs such as inter-player rent and all tenants for a property.
 * Historical analytics such as net worth over time.
 
-#### Security
+#### Multiplayer
 * Generate an expiring link so users can log in on a new device without a password (and effectively account).
+* Allow user to play from multiple tabs in real-time.
 
 #### Cosmetics
 * Display the dice sides instead of the numbers.

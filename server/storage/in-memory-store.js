@@ -1,5 +1,9 @@
 const games = {};
+const lobbies = {};
+const users = {};
 
 module.exports = {
-	games
+	games,
+	lobbies,
+	users
 };

@@ -1,7 +1,7 @@
 /**
  * In the future, all data should persist in a database, not sitting in-memory here.
  */
-let games = {
+const games = {
 	"oiwftflpzyhsxjgarpla": {
 		id: "oiwftflpzyhsxjgarpla",
 		name: "Friday night chillin",
@@ -80,7 +80,7 @@ let games = {
 	}
 };
 
-let lobbies = {
+const lobbies = {
 	"oiwftflpzyhsxjgarplb": {
 		id: "oiwftflpzyhsxjgarplb",
 		name: "Saturday night chillin",
@@ -107,7 +107,7 @@ let lobbies = {
 	}
 };
 
-let users = {
+const users = {
 	"heerffgylfgxuslpsujz": {
 		secretKey: "icmufmqrjuybromognhx",
 		gameIds: ["oiwftflpzyhsxjgarpla"],

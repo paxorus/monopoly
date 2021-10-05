@@ -66,16 +66,6 @@ describe("Execute Turn", () => {
 		};
 	}
 
-	describe("#rollDice()", () => {
-		it("rolls between a 1 and a 6", () => {
-			RandomInt._inject(0);
-			assert.equal(rollDice(), 1);
-			RandomInt._inject(5);
-			assert.equal(rollDice(), 6);
-			RandomInt._uninject();
-		});
-	});
-
 	describe("#concludeTurn()", () => {
 		it("emits the correct message", () => {
 			const mover = {
@@ -120,8 +110,6 @@ describe("Execute Turn", () => {
 			assert.deepEqual(mockSocket1.messages, [
 				["advance-turn", {nextPlayerId: 0}]
 			]);
-
-			TimeNow._uninject();
 		});
 	});
 
@@ -129,7 +117,7 @@ describe("Execute Turn", () => {
 		it("rotates from the last to the first player and counts the turn", () => {
 			const {game, player0, mockSocket0} = getFreshGame();
 
-			RandomInt._inject(1, 5);
+			RandomInt._inject(2, 6);
 			obeyLocationCalls = 0;
 
 			executeTurn(player0);
@@ -149,7 +137,7 @@ describe("Execute Turn", () => {
 		it("goes twice on a double", () => {
 			const {game, player0, mockSocket0} = getFreshGame();
 
-			RandomInt._inject(2, 2, 4, 5);
+			RandomInt._inject(3, 3, 5, 6);
 			obeyLocationCalls = 0;
 
 			executeTurn(player0);
@@ -172,7 +160,7 @@ describe("Execute Turn", () => {
 		it("sends the player to jail on the third double", () => {
 			const {game, player0, mockSocket0} = getFreshGame();
 
-			RandomInt._inject(2, 2, 4, 4, 1, 1);
+			RandomInt._inject(3, 3, 5, 5, 2, 2);
 			obeyLocationCalls = 0;
 
 			executeTurn(player0);
@@ -202,7 +190,7 @@ describe("Execute Turn", () => {
 			player0.jailDays = 2;
 			player0.placeIdx = 10;
 
-			RandomInt._inject(2, 2);
+			RandomInt._inject(3, 3);
 			obeyLocationCalls = 0;
 
 			executeTurn(player0);
@@ -225,7 +213,7 @@ describe("Execute Turn", () => {
 			player0.jailDays = 1;
 			player0.placeIdx = 10;
 
-			RandomInt._inject(2, 3);
+			RandomInt._inject(3, 4);
 			obeyLocationCalls = 0;
 
 			executeTurn(player0);
@@ -247,7 +235,7 @@ describe("Execute Turn", () => {
 			player0.jailDays = 2;
 			player0.placeIdx = 10;
 
-			RandomInt._inject(2, 3);
+			RandomInt._inject(3, 4);
 			obeyLocationCalls = 0;
 
 			executeTurn(player0);

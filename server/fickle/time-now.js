@@ -1,19 +1,14 @@
-let injectedTime = undefined;
+let injectedTime = [];
 
 function getTimeNow() {
-	return (injectedTime !== undefined) ? injectedTime : +new Date();	
+	return (injectedTime.length > 0) ? injectedTime.shift() : +new Date();	
 }
 
 function _inject(time) {
-	injectedTime = time;
-}
-
-function _uninject() {
-	injectedTime = undefined;
+	injectedTime = [time];
 }
 
 module.exports = {
 	getTimeNow,
-	_inject,
-	_uninject
+	_inject
 };

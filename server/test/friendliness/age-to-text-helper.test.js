@@ -19,8 +19,6 @@ describe("Age to Text Helper", () => {
 			TimeNow._inject(nowInMillis);
 
 			assert.equal(describeTimeSince(nowInMillis + SECOND), "a few seconds ago");
-
-			TimeNow._uninject();
 		});
 
 		it("should round down when describing the time", () => {
@@ -60,8 +58,6 @@ describe("Age to Text Helper", () => {
 			assert.equal(describeTimeSince(nowInMillis - 1.5 * YEAR), "over a year ago");
 			assert.equal(describeTimeSince(nowInMillis - 2 * YEAR), "2 years ago");
 			assert.equal(describeTimeSince(nowInMillis - 50 * YEAR), "50 years ago");
-
-			TimeNow._uninject();
 		});
 	});
 });

@@ -1,5 +1,5 @@
 const assert = require("assert");
-const {GameRecord, Game, LobbyRecord} = require("../../models/game.js");
+const {Game, GameRecord, Lobby, LobbyRecord} = require("../../models/game.js");
 const RandomInt = require("../../fickle/random-int.js");
 const TimeNow = require("../../fickle/time-now.js");
 
@@ -60,21 +60,19 @@ describe("GameRecord", () => {
 				"tax": 0
 			};
 
-			const lobbyRecord = new LobbyRecord(
+			const lobby = new Lobby(new LobbyRecord(
 				"my game id",
 				"my game name",
 				"user id 1",
 				"user name 1",
 				"user sprite 1"
-			);
-			lobbyRecord.addMember("user id 2", "user name 2", "user sprite 2");
-			lobbyRecord.addMember("user id 3", "user name 3", "user sprite 3");
+			));
+			lobby.addMember("user id 2", "user name 2", "user sprite 2");
+			lobby.addMember("user id 3", "user name 3", "user sprite 3");
 
 			TimeNow._inject(1.6e12);
 			RandomInt._inject(1);
-			const gameRecord = GameRecord.prototype.buildFromLobby(lobbyRecord);
-			TimeNow._uninject();
-			RandomInt._uninject(1);
+			const gameRecord = GameRecord.prototype.buildFromLobby(lobby);
 
 			// Place records are tested separately below.
 			const {placeRecords, ...actual} = gameRecord;

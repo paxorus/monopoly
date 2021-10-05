@@ -1,11 +1,11 @@
 const {propertyComparator, LocationInfo, MONOPOLIES, Railroads, Utilities} = require("./location-configs.js");
 const {obeyLocation} = require("./obey-location.js");
-const {getRandomInt} = require("../fickle/random-int.js");
+const RandomInt = require("../fickle/random-int.js");
 const {getTimeNow} = require("../fickle/time-now.js");
 
 
 function rollDice() {
-	return 1 + getRandomInt(6);
+	return RandomInt.fromRange(1, 6);
 }
 
 function concludeTurn(mover) {

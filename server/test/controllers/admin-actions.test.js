@@ -1,11 +1,27 @@
 const assert = require("assert");
-const {createGameLobby, _inject, _uninject} = require("../../controllers/admin-actions.js");
 const TimeNow = require("../../fickle/time-now.js");
+const proxyquire = require("proxyquire");
 
 
 describe("Admin Actions", () => {
 
 	describe("#createGameLobby()", () => {
+
+		let mockLobbies = {};
+		let mockUser = {
+			lobbyIds: []
+		};
+
+		const {createGameLobby} = proxyquire("../../controllers/admin-actions.js", {
+			"../auth.js": {
+				randomId: () => "my game id"
+			},
+			"../storage/lookup.js": {
+				createLobby(lobby) {mockLobbies[lobby.id] = lobby},
+				fetchUser() {return mockUser}
+			}
+		});
+
 		it("should create a game record, update the user record, and send the new game ID to the client", () => {
 			const mockRequest = {
 				body: {
@@ -18,22 +34,12 @@ describe("Admin Actions", () => {
 			const mockResponse = {
 				send: function (x) {this.data = x}
 			};
-			const mockData = {
-				lobbies: {},
-				users: {
-					"my user id": {
-						lobbyIds: []
-					}
-				}
-			};
-			const mockRandomId = () => "my game id";
 
-			_inject(mockData, mockRandomId);
 			TimeNow._inject(1.6e12);
 
 			createGameLobby(mockRequest, mockResponse);
 
-			assert.deepEqual(mockData.lobbies, {
+			assert.deepEqual(mockLobbies, {
 				"my game id": {
 					"adminId": "my user id",
 					"createTime": 1600000000000,
@@ -48,17 +54,13 @@ describe("Admin Actions", () => {
 				}
 			});
 
-			assert.deepEqual(mockData.users, {
-				"my user id": {
-					"lobbyIds": [
-						"my game id"
-					]
-				}
+			assert.deepEqual(mockUser, {
+				"lobbyIds": [
+					"my game id"
+				]
 			});
 
 			assert.deepEqual(mockResponse.data, {"newGameId": "my game id"});
-
-			TimeNow._uninject();
 		});
 	});
 });

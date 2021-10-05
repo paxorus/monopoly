@@ -1,6 +1,3 @@
-const Data = require("../storage/data.js");
-const {Game} = require("../models/game.js");
-const MemStore = require("../storage/in-memory-store.js");
 const {
 	advanceTurn,
 	buyHouse,
@@ -14,31 +11,15 @@ const {
 	useGetOutOfJailFreeCard
 } = require("../game-logic/execute-turn.js");
 const {LocationInfo, MONOPOLIES} = require("../game-logic/location-configs.js");
+const Lookup = require("../storage/lookup.js");
 
-
-function fetchGame(gameId) {
-	if (gameId in MemStore.games) {
-		// Fetch from cache.
-		return MemStore.games[gameId];
-	}
-
-	if (gameId in Data.games) {
-		// Fetch from DB, then cache.
-		const gameRecord = Data.games[gameId];
-		const game = new Game(gameRecord);
-		MemStore.games[gameId] = game;
-		return game;
-	}
-
-	return undefined;
-}
 
 function onGameplayConnection(gameplayIo, socket, userId) {
 
 	let game = undefined;
 	let player = undefined;
 
-	console.log(`${userId} opened a game`);
+	// console.log(`${userId} opened a game`);
 
 	socket.on("disconnect", () => {
 		console.log(`${userId} closed a game`);
@@ -52,7 +33,7 @@ function onGameplayConnection(gameplayIo, socket, userId) {
 	 */
 	socket.on("start-up", ({gameId}) => {
 		// Look up game and player by (game ID, user ID).
-		game = fetchGame(gameId);
+		game = Lookup.fetchGame(gameId);
 
 		if (game === undefined) {
 			console.error(`Game ${gameId} does not exist.`);

@@ -1,14 +1,5 @@
-let Data = require("./storage/data.js");
-
-const og_Data = Data;
-
-function _inject(mock_Data) {
-	Data = mock_Data;
-}
-
-function _uninject() {
-	Data = og_Data;
-}
+let Lookup = require("./storage/lookup.js");
+let RandomInt = require("./fickle/random-int.js");
 
 
 function setNewPlayerAndCookies(res) {
@@ -18,27 +9,27 @@ function setNewPlayerAndCookies(res) {
 	res.cookie("userId", userId, {httpOnly: true});
 	res.cookie("secretKey", secretKey, {httpOnly: true});
 
-	Data.users[userId] = {
+	Lookup.createUser(userId, {
 		gameIds: [],
 		lobbyIds: [],
 		secretKey
-	};
+	});
 
 	return userId;
 }
 
 function httpAuthenticatePlayer(res, userId, secretKey) {
-	const player = Data.users[userId];
+	const user = Lookup.fetchUser(userId);
 
-	if (player === undefined) {
+	if (user === undefined) {
 		res.status(401);
-		res.send("401 (Unauthorized): Player not recognized");
+		res.send("401 (Unauthorized): User not recognized");
 		return false;
 	}
 
-	if (player.secretKey !== secretKey) {
+	if (user.secretKey !== secretKey) {
 		res.status(401);
-		res.send("401 (Unauthorized): Player recognized but does not match device");
+		res.send("401 (Unauthorized): User recognized but does not match device");
 		return false;
 	}
 
@@ -46,14 +37,16 @@ function httpAuthenticatePlayer(res, userId, secretKey) {
 }
 
 function socketAuthenticatePlayer(socket, userId, secretKey) {
-	if (!(userId in Data.users)) {
-		// Invalid player ID or secret key.
-		socket.emit("bad-player-id");
+	const user = Lookup.fetchUser(userId);
+
+	if (user === undefined) {
+		// Invalid user ID.
+		socket.emit("bad-user-id");
 		return false;
 	}
 
-	if (Data.users[userId].secretKey !== secretKey) {
-		// Invalid player ID or secret key.
+	if (user.secretKey !== secretKey) {
+		// Invalid secret key.
 		socket.emit("bad-secret-key");
 		return false;
 	}
@@ -62,11 +55,14 @@ function socketAuthenticatePlayer(socket, userId, secretKey) {
 }
 
 
+const lowerCaseA = "a".charCodeAt(0);
+const lowerCaseZ = "z".charCodeAt(0);
+
 function randomId() {
 	// 26^20 possibilities = 94 bits
 	let id = "";
 	for (let i = 0; i < 20; i ++) {
-		const charCode = Math.floor(Math.random() * 26) + 97;
+		const charCode = RandomInt.fromRange(lowerCaseA, lowerCaseZ);
 		id += String.fromCharCode(charCode);
 	}
 
@@ -77,7 +73,5 @@ module.exports = {
 	setNewPlayerAndCookies,
 	httpAuthenticatePlayer,
 	socketAuthenticatePlayer,
-	randomId,
-	_inject,
-	_uninject
+	randomId
 };

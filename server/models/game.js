@@ -1,5 +1,5 @@
 const {Player, PlayerRecord} = require("../models/player.js");
-const {getRandomInt} = require("../fickle/random-int.js");
+const RandomInt = require("../fickle/random-int.js");
 const {getTimeNow} = require("../fickle/time-now.js");
 const {PlacesArray, PlacesArrayRecord} = require("./places-array.js");
 
@@ -14,6 +14,16 @@ class LobbyRecord {
 		};
 
 		this.createTime = getTimeNow();
+	}
+}
+
+class Lobby {
+	constructor(lobbyRecord) {
+		this.id = lobbyRecord.id;
+		this.name = lobbyRecord.name;
+		this.adminId = lobbyRecord.adminId;
+		this.memberMap = lobbyRecord.memberMap;
+		this.createTime = lobbyRecord.createTime;
 	}
 
 	addMember(playerId, playerName, playerSpriteSrc) {
@@ -38,7 +48,7 @@ class GameRecord {
 		this.createTime = getTimeNow();
 
 		// Choose starting player at random.
-		this.currentPlayerId = getRandomInt(playerRecords.length);
+		this.currentPlayerId = RandomInt.upto(playerRecords.length);
 
 		this.tax = 0;
 
@@ -97,5 +107,6 @@ class Game {
 module.exports = {
 	Game,
 	GameRecord,
+	Lobby,
 	LobbyRecord
 };

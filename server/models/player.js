@@ -94,12 +94,12 @@ class Player {
 	configureEmitter(io, socket) {
 		this.sockets.push(socket);
 		this.io = io;
-		console.log(`add socket for player ${this.num}: ${this.sockets.length} total`);
+		// console.log(`add socket for player ${this.num}: ${this.sockets.length} total`);
 	}
 
 	removeEmitter(socket) {
 		this.sockets.remove(socket);
-		console.log(`remove socket for player ${this.num}: ${this.sockets.length} total`);
+		// console.log(`remove socket for player ${this.num}: ${this.sockets.length} total`);
 	}
 
 	emit(eventName, message) {

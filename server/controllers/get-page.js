@@ -1,7 +1,7 @@
-const Data = require("../storage/data.js");
 const {PlayerIcons} = require("../models/player.js");
 const {summarizeGame, summarizeLobby} = require("../friendliness/summarize-game.js");
 const {setNewPlayerAndCookies, httpAuthenticatePlayer} = require("../auth.js");
+const Lookup = require("../storage/lookup.js");
 
 
 function getLandingPage(req, res) {
@@ -11,14 +11,14 @@ function getLandingPage(req, res) {
 			return;
 		}
 
-		const user = Data.users[userId];
+		const user = Lookup.fetchUser(userId);
 
 		// TODO: have page ajax-get the below info after page load
-		const userGames = user.gameIds.map(gameId => Data.games[gameId]);
+		const userGames = user.gameIds.map(gameId => Lookup.fetchGame(gameId));
 		const inProgressGames = userGames.filter(game => ! game.hasCompleted).map(game => summarizeGame(game, userId));
 		const completedGames = userGames.filter(game => game.hasCompleted).map(game => summarizeGame(game, userId));
 
-		const lobbies = user.lobbyIds.map(lobbyId => summarizeLobby(Data.lobbies[lobbyId]), userId);
+		const lobbies = user.lobbyIds.map(lobbyId => summarizeLobby(Lookup.fetchLobby(lobbyId)), userId);
 
 		res.render("pages/landing", {
 			inProgressGames,
@@ -51,16 +51,17 @@ function getGameplayOrLobbyPage(req, res) {
 
 	const {gameId} = req.params;
 
-	if (gameId in Data.games) {
+	const gameOption = Lookup.fetchGame(gameId);
+	if (gameOption !== undefined) {
 		// Render game.
-		const game = Data.games[gameId];
 		res.render("pages/gameplay", {gameId});
 		return;
 	}
 
-	if (gameId in Data.lobbies) {
+	const lobbyOption = Lookup.fetchLobby(gameId);
+	if (lobbyOption !== undefined) {
 		// Render lobby.
-		const lobby = Data.lobbies[gameId];
+		const lobby = lobbyOption;
 		res.render("pages/lobby", {
 			gameId: lobby.id,
 			adminId: lobby.adminId,

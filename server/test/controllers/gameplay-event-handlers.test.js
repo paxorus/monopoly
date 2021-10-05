@@ -27,22 +27,17 @@ describe("Gameplay Event Handlers", () => {
 			},
 
 			// Plant a mock game.
-			"../storage/data.js": {
-				"games": {
-					"my game id": new GameRecord("my game id", "my game name", "my admin id", dummyPlayerRecords, [
-						{placeIdx: 37, ownerNum: 0, houseCount: 0, isMortgaged: true},
-						{placeIdx: 39, ownerNum: 0, houseCount: 2, isMortgaged: false}
-					]),
-					"my game id 2": new GameRecord("my game id 2", "this copy is in Data", "my admin id", dummyPlayerRecords, [])
+			"../storage/lookup.js": {
+				fetchGame(gameId) {
+					const games = {
+						"my game id": new Game(new GameRecord("my game id", "my game name", "my admin id", dummyPlayerRecords, [
+							{placeIdx: 37, ownerNum: 0, houseCount: 0, isMortgaged: true},
+							{placeIdx: 39, ownerNum: 0, houseCount: 2, isMortgaged: false}
+						])),
+						"my game id 2": new Game(new GameRecord("my game id 2", "this copy is in Data", "my admin id", dummyPlayerRecords, []))
+					};
+					return games[gameId];
 				}
-			},
-
-			"../storage/in-memory-store.js": {
-				"games": {
-					"my game id 2": new Game(new GameRecord(
-						"my game id 2", "this copy is in mem-store", "my admin id", dummyPlayerRecords, []
-					))
-				}				
 			}
 		});
 
@@ -211,7 +206,7 @@ describe("Gameplay Event Handlers", () => {
 			assert.equal(actual, undefined);
 		});
 
-		it("quits out on start-up if the game is not in Data or MemStore", () => {
+		it("quits out on start-up if the game is not found", () => {
 			actualGameActionCalls = [];
 			mockIo.resetMock();
 			mockSocket.resetMock();
@@ -220,19 +215,6 @@ describe("Gameplay Event Handlers", () => {
 			const actual = mockSocket.registeredCallbacks["start-up"]({gameId: "unknown game id"});
 
 			assert.equal(actual, undefined);
-		});
-
-		it("prefers to fetch the game from MemStore over Data", () => {
-			actualGameActionCalls = [];
-			mockIo.resetMock();
-			mockSocket.resetMock();
-
-			onGameplayConnection(mockIo, mockSocket, "my user id");
-			const [player, game] = mockSocket.registeredCallbacks["start-up"]({gameId: "my game id 2"});
-
-			assert.equal(player.userId, "my user id");
-			assert.equal(game.id, "my game id 2");
-			assert.equal(game.name, "this copy is in mem-store");
 		});
 
 		it("cancels game actions that occur before start-up", () => {

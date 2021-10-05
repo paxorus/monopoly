@@ -1,6 +1,5 @@
-const Data = require("../storage/data.js");
+const Lookup = require("../storage/lookup.js");
 const {Game, GameRecord} = require("../models/game.js");
-const MemStore = require("../storage/in-memory-store.js");
 
 
 function onLobbyConnection(lobbyIo, socket, userId) {
@@ -13,48 +12,40 @@ function onLobbyConnection(lobbyIo, socket, userId) {
 	});
 
 	socket.on("join-lobby", () => {
-		const lobby = Data.lobbies[_lobbyId];
+		const lobby = Lookup.fetchLobby(_lobbyId);
 		if (userId in lobby) {
 			return;
 		}
 
 		socket.to(`lobby-${_lobbyId}`).emit("join-lobby", {userId});
-		// Player images are hard-coded for now.
-		Data.lobbies[_lobbyId].addMember(userId, userId, "/8/8a/483Dialga.png");
-		Data.users[userId].lobbyIds.push(_lobbyId);
+		// Player names and images are hard-coded for now.
+		lobby.addMember(userId, userId, "/8/8a/483Dialga.png");
+		Lookup.fetchUser(userId).lobbyIds.push(_lobbyId);
 		console.log(`${userId} joined lobby ${_lobbyId}`);
 	});
 
 	socket.on("leave-lobby", () => {
-		const lobby = Data.lobbies[_lobbyId];
+		const lobby = Lookup.fetchLobby(_lobbyId);
 
 		socket.to(`lobby-${_lobbyId}`).emit("leave-lobby", {userId});
-		delete Data.lobbies[_lobbyId].lobby[userId];
+		delete lobby.memberMap[userId];
+		Lookup.fetchUser(userId).lobbyIds.remove(_lobbyId);
 		console.log(`${userId} left lobby ${_lobbyId}`);
 	});
 
 	// When admin starts the game from the lobby.
 	socket.on("convert-to-game", () => {
 
-		const lobbyRecord = Data.lobbies[_lobbyId];
+		const lobby = Lookup.fetchLobby(_lobbyId);
 
-		if (lobbyRecord.adminId !== userId) {
+		if (lobby.adminId !== userId) {
 			res.status(401);
 			res.send("401 (Unauthorized): You are not the admin of this game");
 			return;
 		}
 
-		const gameRecord = GameRecord.prototype.buildFromLobby(lobbyRecord);
-
-		delete Data.lobbies[_lobbyId];
-		Data.users[userId].lobbyIds.remove(_lobbyId);
-		Data.users[userId].gameIds.push(_lobbyId);
-
-		// Build in-memory structures from records.
-		MemStore.games[_lobbyId] = new Game(gameRecord);
-
-		// Persist game record, overwriting lobby record.
-		Data.games[_lobbyId] = gameRecord;
+		const game = new Game(GameRecord.prototype.buildFromLobby(lobby));
+		Lookup.convertLobbyToGame(game);
 
 		// Cause everyone in the lobby to reload the page.
 		lobbyIo.to(`lobby-${_lobbyId}`).emit("start-game");
