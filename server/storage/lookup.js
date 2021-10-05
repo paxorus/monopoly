@@ -90,5 +90,6 @@ module.exports = {
 	fetchLobby,
 	createLobby,
 	convertLobbyToGame,
-	fetchUser
+	fetchUser,
+	createUser
 };
