@@ -195,6 +195,7 @@ function buildAllViews(players) {
 
 export {
 	buildAllViews,
+	buildGameBoard,
 	GlobalState,
 	highlightProperty,
 	JAIL_VERTICAL_WALKWAY_CAPACITY,

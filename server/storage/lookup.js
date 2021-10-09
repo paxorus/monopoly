@@ -5,8 +5,11 @@ const MemStore = require("../storage/in-memory-store.js");
 /**
  * Looking up means returning an in-memory representation that can be modified and may be enriched with values like
  * a Player holding a reference to its socket or Game.
- * This is achieved by reading from the "DB", enriching into an in-memory model, and caching the in-memory model;
- * and then by always writing to the cached in-memory model, and periodically updating the "DB" from the cache.
+ *
+ * This is achieved by:
+ *   1) reading from the "DB", enriching into an in-memory model, and caching the in-memory model.
+ *   2) writing to the cached in-memory model, and periodically updating the "DB" from the cache.
+ *   3) deleting the object from both the cache and "DB" immediately, so the "DB" isn't used to remind the cache.
  */
 
 function fetchGame(gameId) {
@@ -54,14 +57,28 @@ function convertLobbyToGame(game) {
 
 	// Remove lobby.
 	delete Data.lobbies[gameId];
+	delete MemStore.lobbies[gameId];
 
 	// Create game.
 	MemStore.games[gameId] = game;
 
+	// Unlink users.
 	userIds.forEach(userId => {
 		MemStore.users[userId].lobbyIds.remove(gameId);
 		MemStore.users[userId].gameIds.push(gameId);
 	});
+}
+
+function deleteLobby(lobby) {
+	const lobbyId = lobby.id;
+	const userIds = Object.keys(lobby.memberMap);
+
+	// Remove lobby.
+	delete Data.lobbies[lobbyId];
+	delete MemStore.lobbies[lobbyId];
+
+	// Unlink users.
+	userIds.forEach(userId => MemStore.users[userId].lobbyIds.remove(lobbyId));
 }
 
 function fetchUser(userId) {
@@ -90,6 +107,7 @@ module.exports = {
 	fetchLobby,
 	createLobby,
 	convertLobbyToGame,
+	deleteLobby,
 	fetchUser,
 	createUser
 };

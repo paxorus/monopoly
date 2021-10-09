@@ -1,0 +1,23 @@
+#full-page-overlay {
+	height: 100%;
+	width: 100%;
+	background-color: black;
+	position: absolute;
+	top: 0;
+	left: 0;
+	opacity: 0;
+	z-index: -1;
+}
+.form-modal {
+	z-index: 3;
+	display: none;
+	position: absolute;
+	top: 100%;
+	width: 500px;
+	left: 50%;
+	margin-left: -250px;
+	background-color: white;
+	border-radius: 3px;
+	padding: 10px;
+}
+#page-container {margin: 20px; margin-top: 30px;}

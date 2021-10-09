@@ -1,27 +1,56 @@
 <!DOCTYPE html>
 <html><head><title>Monopoly Game</title>
-<link href="/stylesheets/shared.css" rel="stylesheet"></link>
+<link href="/stylesheets/shared.css" rel="stylesheet" />
+<link href="/stylesheets/board.css" rel="stylesheet" />
+<link href="/stylesheets/modal.css" rel="stylesheet" />
+<link href="/stylesheets/lobby.css" rel="stylesheet" />
 </head>
 <body>
+<!-- Container for all content except the overlay and modal layer. -->
+<div id="page-container">
 
-Admin: <%= adminId === yourId ? "You" : adminId %>
-<br />
-Game: <%= gameName %>
-<br />
-Created: <%= new Date(gameCreateTime) %>
+<!-- Game board -->
+<div id="board" style="opacity: 0.2"></div>
 
-<ul id="joined-players">
-<% for (let i = 0; i < joinedPlayerNames.length; i ++) { %>
-	<li><%= joinedPlayerNames[i] %></li>
+<!-- Container that excludes the game board layer. -->
+<div id="container">
+<h1 style="margin-bottom: 5px"><%= gameName %></h1>
+<span title="<%= new Date(gameCreateTime.timestamp).toLocaleString() %>">Created <%= gameCreateTime.friendly %></span>
+
+<h2>Current Players</h2>
+<div id="joined-players">
+<% for (let [playerId, {name, sprite}] of Object.entries(joinedPlayers)) { %>
+	<div class="player-row">
+		<div class="sprite-circle"><img class="lobby-player-sprite" src="<%= sprite %>" /></div>
+		<% if (playerId === yourId) { %>
+		<div class="lobby-player-name" style="background-color: #08F">
+		<% } else { %>
+		<div class="lobby-player-name">
+		<% } %>
+			<%= name %>
+			<% if (playerId === adminId) { %><span>(admin)</span><% } %>
+			<% if (playerId === yourId) { %><span>(you)</span><% } %>
+		</div>
+	</div>
 <% } %>
-</ul>
+</div>
 
+<br />
+<br />
+<b>Invite friends by sharing this link:</b>
+<br />
+<input id="game-link" readonly>
+<div id="copy-game-link" class="button" style="display: inline-block;">Copy</div>
+<status id="game-link-copy-status"></status>
+<br />
+<br />
 
+<!-- Buttons -->
 <% if (adminId === yourId) { %>
 	<div id="start-game" class="button" style="display: inline-block;">Start Game</div>
-	<div id="disband-lobby" class="button" style="display: inline-block;">Disband Lobby</div>
+	<div id="disband-lobby" class="button-secondary" style="display: inline-block;">Disband Lobby</div>
 <% } else { %>
-	<div id="join-game" class="button" style="display: inline-block;">
+	<div id="join-leave-game" class="button" style="display: inline-block;">
 	<% if (hasJoinedGame) { %>
 		Leave Game
 	<% } else { %>
@@ -29,80 +58,48 @@ Created: <%= new Date(gameCreateTime) %>
 	<% } %>
 	</div>
 <% } %>
+</div>
+
+</div>
+
+<!-- Overlay for modal -->
+<div id="full-page-overlay"></div>
+
+<!-- Join Game modal -->
+<div id="guest-join-modal" class="form-modal">
+	<%- include("../partials/lobby/guest-join-form") %>
+</div>
+
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/javascripts/third-party/jquery.js"></script>
 <script>
-const lobbyId = "<%= gameId %>";
-const myId = "<%= yourId %>";
-
-const socket = io("/lobby");
-
-socket.emit("open-lobby", {lobbyId});
-
-let hasJoinedGame = <%= hasJoinedGame %>;
-
-const playerIds = <%- JSON.stringify(joinedPlayerNames) %>;
-
-/*
- * Page event handlers.
- */
-$("#join-game").click(event => {
-	if (hasJoinedGame) {
-		socket.emit("leave-lobby");
-		$("#join-game").text("Join Game");
-		hasJoinedGame = false;
-		removePlayerFromList(myId);
-	} else {
-		socket.emit("join-lobby");
-		$("#join-game").text("Leave Game");
-		hasJoinedGame = true;
-		addPlayerToList(myId);
-	}
-});
-
-$("#start-game").click(event => {
-	// This will reload the page for all users.
-	socket.emit("convert-to-game");
-});
-
-$("#disband-lobby").click(event => {
-	alert("TODO!")
-});
-
-/**
- * Socket event handlers.
- */
-socket.on("join-lobby", ({userId}) => addPlayerToList(userId));
-
-socket.on("leave-lobby", ({userId}) => removePlayerFromList(userId));
-
-socket.on("start-game", () => location.reload());
-
-socket.on("bad-player-id", () => {
-	console.error("Server did not recognize player ID. :(");
-});
-
-socket.on("bad-secret-key", () => {
-	console.error("Server recognized player ID but failed credentials. :(");
-});
-
-function addPlayerToList(playerId) {
-	// Add to list.
-	const li = document.createElement("li");
-	li.textContent = playerId;
-	$("#joined-players").append(li);
-	playerIds.push(playerId);
-}
-
-function removePlayerFromList(playerId) {
-	// Remove from list.
-	const index = playerIds.indexOf(playerId);
-
-	$("#joined-players").children().eq(index).remove();
-	playerIds.splice(index, 1);
-}
-
+	const lobbyId = "<%= gameId %>";
+	const myId = "<%= yourId %>";
+	let hasJoinedGame = <%= hasJoinedGame %>;
+	const playerIds = Object.keys(<%- JSON.stringify(joinedPlayers) %>);
 </script>
+<script type="module">
+	import {buildGameBoard} from "/javascripts/game-board.js";
+	buildGameBoard();
+</script>
+<% if (yourId !== adminId) { %>
+<script type="module">
+	import {openModal} from "/javascripts/common/modal-animation.js";
+
+	const modalElements = {
+		modal: $("#guest-join-modal"),
+		overlay: $("#full-page-overlay"),
+		container: $("#page-container")
+	};
+
+	if (!hasJoinedGame) {
+		// Open modal initially.
+		openModal(modalElements);
+	}
+</script>
+<% } %>
+<script src="/javascripts/lobby/client-event-handlers.js" type="module"></script>
+<script src="/javascripts/lobby/server-event-handlers.js"></script>
 
 </body></html>

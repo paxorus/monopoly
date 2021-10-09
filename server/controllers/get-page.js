@@ -1,4 +1,5 @@
 const {PlayerIcons} = require("../models/player.js");
+const {describeTimeSince} = require("../friendliness/age-to-text-helper.js");
 const {summarizeGame, summarizeLobby} = require("../friendliness/summarize-game.js");
 const {setNewPlayerAndCookies, httpAuthenticatePlayer} = require("../auth.js");
 const Lookup = require("../storage/lookup.js");
@@ -6,7 +7,7 @@ const Lookup = require("../storage/lookup.js");
 
 function getLandingPage(req, res) {
 	if ("userId" in req.cookies) {
-		const {userId, secretKey} = req.cookies;
+		const {userId, secretKey, landingToast} = req.cookies;
 		if (!httpAuthenticatePlayer(res, userId, secretKey)) {
 			return;
 		}
@@ -20,12 +21,14 @@ function getLandingPage(req, res) {
 
 		const lobbies = user.lobbyIds.map(lobbyId => summarizeLobby(Lookup.fetchLobby(lobbyId)), userId);
 
+		res.clearCookie("landingToast");
 		res.render("pages/landing", {
 			inProgressGames,
 			completedGames,
 			lobbies,
 			yourId: userId,
-			playerIcons: PlayerIcons
+			playerIcons: PlayerIcons,
+			landingToast: landingToast || null
 		});
 	} else {
 		// New user.
@@ -66,10 +69,14 @@ function getGameplayOrLobbyPage(req, res) {
 			gameId: lobby.id,
 			adminId: lobby.adminId,
 			gameName: lobby.name,
-			gameCreateTime: lobby.createTime,
+			gameCreateTime: {
+				friendly: describeTimeSince(lobby.createTime),
+				timestamp: lobby.createTime
+			},
 			yourId: userId,
-			joinedPlayerNames: Object.values(lobby.memberMap).map(lobbyMember => lobbyMember.name),
-			hasJoinedGame: userId in lobby.memberMap
+			joinedPlayers: lobby.memberMap,
+			hasJoinedGame: userId in lobby.memberMap,
+			playerIcons: PlayerIcons
 		});
 		return;
 	}

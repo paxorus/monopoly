@@ -6,27 +6,35 @@ body {
 }
 
 /* Multi-purpose buttons */
-.button {
+.button, .button-negative {
 	font-size: 15px;
-	background-color: #08C;
 	padding: 5px;
 	color: white;
 	cursor: pointer;
 }
-.button:hover {
+
+.button {
+	background-color: #08C;/* Blue */
+}
+.button:hover, .button-secondary:hover {
 	filter: saturate(125%);
 }
-.button:active {
+.button:active, .button-secondary:active {
 	/*background-color: #E80;*/
 	filter: saturate(75%);
 }
 
-.button-negative {
+.button-secondary {
 	font-size: 15px;
-	background-color: #E63;
-	padding: 5px;
-	color: white;
+	background-color: white;
+	border: 2px solid #08C;
+	padding: 3px;
+	color: #08C;
 	cursor: pointer;
+}
+
+.button-negative {
+	background-color: #E63;/* Orange */
 }
 .button-negative:hover {
 	filter: saturate(125%);

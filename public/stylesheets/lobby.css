@@ -1,0 +1,34 @@
+#container {
+	position: relative;
+	left: 100px;
+	top: 80px;
+}
+
+.player-row {
+	z-index: -1;
+}
+.sprite-circle {
+	background-color: #D6D6D6;
+	width: 75px;
+	height: 75px;
+	border-radius: 1000px;
+	display: inline-block;
+	margin-left: 30px;
+}
+.lobby-player-sprite {
+	width: 75px;
+}
+.lobby-player-name {
+	font-size: 18px;
+	line-height: 75px;
+	display: inline-block;
+	position: absolute;/* To vertically center this text */
+
+	/* Align left-side with sprite circle. */
+	left: 30px;
+	z-index: -1;
+
+	border-radius: 1000px;
+	background-color: skyblue;
+	padding: 0 20px 0 85px;/* Left padding should be >= 75px */
+}

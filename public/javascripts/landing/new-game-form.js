@@ -1,31 +1,30 @@
-$("#close-modal-x").click(window.closeNewGameModal);
-
+// Capture chosen sprite on click.
 $(".player-icon").click(event => {
 	const imgNode = event.target;
 	$("#player-icon-hidden-field").val(imgNode.src);
 	$(".player-icon").css("filter", "brightness(0.25)");
 	$(imgNode.parentNode).css("filter", "brightness(1.0)");
-})
+});
 
 // Don't reload page on input Enter or button click.
 $("#new-game-form").submit(event => event.preventDefault());
 
+// Validate the input as the user types.
 $("#game-name-field").on("input", event => {
-	// Validate as user types.
 	const {isValid, reason} = isValidString(event.target.value);
 	$("#create-game").toggleClass("button-disabled", ! isValid);
 	$("#invalid-name-message").text(reason);
 });
 
+// Redden invalid reason if user leaves field.
 $("#game-name-field").on("blur", event => {
-	// Redden invalid reason if user leaves field.
 	const reason = $("#invalid-name-message").text();
 	if (reason !== "") {
 		$("#invalid-name-message").toggleClass("highlight-invalid-message", true);
 	}
 });
 
-
+// Submit the form.
 $("#create-game").click(event => {
 	const gameName = $("#game-name-field").val();
 	const adminDisplayName = $("#player-name-field").val();

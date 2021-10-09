@@ -11,15 +11,15 @@ function onLobbyConnection(lobbyIo, socket, userId) {
 		console.log(`${userId} opened lobby ${lobbyId}`);
 	});
 
-	socket.on("join-lobby", () => {
+	socket.on("join-lobby", ({name, sprite}) => {
 		const lobby = Lookup.fetchLobby(_lobbyId);
-		if (userId in lobby) {
+		if (userId in lobby.memberMap) {
 			return;
 		}
 
-		socket.to(`lobby-${_lobbyId}`).emit("join-lobby", {userId});
 		// Player names and images are hard-coded for now.
-		lobby.addMember(userId, userId, "/8/8a/483Dialga.png");
+		lobby.addMember(userId, name, sprite);
+		lobbyIo.to(`lobby-${_lobbyId}`).emit("join-lobby", {userId, name, sprite});
 		Lookup.fetchUser(userId).lobbyIds.push(_lobbyId);
 		console.log(`${userId} joined lobby ${_lobbyId}`);
 	});
@@ -27,7 +27,7 @@ function onLobbyConnection(lobbyIo, socket, userId) {
 	socket.on("leave-lobby", () => {
 		const lobby = Lookup.fetchLobby(_lobbyId);
 
-		socket.to(`lobby-${_lobbyId}`).emit("leave-lobby", {userId});
+		lobbyIo.to(`lobby-${_lobbyId}`).emit("leave-lobby", {userId});
 		delete lobby.memberMap[userId];
 		Lookup.fetchUser(userId).lobbyIds.remove(_lobbyId);
 		console.log(`${userId} left lobby ${_lobbyId}`);
@@ -49,6 +49,25 @@ function onLobbyConnection(lobbyIo, socket, userId) {
 
 		// Cause everyone in the lobby to reload the page.
 		lobbyIo.to(`lobby-${_lobbyId}`).emit("start-game");
+	});
+
+	socket.on("disband-lobby", () => {
+		const lobby = Lookup.fetchLobby(_lobbyId);
+
+		if (lobby.adminId !== userId) {
+			res.status(401);
+			res.send("401 (Unauthorized): You are not the admin of this game");
+			return;
+		}
+
+		Lookup.deleteLobby(lobby);
+
+		// Force all users in the lobby to load the main page.
+		lobbyIo.to(`lobby-${_lobbyId}`).emit("return-to-landing-page", {cookieKey: "landingToast", cookieValue: {
+			eventName: "toast:lobby-disbanded",
+			lobbyName: lobby.name,
+			adminId: lobby.adminId
+		}});
 	});
 
 	socket.on("disconnect", () => {

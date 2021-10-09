@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html><head><title>Monopoly Game</title>
-<link href="/stylesheets/shared.css" rel="stylesheet"></link>
-<link rel="stylesheet" href="stylesheets/landing.css" />
+<link href="/stylesheets/shared.css" rel="stylesheet" />
+<link href="/stylesheets/modal.css" rel="stylesheet" />
+<link href="stylesheets/landing.css" rel="stylesheet" />
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css" integrity="sha512-/zs32ZEJh+/EO2N1b0PEdoA10JkdC3zJ8L5FTiQu82LR9S/rOQNfQN7U59U9BC12swNeRAz3HSzIL2vpp4fv3w==" crossorigin="anonymous" />
 </head>
@@ -96,7 +97,7 @@
 <div id="full-page-overlay"></div>
 
 <!-- Create New Game modal -->
-<div id="new-game-form-modal">
+<div id="new-game-form-modal" class="form-modal">
 	<%- include("../partials/new-game-form") %>
 </div>
 
@@ -108,6 +109,8 @@
 const inProgressGames = <%- JSON.stringify(inProgressGames) %>;
 const completedGames = <%- JSON.stringify(completedGames) %>;
 const startedGames = [...inProgressGames, ...completedGames];
+const landingToastData = JSON.parse(decodeURIComponent(<%- JSON.stringify(landingToast) %>));
+const yourId = "<%= yourId %>";
 
 // Generate pie charts for each game to display player net worths.
 startedGames.forEach(game => {
@@ -171,61 +174,26 @@ $(".game-summary-tile").on("animationstart", event => {
 // 	// event.
 // 	return false;
 // })
-
-// Modal open and close
-$("#open-new-game-modal").click(event => {
-	$("#full-page-overlay").css("z-index", 2);
-	$("#new-game-form-modal").css("display", "block");
-
-	animate({
-		steps: 10,
-		durationMs: 50,
-		styles: [
-			{element: "#full-page-overlay", property: "opacity", from: 0, to: 0.8},
-			{element: "#page-container", property: "filter", from: 0, to: 10, format: num => `blur(${num}px)`},
-			{element: "#new-game-form-modal", property: "top", from: 100, to: 20, format: num => `${num}%`}
-		]
-	});
-});
-
-function closeNewGameModal() {
-	animate({
-		steps: 10,
-		durationMs: 50,
-		styles: [
-			{element: "#full-page-overlay", property: "opacity", from: 0.8, to: 0},
-			{element: "#page-container", property: "filter", from: 10, to: 0, format: num => `blur(${num}px)`},
-			{element: "#new-game-form-modal", property: "top", from: 20, to: -50, format: num => `${num}%`}
-		],
-		then: () => {
-			$("#full-page-overlay").css("z-index", -1);
-			$("#new-game-form-modal").css("display", "none");
-		}
-	});
-}
-
-function animate({steps, durationMs, styles, then}) {
-	function _animate(step) {
-		styles.forEach(({element, property, from, to, format}) => {
-			const styleValue = (to - from) / steps * step + from;
-			const formattedStyleValue = format ? format(styleValue) : styleValue;
-			$(element).css(property, formattedStyleValue);
-		});
-
-		if (step < steps) {
-			setTimeout(() => _animate(step + 1), durationMs / steps);
-		} else {
-			if (then) {
-				then();
-			}
-		}
-	}
-
-	_animate(0);
-}
-
 </script>
 
 <script src="/javascripts/landing/new-game-form.js"></script>
+<script type="module">
+	import {openModal, closeModal} from "/javascripts/common/modal-animation.js";
+
+	const modalElements = {
+		modal: $("#new-game-form-modal"),
+		overlay: $("#full-page-overlay"),
+		container: $("#page-container")
+	};
+
+	$("#open-new-game-modal").click(event => openModal(modalElements));
+	$("#close-modal-x").click(event => closeModal(modalElements));
+
+	import {showToast} from "/javascripts/landing/toast.js";
+	if (landingToastData !== null) {
+		// There's a toast to show.
+		showToast(landingToastData);
+	}
+</script>
 
 </body></html>

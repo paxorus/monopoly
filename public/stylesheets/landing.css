@@ -15,30 +15,6 @@
 #invalid-name-message {font-size: 12px; height: 15px}
 .highlight-invalid-message {color: red}
 
-#full-page-overlay {
-	height: 100%;
-	width: 100%;
-	background-color: black;
-	position: absolute;
-	top: 0;
-	left: 0;
-	opacity: 0;
-	z-index: -1;
-}
-#new-game-form-modal {
-	z-index: 3;
-	display: none;
-	position: absolute;
-	top: 100%;
-	width: 500px;
-	left: 50%;
-	margin-left: -250px;
-	background-color: white;
-	border-radius: 3px;
-	padding: 10px;
-}
-
-#page-container {margin: 20px; margin-top: 30px;}
 .text-input {padding: 5px; border: 3px #DDD solid; font-weight: bold;}
 .link {text-decoration: none; color: black}
 
@@ -70,3 +46,53 @@
 	pointer-events: none;
 }
 .player-donut-chart {padding-top: 10px; cursor: auto;}
+
+@keyframes grow-toast {
+	from {transform: scale(0);}
+	to {transform: scale(1);}
+}
+@keyframes shrink-toast {
+	from {transform: scale(1);}
+	to {transform: scale(0);}
+}
+
+.toast {
+	background-color: #333;
+	color: white;
+	position: absolute;
+	top: 50px;
+	width: 500px;
+	left: 50%;
+	margin-left: -250px;
+
+	padding: 5px;
+	border-radius: 5px;
+	text-align: center;
+	opacity: 0.95;
+
+	animation-name: grow-toast;
+	animation-duration: 0.5s;
+	animation-fill-mode: forwards;
+	animation-timing-function: ease-in-out;
+}
+
+.toast:hover {
+	background-color: black;
+}
+
+.toast-hidden {
+	animation-name: shrink-toast;
+	animation-duration: 1s;
+}
+
+.toast-close-button {
+	cursor: pointer;
+	float: right;
+	padding-right: 5px;
+	padding-left: 5px;
+	border-left: 1px solid white;
+}
+.toast-close-button:hover {
+	color: #08F;
+	transform: scale(1.5);
+}
