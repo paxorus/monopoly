@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "Real-time Web Monopoly",
   "dependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-react-app": "^3.1.2",
     "cookie-parser": "^1.4.5",
     "ejs": "^3.1.3",
     "express": "^4.17.1",
@@ -13,7 +15,9 @@
     "proxyquire": "^2.1.3"
   },
   "scripts": {
-    "test": "mocha server/test/**/*.test.js"
+    "test": "mocha server/test/**/*.test.js",
+    "start": "node server.js",
+    "babel": "npx babel --watch react --out-dir public/javascripts --presets react-app/prod"
   },
   "repository": {
     "type": "git",
@@ -24,5 +28,7 @@
   "bugs": {
     "url": "https://github.com/paxorus/monopoly/issues"
   },
-  "homepage": "https://github.com/paxorus/monopoly#readme"
+  "homepage": "https://github.com/paxorus/monopoly#readme",
+  "main": "server.js",
+  "keywords": []
 }

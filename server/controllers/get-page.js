@@ -66,17 +66,19 @@ function getGameplayOrLobbyPage(req, res) {
 		// Render lobby.
 		const lobby = lobbyOption;
 		res.render("pages/lobby", {
-			gameId: lobby.id,
-			adminId: lobby.adminId,
-			gameName: lobby.name,
-			gameCreateTime: {
-				friendly: describeTimeSince(lobby.createTime),
-				timestamp: lobby.createTime
-			},
-			yourId: userId,
-			joinedPlayers: lobby.memberMap,
-			hasJoinedGame: userId in lobby.memberMap,
-			playerIcons: PlayerIcons
+			parameters: {
+				lobbyId: lobby.id,
+				adminId: lobby.adminId,
+				gameName: lobby.name,
+				gameCreateTime: {
+					friendly: describeTimeSince(lobby.createTime),
+					timestamp: lobby.createTime
+				},
+				yourId: userId,
+				joinedPlayers: lobby.memberMap,
+				hasJoinedGame: userId in lobby.memberMap,
+				playerIcons: PlayerIcons
+			}
 		});
 		return;
 	}

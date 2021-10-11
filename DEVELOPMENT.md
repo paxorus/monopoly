@@ -1,16 +1,20 @@
+## Setup
+1. Clone the GitHub repo: `git clone https://github.com/paxorus/monopoly.git`
+1. Install NPM dependencies: `npm install`
+1. Start the Babel daemon: `npm run babel`
+1. Start the Node server: `npm start`
+
 ## Code TODOs
 Minor TODOs are left throughout the code as well.
 
 #### Major
-* Consider ReactJS + Redux instead of DOM API + jQuery. This ensures page-wide live updates, e.g. the location display card doesn't update the owner field if the owner changes while it's still open; it needs to be reopened.
+* Consider React/Redux for the game and landing pages.
 * DB persistence (currently all state is held in-memory)
 * Server error handling (currently a single bad request can send it down)
 
 #### Medium
-* Server test DI: Use proxyquire or a Pythonic with for the fickle packages, to ensure the DI is closed.
-* Test coverage for GET and POST controllers
-* Test coverage for obey-location.js
-* Always write to MemStore; always read from MemStore, else Data
+* Test coverage for GET and Lobby controllers
+* Test coverage for obey-location.js and remainder of execute-turn.js
 
 #### Minor
 * Should Player ever use io.emit() (game SocketIO room) instead of emitToAll()?

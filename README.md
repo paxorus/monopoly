@@ -15,11 +15,17 @@ The Pokemon sprites are loaded from Bulbapedia.
 
 ## Upcoming Features
 #### Game Essentials
-* Player customization in the lobby (name/sprite)
 * Trades
 * Going broke, being forced to sell.
 * Auction
 * Losing and exiting the game.
+
+#### Kanav's User Feedback
+* Center-align the board-- lots of wasted space on a large monitor.
+* Show location name as tooltip on hover.
+* Display the game rules in the game.
+* Resize sprites to max size, right now they're always tiny.
+* Complete the income tax square.
 
 #### Interconnectivity
 * Embolden the rent that is in effect on the display card.

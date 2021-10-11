@@ -1,14 +1,12 @@
-/* Location squares */
-#board {
-	position: absolute;
-	width: 700px;
-	height: 680px;
-	top: 0;
-	left: 0;
+:root {
+	--square-width: 68px;
+	--square-height: 66px;
 }
+
+/* Location squares */
 .location {
-	width: 68px;
-	height: 66px;
+	width: var(--square-width);
+	height: var(--square-height);
 	position: absolute;
 	text-align: center;
 	background-color: rgb(213, 232, 212);
@@ -26,23 +24,23 @@
 	align-items: center;
 }
 .right {
-	left: 700px;
+	left: calc(10 * (var(--square-width) + 2px));
 }
 .top {}
 .bottom {
-	top: 680px;
+	top: calc(10 * (var(--square-height) + 2px));
 }
 /* Walkways */
 .vertical {
 	position: absolute;
 	width: 66.7%;
-	height: 66px;
+	height: var(--square-height);
 	text-align: center;
 	float: left;
 }
 .horizontal {
 	position: absolute;
-	width: 68px;
+	width: var(--square-width);
 	height: 66.7%;
 	text-align: center;
 	float: left;
@@ -58,7 +56,7 @@
 	width: 100%;
 }
 .placed-house {
-	width: 17px;
+	width: calc(var(--square-height) / 4);
 	margin-bottom: -1px;
 }
 .placed-house-vertical {
@@ -70,21 +68,22 @@
 	position: absolute;
 	top: 0;
 	right: 0;
-	width: 44px;
-	height: 44px;
+	width: calc(var(--square-width) * 2/3);
+	height: calc(var(--square-height) * 2/3);
 	background-image: url('/images/in-jail.svg');
-	background-size: 44px 44px;
+	/* Add 1px to hide small right margin */
+	background-size: calc(var(--square-width) * 2/3 + 1px) calc(var(--square-height) * 2/3);
 }
 #jail-vertical-walkway {
 	position: absolute;
 	left: 0;
-	width: 24px; /* location.width - jail.width */
-	height: 66px;
+	width: calc(var(--square-width) / 3); /* location.width - jail.width */
+	height: var(--square-height);
 }
 #jail-horizontal-walkway {
 	position: absolute;
 	bottom: 0;
 	right: 0;
-	width: 44px; /* jail.width */
-	height: 22px; /* location.height - jail.height */
+	width: calc(var(--square-width) * 2/3); /* jail.width */
+	height: calc(var(--square-height) / 3); /* location.height - jail.height */
 }

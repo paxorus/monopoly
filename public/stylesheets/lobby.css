@@ -1,7 +1,7 @@
 #container {
 	position: relative;
 	left: 100px;
-	top: 80px;
+	top: 100px;
 }
 
 .player-row {
@@ -31,4 +31,20 @@
 	border-radius: 1000px;
 	background-color: skyblue;
 	padding: 0 20px 0 85px;/* Left padding should be >= 75px */
+}
+
+.close-modal-x {position: absolute; right: 10px; top: 10px; cursor: pointer}
+
+.player-icon {cursor: pointer}
+/*.player-icon:hover {filter: brightness(1.0);}*/
+
+#game-link {
+	display: inline-block;
+	background-color: #CCC;
+	padding: 5px;
+}
+#game-link-copy-status {
+	display: inline-block;
+	color: green;
+	margin-left: 5px;
 }
