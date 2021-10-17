@@ -1,5 +1,5 @@
 const Lookup = require("../storage/lookup.js");
-const {randomId} = require("../auth.js");
+const {httpAuthenticatePlayer, randomId} = require("../auth.js");
 const {getTimeNow} = require("../fickle/time-now.js");
 const {Lobby, LobbyRecord} = require("../models/game.js");
 

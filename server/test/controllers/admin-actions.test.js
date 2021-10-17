@@ -14,7 +14,8 @@ describe("Admin Actions", () => {
 
 		const {createGameLobby} = proxyquire("../../controllers/admin-actions.js", {
 			"../auth.js": {
-				randomId: () => "my game id"
+				randomId: () => "my game id",
+				httpAuthenticatePlayer: () => true
 			},
 			"../storage/lookup.js": {
 				createLobby(lobby) {mockLobbies[lobby.id] = lobby},
