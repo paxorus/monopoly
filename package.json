@@ -16,7 +16,7 @@
   },
   "scripts": {
     "test": "mocha server/test/**/*.test.js",
-    "start": "node server.js",
+    "start": "npx babel react --out-dir public/javascripts --presets react-app/prod && node server.js",
     "babel": "npx babel --watch react --out-dir public/javascripts --presets react-app/prod"
   },
   "repository": {
