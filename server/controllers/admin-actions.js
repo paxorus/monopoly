@@ -5,9 +5,13 @@ const {Lobby, LobbyRecord} = require("../models/game.js");
 
 
 function createGameLobby(req, res) {
+	const {userId, secretKey} = req.cookies;
+	if (!httpAuthenticatePlayer(res, userId, secretKey)) {
+		return;
+	}
+
 	const {gameName, adminDisplayName, adminSpriteSrc} = req.body;
 
-	const {userId} = req.cookies;
 	const gameId = randomId();
 
 	Lookup.createLobby(new Lobby(new LobbyRecord(gameId, gameName, userId, adminDisplayName, adminSpriteSrc)));

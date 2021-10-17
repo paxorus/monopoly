@@ -38,7 +38,8 @@ function getLandingPage(req, res) {
 			completedGames: [],
 			lobbies: [],
 			yourId: userId,
-			playerIcons: PlayerIcons
+			playerIcons: PlayerIcons,
+			landingToast: null
 		});
 	}
 }
