@@ -1,9 +1,10 @@
 import {places, Locations} from "/javascripts/location-configs.js";
+import validate from "/javascripts/validate-props.js";
 
 
 class GameBoard extends React.Component {
 	constructor(props) {
-		super(props);
+		validate(super(props));
 
 		this.squareWidth = 68;
 		this.squareHeight = 66;
@@ -99,5 +100,7 @@ class GameBoard extends React.Component {
 		</div>
 	}
 }
+
+GameBoard.propTypes = {};
 
 export default GameBoard;

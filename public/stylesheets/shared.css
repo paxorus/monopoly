@@ -9,6 +9,18 @@ body {
 /* Remove weird, uninspectable whitespace at the top of the page. */
 h1 { margin-top: 0; }
 
+.left-margin {
+	margin-left: 5px;
+}
+
+.right-margin {
+	margin-right: 5px;
+}
+
+div.inline {
+	display: inline-block;
+}
+
 /* Multi-purpose buttons */
 .button, .button-negative {
 	font-size: 15px;
@@ -38,7 +50,7 @@ h1 { margin-top: 0; }
 }
 
 .button-negative {
-	background-color: #E63;/* Orange */
+	background-color: #666;/* Dark gray */
 }
 .button-negative:hover {
 	filter: saturate(125%);
@@ -57,3 +69,8 @@ h1 { margin-top: 0; }
 .button-disabled:active {
 	filter: saturate(0%);
 }
+
+
+/* Forms */
+.invalid-field-message {font-size: 12px; height: 15px}
+.invalid-field-message-aggressive {color: red}

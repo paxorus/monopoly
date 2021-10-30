@@ -48,7 +48,7 @@ const games = {
 				name: "Prakhar",
 				userId: "heerffgylfgxuslpsujz",
 				num: 0,
-				spriteFileName: "https://cdn2.bulbagarden.net/upload/thumb/5/58/384Rayquaza-Mega.png/900px-384Rayquaza-Mega.png",
+				spriteFileName: "https://cdn2.bulbagarden.net/upload/thumb/5/58/384Rayquaza-Mega.png/240px-384Rayquaza-Mega.png",
 				latestRoll: null,
 				rollCount: null,
 				balance: 1500,
@@ -63,7 +63,7 @@ const games = {
 				name: "Willy",
 				userId: "nnkciawfaytxwwtxgxue",
 				num: 1,
-				spriteFileName: "https://cdn2.bulbagarden.net/upload/thumb/8/81/644Zekrom.png/375px-644Zekrom.png",
+				spriteFileName: "https://cdn2.bulbagarden.net/upload/thumb/f/f1/382Kyogre-Primal.png/240px-382Kyogre-Primal.png",
 				latestRoll: null,
 				rollCount: null,
 				balance: 800,
@@ -89,7 +89,7 @@ const lobbies = {
 		memberMap: {
 			"heerffgylfgxuslpsujz": {
 				name: "boop-star",
-				sprite: "https://cdn2.bulbagarden.net/upload/archive/8/8a/20190407154255%21483Dialga.png"
+				sprite: "https://cdn2.bulbagarden.net/upload/thumb/0/0d/025Pikachu.png/240px-025Pikachu.png"
 			}
 		}
 	},
@@ -101,7 +101,7 @@ const lobbies = {
 		memberMap: {
 			"heerffgylfgxuslpsujz": {
 				name: "boop-star",
-				sprite: "https://cdn2.bulbagarden.net/upload/archive/8/8a/20190407154255%21483Dialga.png"
+				sprite: "https://cdn2.bulbagarden.net/upload/thumb/0/0d/025Pikachu.png/240px-025Pikachu.png"
 			}
 		}
 	}

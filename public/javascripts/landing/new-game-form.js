@@ -20,7 +20,7 @@ $("#game-name-field").on("input", event => {
 $("#game-name-field").on("blur", event => {
 	const reason = $("#invalid-name-message").text();
 	if (reason !== "") {
-		$("#invalid-name-message").toggleClass("highlight-invalid-message", true);
+		$("#invalid-name-message").toggleClass("invalid-field-message-aggressive", true);
 	}
 });
 

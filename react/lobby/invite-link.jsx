@@ -1,6 +1,9 @@
+import validate from "/javascripts/validate-props.js";
+
+
 class InviteLink extends React.Component {
 	constructor(props) {
-		super(props);
+		validate(super(props));
 		this.state = {copied: false};
 	}
 
@@ -21,5 +24,7 @@ class InviteLink extends React.Component {
 		</div>
 	}
 }
+
+InviteLink.propTypes = {};
 
 export default InviteLink;

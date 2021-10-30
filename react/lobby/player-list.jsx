@@ -1,6 +1,9 @@
+import validate from "/javascripts/validate-props.js";
+
+
 class PlayerList extends React.Component {
 	constructor(props) {
-		super(props);
+		validate(super(props));
 	}
 
 	render() {
@@ -8,7 +11,7 @@ class PlayerList extends React.Component {
 			{Object.entries(this.props.players).map(([playerId, {name, sprite}]) =>
 				<div className="player-row" key={playerId}>
 					<div className="sprite-circle">
-						<img className="lobby-player-sprite" src={sprite} />
+						<center><img className="lobby-player-sprite" src={sprite} /></center>
 					</div>
 					<div className="lobby-player-name" style={(playerId === this.props.yourId) ? {backgroundColor: "#08F"} : {}}>
 						{name}
@@ -20,5 +23,14 @@ class PlayerList extends React.Component {
 		</div>
 	}
 }
+
+PlayerList.propTypes = {
+	players: PropTypes.objectOf(PropTypes.exact({
+		name: PropTypes.string,
+		sprite: PropTypes.string
+	})),
+	yourId: PropTypes.string,
+	adminId: PropTypes.string
+};
 
 export default PlayerList;

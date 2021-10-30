@@ -169,9 +169,16 @@ class Player {
 }
 
 const PlayerIcons = [
-	"https://cdn2.bulbagarden.net/upload/thumb/5/58/384Rayquaza-Mega.png/900px-384Rayquaza-Mega.png",
-	"https://cdn2.bulbagarden.net/upload/thumb/8/81/644Zekrom.png/375px-644Zekrom.png",
-	"https://cdn2.bulbagarden.net/upload/archive/8/8a/20190407154255%21483Dialga.png"
+	"https://cdn2.bulbagarden.net/upload/thumb/0/0d/025Pikachu.png/240px-025Pikachu.png",
+	"https://cdn2.bulbagarden.net/upload/archive/6/60/20091223220130%21258Mudkip.png",
+	"https://cdn2.bulbagarden.net/upload/archive/2/2c/20091223215948%21252Treecko.png",
+	"https://cdn2.bulbagarden.net/upload/archive/9/91/20091223220041%21255Torchic.png",
+	"https://cdn2.bulbagarden.net/upload/archive/c/ca/20090820000257%21092Gastly.png",
+	"https://cdn2.bulbagarden.net/upload/archive/d/d8/20100219173940%21386Deoxys-Attack.png",
+	"https://cdn2.bulbagarden.net/upload/thumb/f/f1/382Kyogre-Primal.png/240px-382Kyogre-Primal.png",
+	"https://cdn2.bulbagarden.net/upload/thumb/5/58/384Rayquaza-Mega.png/240px-384Rayquaza-Mega.png",
+	"https://cdn2.bulbagarden.net/upload/thumb/8/81/644Zekrom.png/240px-644Zekrom.png",
+	"https://cdn2.bulbagarden.net/upload/thumb/8/8a/483Dialga.png/240px-483Dialga.png",
 ];
 
 module.exports = {

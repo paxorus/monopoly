@@ -14,8 +14,6 @@
 }
 
 #game-name-field {display: inline-block;}
-#invalid-name-message {font-size: 12px; height: 15px}
-.highlight-invalid-message {color: red}
 
 .text-input {padding: 5px; border: 3px #DDD solid; font-weight: bold;}
 .link {text-decoration: none; color: black}

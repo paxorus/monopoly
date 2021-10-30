@@ -1,4 +1,4 @@
-#container {
+#lobby-foreground {
 	position: relative;
 	left: 100px;
 	top: 100px;
@@ -16,7 +16,8 @@
 	margin-left: 30px;
 }
 .lobby-player-sprite {
-	width: 75px;
+	max-width: 75px;
+	max-height: 75px;
 }
 .lobby-player-name {
 	font-size: 18px;
@@ -33,10 +34,7 @@
 	padding: 0 20px 0 85px;/* Left padding should be >= 75px */
 }
 
-.close-modal-x {position: absolute; right: 10px; top: 10px; cursor: pointer}
-
-.player-icon {cursor: pointer}
-/*.player-icon:hover {filter: brightness(1.0);}*/
+.player-icon {cursor: pointer; width: 100px; height: 100px; display: inline-block;}
 
 #game-link {
 	display: inline-block;
@@ -47,4 +45,9 @@
 	display: inline-block;
 	color: green;
 	margin-left: 5px;
+}
+
+/* Override gameboard cursor since we're just using it as a silent backdrop */
+.location {
+	cursor: auto;
 }

@@ -17,7 +17,6 @@ function onLobbyConnection(lobbyIo, socket, userId) {
 			return;
 		}
 
-		// Player names and images are hard-coded for now.
 		lobby.addMember(userId, name, sprite);
 		lobbyIo.to(`lobby-${_lobbyId}`).emit("join-lobby", {userId, name, sprite});
 		Lookup.fetchUser(userId).lobbyIds.push(_lobbyId);
@@ -33,14 +32,31 @@ function onLobbyConnection(lobbyIo, socket, userId) {
 		console.log(`${userId} left lobby ${_lobbyId}`);
 	});
 
+	socket.on("update-member", ({name, sprite}) => {
+		const lobby = Lookup.fetchLobby(_lobbyId);
+
+		lobby.addMember(userId, name, sprite);
+		lobbyIo.to(`lobby-${_lobbyId}`).emit("update-member", {userId, name, sprite});
+	});
+
+	socket.on("update-admin", ({name, sprite, gameName}) => {
+		const lobby = Lookup.fetchLobby(_lobbyId);
+
+		if (!authenticateAdmin(lobby)) {
+			return;
+		}
+
+		lobby.name = gameName;
+		lobby.addMember(userId, name, sprite);
+		lobbyIo.to(`lobby-${_lobbyId}`).emit("update-admin", {userId, name, sprite, gameName});
+	});
+
 	// When admin starts the game from the lobby.
 	socket.on("convert-to-game", () => {
 
 		const lobby = Lookup.fetchLobby(_lobbyId);
 
-		if (lobby.adminId !== userId) {
-			res.status(401);
-			res.send("401 (Unauthorized): You are not the admin of this game");
+		if (!authenticateAdmin(lobby)) {
 			return;
 		}
 
@@ -48,15 +64,13 @@ function onLobbyConnection(lobbyIo, socket, userId) {
 		Lookup.convertLobbyToGame(game);
 
 		// Cause everyone in the lobby to reload the page.
-		lobbyIo.to(`lobby-${_lobbyId}`).emit("start-game");
+		lobbyIo.to(`lobby-${_lobbyId}`).emit("reload-for-game");
 	});
 
 	socket.on("disband-lobby", () => {
 		const lobby = Lookup.fetchLobby(_lobbyId);
 
-		if (lobby.adminId !== userId) {
-			res.status(401);
-			res.send("401 (Unauthorized): You are not the admin of this game");
+		if (!authenticateAdmin(lobby)) {
 			return;
 		}
 
@@ -73,6 +87,16 @@ function onLobbyConnection(lobbyIo, socket, userId) {
 	socket.on("disconnect", () => {
 		console.log(`${userId} closed lobby ${_lobbyId}`);
 	});
+
+	function authenticateAdmin(lobby) {
+		if (lobby.adminId !== userId) {
+			res.status(401);
+			res.send("401 (Unauthorized): You are not the admin of this game");
+			return false;
+		}
+
+		return true;
+	}
 }
 
 module.exports = {

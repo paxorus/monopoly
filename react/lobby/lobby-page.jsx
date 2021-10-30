@@ -1,13 +1,15 @@
+import EditPlayerModal from "/javascripts/lobby/edit-player-modal.js";
 import InviteLink from "/javascripts/lobby/invite-link.js";
 import GameBoard from "/javascripts/lobby/game-board.js";
-import GuestJoinModal from "/javascripts/lobby/guest-join-modal.js";
+import Modal from "/javascripts/lobby/modal.js";
+import ModalPage from "/javascripts/lobby/modal-page.js";
 import PlayerList from "/javascripts/lobby/player-list.js";
+import validate from "/javascripts/validate-props.js";
 
 
 class LobbyPage extends React.Component {
 	constructor(props) {
-		super(props);
-		console.log(props);
+		validate(super(props));
 
 		const socket = io("/lobby");
 
@@ -17,7 +19,14 @@ class LobbyPage extends React.Component {
 
 		socket.on("leave-lobby", ({userId}) => this.removePlayerFromList(userId));
 
-		socket.on("start-game", () => location.reload());
+		socket.on("update-member", ({userId, name, sprite}) => this.addPlayerToList(userId, name, sprite));
+
+		socket.on("update-admin", ({userId, name, sprite, gameName}) => {
+			this.addPlayerToList(userId, name, sprite);
+			this.setState({gameName});
+		});
+
+		socket.on("reload-for-game", () => location.reload());
 
 		socket.on("return-to-landing-page", ({cookieKey, cookieValue}) => {
 			document.cookie = `${cookieKey}=${encodeURIComponent(JSON.stringify(cookieValue))};max-age=24*60*60;samesite=strict;path=/`;
@@ -33,12 +42,14 @@ class LobbyPage extends React.Component {
 		});
 
 		this.socket = socket;
+		this.isAdmin = (this.props.adminId === this.props.yourId);
 
 		this.state = {
+			gameName: props.gameName,
 			memberMap: props.joinedPlayers,
 			hasJoinedGame: props.hasJoinedGame,
-			isGuestModalOpen: !props.hasJoinedGame,
-			percentBlur: props.hasJoinedGame ? 0 : 100
+			isEditModalOpen: !props.hasJoinedGame,
+			isDisbandModalOpen: false
 		};
 	}
 
@@ -69,113 +80,159 @@ class LobbyPage extends React.Component {
 		this.socket.emit("disband-lobby");
 	}
 
-	handleGuestClickJoin() {
+	handleAdminClickDisband() {
+		this.setState({isDisbandModalOpen: true});
+	}
+
+	handleClickEdit() {
+		// Open modal to create player
+		this.setState({isEditModalOpen: true});
+	}
+
+	handleGuestClickLeave() {
 		this.setState(state => {
-			if (state.hasJoinedGame) {
-				// Leave lobby
-				this.socket.emit("leave-lobby");
-				return {
-					hasJoinedGame: false
-				};
+			this.socket.emit("leave-lobby");
+			return {hasJoinedGame: false};
+		});
+	}
+
+	handleJoinGame({gameName, name, sprite}) {
+		this.setState(state => {
+			if (this.isAdmin) {
+				this.socket.emit("update-admin", {gameName, name, sprite});
+			} else if (state.hasJoinedGame) {
+				this.socket.emit("update-member", {name, sprite});
 			} else {
-				// Open modal to join lobby
-				return {
-					isGuestModalOpen: true
-				};
+				this.socket.emit("join-lobby", {name, sprite});
 			}
+
+			return {
+				isEditModalOpen: false,
+				hasJoinedGame: true
+			};
 		});
 	}
 
-	onJoinGame({name, sprite}) {
-		this.socket.emit("join-lobby", {name, sprite});
-		this.setState(state => ({
-			isGuestModalOpen: false,
-			hasJoinedGame: true			
-		}));
+	handleClickCloseEditModal() {
+		this.setState({isEditModalOpen: false});
 	}
 
-	onClickCloseModal() {
-		this.setState({
-			isGuestModalOpen: false
-		});
+	handleClickCloseDisbandModal() {
+		this.setState({isDisbandModalOpen: false});
 	}
 
-	onModalSlide(percentOpen) {
-		this.setState({
-			percentBlur: percentOpen
-		});
+	buildEditModal(handleModalSlide) {
+		return <EditPlayerModal
+			key="edit"
+			isAdmin={this.isAdmin}
+			isOpen={this.state.isEditModalOpen}
+			playerIcons={this.props.playerIcons}
+			gameName={this.state.gameName}
+			player={this.state.memberMap[this.props.yourId]}
+			hasJoinedGame={this.state.hasJoinedGame}
+			onJoinGame={this.handleJoinGame.bind(this)}
+			onModalSlide={handleModalSlide}
+			onClickCloseModal={this.handleClickCloseEditModal.bind(this)} />;
 	}
 
-	getPageBlurLevel(percentBlur) {
-		const from = 0;
-		const to = 10;
-		return {filter: `blur(${(to - from) * percentBlur / 100 + from}px)`};
+	buildDisbandModal(handleModalSlide) {
+		return <Modal title="Disband Lobby"
+			key="disband"
+			isOpen={this.state.isDisbandModalOpen}
+			onModalSlide={handleModalSlide}
+			onClickCloseModal={this.handleClickCloseDisbandModal.bind(this)}>
+			This will boot out all players and delete the lobby. Are you sure?
+			<br />
+			<br />
+			<div className="button inline left-margin" style={{float: "right"}} onClick={this.handleClickCloseDisbandModal.bind(this)}>Keep Lobby</div>
+			<div className="button-secondary inline" style={{float: "right"}} onClick={this.handleAdminDisbandLobby.bind(this)}>Delete Lobby</div>
+		</Modal>
 	}
 
-	getOverlayOpacityLevel(percentBlur) {
-		const from = 0;
-		const to = 0.8;
-		return {
-			opacity: (to - from) * percentBlur / 100,
-			zIndex: (percentBlur > 0) ? 2 : -1
-		};
+	getModals() {
+		const modals = [{
+			isOpen: this.state.isEditModalOpen,
+			onClose: this.handleClickCloseEditModal.bind(this),
+			build: this.buildEditModal.bind(this)
+		}];
+
+		if (this.isAdmin) {
+			modals.push({
+				isOpen: this.state.isDisbandModalOpen,
+				onClose: this.handleClickCloseDisbandModal.bind(this),
+				build: this.buildDisbandModal.bind(this)
+			});
+		}
+
+		return modals;
 	}
 
 	render() {
-		return (
-			<div>
-				{/* Container for all content except the overlay and modal layer. */}
-				<div id="page-container" style={this.getPageBlurLevel(this.state.percentBlur)}>
+		return <ModalPage modals={this.getModals()}>
 
-					{/* Game board */}
-					<GameBoard />
+			<GameBoard />
 
-					{/* Container that excludes the game board layer. */}
-					<div id="container">
-						<h1 style={{marginBottom: "5px"}}>{this.props.gameName}</h1>
-						<span title={new Date(this.props.gameCreateTime.timestamp).toLocaleString()}>Created {this.props.gameCreateTime.friendly}</span>
+			{/* Container that excludes the game board layer. */}
+			<div id="lobby-foreground">
+				<h1 style={{marginBottom: "5px"}}>{this.state.gameName}</h1>
+				<span title={new Date(this.props.gameCreateTime.timestamp).toLocaleString()}>Created {this.props.gameCreateTime.friendly}</span>
 
-						{/* Player list */}
-						<h2>Current Players</h2>
-						<PlayerList players={this.state.memberMap} yourId={this.props.yourId} adminId={this.props.adminId} />
+				{/* Player list */}
+				<h2>Current Players</h2>
+				<PlayerList players={this.state.memberMap} yourId={this.props.yourId} adminId={this.props.adminId} />
 
-						<br />
-						<br />
-						<InviteLink />
-						<br />
-						<br />
+				<br />
+				<br />
+				<InviteLink />
+				<br />
+				<br />
 
-						{/* Buttons */}
-						{(this.props.adminId === this.props.yourId) ?
-							<div>
-								<div id="start-game" className="button" style={{display: "inline-block"}} onClick={this.handleAdminConvertToGame.bind(this)}>Start Game</div>
-								<div id="disband-lobby" className="button-secondary" style={{display: "inline-block", marginLeft: "5px"}} onClick={this.handleAdminDisbandLobby.bind(this)}>Disband Lobby</div>
-							</div>
-							:
-							<div id="join-leave-game"
-								className={this.state.hasJoinedGame ? "button-secondary" : "button"}
-								style={{display: "inline-block"}}
-								onClick={this.handleGuestClickJoin.bind(this)}>
-								{this.state.hasJoinedGame ? "Leave Game" : "Join Game"}
-							</div>
-						}
+				{/* Buttons */}
+				{(this.isAdmin) ?
+					<div>
+						<div className="button inline right-margin" onClick={this.handleAdminConvertToGame.bind(this)}>Start Game</div>
+						<div className="button-secondary inline right-margin" onClick={this.handleClickEdit.bind(this)}>Edit Settings</div>
+						<div className="button-negative inline" onClick={this.handleAdminClickDisband.bind(this)}>Disband Lobby</div>
 					</div>
-				</div>
-
-				{/* Overlay for modal */}
-				<div id="full-page-overlay" style={this.getOverlayOpacityLevel(this.state.percentBlur)}></div>
-
-				<GuestJoinModal
-					isOpen={this.state.isGuestModalOpen}
-					playerIcons={this.props.playerIcons}
-					onJoinGame={this.onJoinGame.bind(this)}
-					onModalSlide={this.onModalSlide.bind(this)}
-					onClickCloseModal={this.onClickCloseModal.bind(this)} />
+					:
+					((this.state.hasJoinedGame) ?
+						<div>
+							<div className="button inline right-margin" onClick={this.handleClickEdit.bind(this)}>
+								Edit Player
+							</div>
+							<div className="button-negative inline" onClick={this.handleGuestClickLeave.bind(this)}>
+								Leave Game
+							</div>
+						</div>
+						:
+						<div>
+							<div className="button inline margin" onClick={this.handleClickEdit.bind(this)}>
+								Join Game
+							</div>
+						</div>
+					)
+				}
 			</div>
-		);
+		</ModalPage>
 	}
 }
 
+LobbyPage.propTypes = {
+	lobbyId: PropTypes.string,
+	adminId: PropTypes.string,
+	gameName: PropTypes.string,
+	yourId: PropTypes.string,
+	hasJoinedGame: PropTypes.bool,
+	playerIcons: PropTypes.arrayOf(PropTypes.string),
+	gameCreateTime: PropTypes.exact({
+		friendly: PropTypes.string,
+		timestamp: PropTypes.number
+	}),
+	joinedPlayers: PropTypes.objectOf(PropTypes.exact({
+		name: PropTypes.string,
+		sprite: PropTypes.string
+	}))
+};
 
 function render(props, domElement) {
 	ReactDOM.render(<LobbyPage {...props} />, domElement);

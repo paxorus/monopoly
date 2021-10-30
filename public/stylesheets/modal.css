@@ -1,4 +1,4 @@
-#full-page-overlay {
+.full-page-overlay {
 	height: 100%;
 	width: 100%;
 	background-color: black;
@@ -13,10 +13,14 @@
 	display: none;
 	position: absolute;
 	top: 100%;
-	width: 500px;
+	width: 500px;/* Fit exactly 5 Pokemon across */
 	left: 50%;
 	margin-left: -250px;
 	background-color: white;
 	border-radius: 3px;
 	padding: 10px;
 }
+/* 24x24 image */
+.close-modal-x {float: right; cursor: pointer}
+.modal-header > span {font-size: 24px}
+.modal-header {margin-bottom: 16px}

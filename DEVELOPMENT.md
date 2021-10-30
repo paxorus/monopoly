@@ -2,7 +2,7 @@
 1. Clone the GitHub repo: `git clone https://github.com/paxorus/monopoly.git`
 1. Install NPM dependencies: `npm install`
 1. Start the Babel daemon: `npm run babel`
-1. Start the Node server: `npm start`
+1. Start the Node server: `npm run server`
 
 ## Code TODOs
 Minor TODOs are left throughout the code as well.
