@@ -2,6 +2,8 @@ import {places, Locations} from "/javascripts/location-configs.js";
 import validate from "/javascripts/validate-props.js";
 
 
+const JAIL_VERTICAL_WALKWAY_CAPACITY = 3;
+
 class GameBoard extends React.Component {
 	constructor(props) {
 		validate(super(props));
@@ -54,21 +56,52 @@ class GameBoard extends React.Component {
 		const additionalProps = (placeIdx == Locations.FreeParking) ? {id: "alltax"} : {};
 
 		return <div key={placeIdx} dataset-no={placeIdx} style={squareStyle} className={`location ${rowName}`} {...additionalProps}>
-			{/* Walkway */}
-			{(place.housePrice > 0) && <div className={`walkway ${walkwayClass}`} style={walkwayStyle}></div> }
-			{/* House plot */}
-			{(place.housePrice > 0) && <div id={`house-plot${placeIdx}`} className={`house-plot-${rowName}`}></div> }
-			{/* Jail */}
-			{(placeIdx === Locations.Jail) && <div id="jail"></div> }
-			{/* Jail vertical walkway */}
-			{(placeIdx === Locations.Jail) && <div id="jail-vertical-walkway"></div> }
-			{/* Jail horizontal walkway */}
-			{(placeIdx === Locations.Jail) && <div id="jail-horizontal-walkway"></div> }
+			{this.renderSquareType(place, placeIdx, rowName, walkwayStyle, walkwayClass)}
 		</div>;
 	}
 
+	renderSquareType(place, placeIdx, rowName, walkwayStyle, walkwayClass) {
+		// const players = this.props.players.filter(player => player.placeIdx === placeIdx);
+		let players = [];
+		if (this.props.players.length > 0) {
+			players = [
+				this.props.players[0],
+				this.props.players[0],
+				this.props.players[0],
+				this.props.players[0],
+				this.props.players[0]
+			];
+		}
+
+		if (place.housePrice > 0) {
+			return <div className={`walkway ${walkwayClass}`} style={walkwayStyle}>
+				{/* Property walkway */}
+				{this.renderPlayerSprites(players)}
+				{/* House plot */}
+				<div id={`house-plot${placeIdx}`} className={`house-plot-${rowName}`}></div>
+			</div>;
+		} else if (placeIdx === Locations.Jail) {
+			// Jail
+			const inJail = this.renderPlayerSprites(players.filter(player => player.jailDays > 0));
+			const justVisiting = this.renderPlayerSprites(players.filter(player => player.jailDays === 0));
+			return <div>
+				<div id="jail">{inJail}</div>
+				<div id="jail-vertical-walkway">{justVisiting.slice(0, JAIL_VERTICAL_WALKWAY_CAPACITY)}</div>
+				<div id="jail-horizontal-walkway">{justVisiting.slice(JAIL_VERTICAL_WALKWAY_CAPACITY)}</div>
+			</div>;
+		} else {
+			return this.renderPlayerSprites(players);
+		}
+	}
+
+	renderPlayerSprites(players) {
+		return players.map(player =>
+			<img id={`marker${player.num}`} key={player.num} className="circ" src={player.spriteFileName} />
+		)
+	}
+
 	render() {
-		return <div id="board" style={{opacity: 0.2}}>
+		return <div id="board" style={{opacity: this.props.faded ? 0.2 : 1}}>
 			{/* Bottom row */}
 			{this.range(0, 10).map(placeIdx => this.buildSquare(
 				placeIdx,
@@ -101,6 +134,19 @@ class GameBoard extends React.Component {
 	}
 }
 
-GameBoard.propTypes = {};
+GameBoard.propTypes = {
+	faded: PropTypes.bool,
+	players: PropTypes.arrayOf(PropTypes.exact({
+		num: PropTypes.number,
+		spriteFileName: PropTypes.string,
+		placeIdx: PropTypes.number,
+		jailDays: PropTypes.number
+	}))
+};
+
+GameBoard.defaultProps = {
+	faded: false,
+	players: []
+}
 
 export default GameBoard;

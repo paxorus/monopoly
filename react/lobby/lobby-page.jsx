@@ -170,7 +170,7 @@ class LobbyPage extends React.Component {
 	render() {
 		return <ModalPage modals={this.getModals()}>
 
-			<GameBoard />
+			<GameBoard faded />
 
 			{/* Container that excludes the game board layer. */}
 			<div id="lobby-foreground">

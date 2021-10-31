@@ -76,6 +76,7 @@
 }
 #jail-vertical-walkway {
 	position: absolute;
+	top: 0;
 	left: 0;
 	width: calc(var(--square-width) / 3); /* location.width - jail.width */
 	height: var(--square-height);
