@@ -61,7 +61,7 @@ app.get("/test", function(req, res) {
 
 app.use(function(req, res) {
 	res.status(404);
-	res.render("pages/404", {message: "Page not found."});
+	res.render("pages/404");
 });
 
 server.listen(app.get("port"), function() {
