@@ -1,4 +1,4 @@
-const {Locations, MONOPOLIES} = require("./location-configs.js");
+const {Locations, LocationInfo, MONOPOLIES} = require("./location-configs.js");
 
 const AdvanceToNextPlayer = false;
 const WaitForUserResponse = true;
@@ -14,8 +14,10 @@ function obeyLocation(mover) {
 			// Owned: pay rent to the owner.
 			const owner = mover.game.players[place.ownerNum];
 			const rent = determineRent(mover, owner, place);
-			payRent(mover, owner, rent);
+			payRent(mover, owner, rent, place.name);
 			return AdvanceToNextPlayer;
+		} else {
+			mover.log(`You landed on your own property, ${place.name}.`);
 		}
 	} else {
 		return obeySpecialSquare(mover);
@@ -52,15 +54,16 @@ function determineRent(mover, owner, place) {
 	}
 }
 
-function payRent(mover, owner, rent) {
-	// TODO: Check if mover owns it.
-	if (rent === 0) {// Due to mortgaging. TODO: Notify users why no rent was paid.
+function payRent(mover, owner, rent, placeName) {
+	if (rent === 0) {// Due to mortgaging.
+		mover.log(`You skipped rent since ${owner.name} mortgaged ${placeName}.`);
+		owner.log(`${mover.name} skips rent since you mortgaged ${placeName}.`);
 		return;
 	}
 	mover.updateBalance(-rent);
 	owner.updateBalance(rent);
 	mover.log(`You paid $${rent} in rent to ${owner.name}.`);
-	owner.log(`${mover.name} paid $${rent} in rent to you.`);
+	owner.log(`${mover.name} paid $${rent} in rent to you for ${placeName}.`);
 }
 
 function obeySpecialSquare(mover) {
@@ -74,20 +77,20 @@ function obeySpecialSquare(mover) {
 		case Locations.IncomeTax:
 			mover.updateBalance(-200);
 			mover.game.tax += 200;
-			mover.emitToAll("update-tax", {tax: mover.game.tax});
+			mover.emitToEveryone("update-tax", {tax: mover.game.tax});
 			mover.log("You paid $200 income tax.");
 			break;
 		case Locations.LuxuryTax:
 			mover.updateBalance(-100);
 			mover.game.tax += 100;
-			mover.emitToAll("update-tax", {tax: mover.game.tax});
+			mover.emitToEveryone("update-tax", {tax: mover.game.tax});
 			mover.log("You paid $100 luxury tax.");
 			break;
 		case Locations.FreeParking:
 			const tax = mover.game.tax;
 			mover.updateBalance(tax);
 			mover.game.tax = 0;
-			mover.emitToAll("update-tax", {tax: 0});
+			mover.emitToEveryone("update-tax", {tax: 0});
 			if (tax > 0) {
 				mover.log("You collected $" + tax + " from free parking!");
 			} else {
@@ -114,7 +117,7 @@ function obeyChanceSquare(mover) {
 		case 1:
 			mover.log('Advance to "Go". (Collect $200)');
 			mover.updateLocation(Locations.Go);
-			mover.updateBalance(200);
+			mover.collectGoMoney();
 			break;
 		case 2:
 			mover.log("Make general repairs on all your property: For each house pay $25, for each hotel pay $100.");
@@ -130,7 +133,7 @@ function obeyChanceSquare(mover) {
 		case 4:
 			mover.log('Advance to St. Charles Place. If you pass "Go" collect $200.');
 			if (mover.placeIdx > Locations.StCharlesPlace) {
-				mover.updateBalance(200);
+				mover.collectGoMoney();
 			}
 			mover.updateLocation(Locations.StCharlesPlace);
 			return obeyLocation(mover);
@@ -155,7 +158,7 @@ function obeyChanceSquare(mover) {
 		case 9:
 			mover.log('Advance to Illinois Avenue. If you pass "Go" collect $200.');
 			if (mover.placeIdx > Locations.IllinoisAvenue) {
-				mover.updateBalance(200);
+				mover.collectGoMoney();
 			}
 			mover.updateLocation(Locations.IllinoisAvenue);
 			return obeyLocation(mover);
@@ -192,7 +195,7 @@ function obeyChanceSquare(mover) {
 		case 13:
 			mover.log('Take a trip to Reading Railroad. If you pass "Go" collect $200.');
 			if (mover.placeIdx > Locations.ReadingRailroad) {
-				mover.updateBalance(200);
+				mover.collectGoMoney();
 			}
 			mover.updateLocation(Locations.ReadingRailroad);
 			return obeyLocation(mover);
@@ -276,7 +279,7 @@ function obeyCommunityChestSquare(mover) {
 		case 11:
 			mover.log('Advance to "Go". (Collect $200)');
 			mover.updateLocation(Locations.Go);
-			mover.updateBalance(200);
+			mover.collectGoMoney();
 			break;
 		case 12:
 			mover.log("Income tax refund. Collect $20.");
@@ -316,7 +319,7 @@ function countOwnedBuildings(owner) {
 
 function addGetOutOfJailFreeCard(mover) {
 	mover.numJailCards ++;
-	mover.emitToAll("add-jail-card", {playerId: mover.num});
+	mover.emitToEveryone("add-jail-card", {playerId: mover.num});
 }
 
 function useGetOutOfJailFreeCard(player) {

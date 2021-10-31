@@ -18,7 +18,7 @@ function advanceTurn(mover, game) {
 	game.currentPlayerId = nextPlayerId;
 	game.lastUpdateTime = getTimeNow();
 	game.numTurns ++;
-	mover.emitToAll("advance-turn", {
+	mover.emitToEveryone("advance-turn", {
 		nextPlayerId
 	});
 }
@@ -93,7 +93,7 @@ function rollMove(mover) {
 	if (newLocationIdx > 39) {
 		// Pass Go.
 		newLocationIdx -= 40;
-		mover.updateBalance(200);
+		mover.collectGoMoney();
 	}
 	mover.updateLocation(newLocationIdx);
 
@@ -121,15 +121,17 @@ function purchaseProperty(mover, placeIdx) {
 
 	mover.updateBalance(-place.price);
 	place.ownerNum = mover.num;
-	mover.log("Congratulations, " + mover.name + "! You now own " + place.name + "!");
-	mover.emitToAll("purchase-property", {playerId: mover.num, placeIdx});
+	mover.log(`Congratulations, ${mover.name}! You now own ${place.name}!`);
+	mover.notifyEveryoneElse(`${mover.name} purchased ${place.name}.`);
+	mover.emitToEveryone("purchase-property", {playerId: mover.num, placeIdx});
 
 	// Check for a new monopoly.
 	const monopoly = MONOPOLIES.find(monopoly => monopoly.includes(placeIdx));
 	if (hasAchievedColoredMonopoly(monopoly, mover)) {
 		const propertyNames = monopoly.map(placeIdx => LocationInfo[placeIdx].name);
-		mover.log("Monopoly! You may now build houses on " + concatenatePropertyNames(propertyNames)
-			+ ", and their rents have doubled.");
+		const propertyNamesString = concatenatePropertyNames(propertyNames);
+		mover.log(`Monopoly! You may now build houses on ${propertyNamesString}, and their rents have doubled.`);
+		mover.notifyEveryoneElse(`${mover.name} achieved a monopoly and may now build houses on ${propertyNamesString}.`);
 		monopoly.forEach(placeIdx => mover.emit("build-house-buttons", {placeIdx}));
 	}
 }
@@ -160,12 +162,12 @@ function buyHouse(owner, placeIdx) {
 	place.houseCount ++;
 
 	if (place.houseCount === 5) {
-		owner.log("Upgraded to a hotel on " + place.name + ".");
+		owner.notify("Upgraded to a hotel on " + place.name + ".");
 	} else {
-		owner.log("Built a house on " + place.name + ".");
+		owner.notify("Built a house on " + place.name + ".");
 	}
 
-	owner.emit("buy-house", {playerId: owner.num, placeIdx});
+	owner.emitToEveryone("buy-house", {playerId: owner.num, placeIdx});
 }
 
 function sellHouse(owner, placeIdx) {
@@ -181,12 +183,12 @@ function sellHouse(owner, placeIdx) {
 	place.houseCount --;
 
 	if (place.houseCount === 4) {
-		owner.log("Downgraded from a hotel on " + place.name + ".");
+		owner.notify("Downgraded from a hotel on " + place.name + ".");
 	} else {
-		owner.log("Removed a house from " + place.name + ".");
+		owner.notify("Removed a house from " + place.name + ".");
 	}
 
-	owner.emit("sell-house", {playerId: owner.num, placeIdx});
+	owner.emitToEveryone("sell-house", {playerId: owner.num, placeIdx});
 }
 
 function useGetOutOfJailFreeCard(player) {
@@ -195,23 +197,23 @@ function useGetOutOfJailFreeCard(player) {
 	}
 
 	player.getOutOfJail();
-	player.emitToAll("use-jail-card", {playerId: player.num})
+	player.emitToEveryone("use-jail-card", {playerId: player.num})
 }
 
 function mortgageProperty(player, placeIdx) {
 	const place = player.game.places[placeIdx];
 	place.isMortgaged = true;
 	player.updateBalance(place.price / 2);
-	player.log(`Mortgaged ${place.name} for $${place.price / 2}.`);
-	player.emitToAll("mortgage-property", {playerId: player.num, placeIdx});
+	player.notify(`Mortgaged ${place.name} for $${place.price / 2}.`);
+	player.emitToEveryone("mortgage-property", {playerId: player.num, placeIdx});
 }
 
 function unmortgageProperty(player, placeIdx) {
 	const place = player.game.places[placeIdx];
 	place.isMortgaged = false;
 	player.updateBalance(- place.price / 2);
-	player.log(`Unmortgaged ${place.name} for $${place.price / 2}.`);
-	player.emitToAll("unmortgage-property", {playerId: player.num, placeIdx});
+	player.notify(`Unmortgaged ${place.name} for $${place.price / 2}.`);
+	player.emitToEveryone("unmortgage-property", {playerId: player.num, placeIdx});
 }
 
 module.exports = {

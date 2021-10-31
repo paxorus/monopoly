@@ -70,59 +70,58 @@ function onGameplayConnection(gameplayIo, socket, userId) {
 	});
 
 	// Turn actions
-	// TODO: None of these socket events need to send playerId. The issuing user is already authenticated.
 	socket.on("advance-turn", () => {
 		if (player !== undefined) {
 			advanceTurn(player, game);
 		}
 	});
 
-	socket.on("execute-turn", ({playerId}) => {
+	socket.on("execute-turn", () => {
 		if (player !== undefined) {
 			executeTurn(player);
 		}
 	});
 
 	// Property actions
-	socket.on("respond-to-buy-offer", ({playerId, ifBuy}) => {
+	socket.on("respond-to-buy-offer", ({ifBuy}) => {
 		if (player !== undefined) {
 			respondToBuyOffer(player, ifBuy);
 		}
 	});
 
-	socket.on("buy-house", ({playerId, placeIdx}) => {
+	socket.on("buy-house", ({placeIdx}) => {
 		if (player !== undefined) {
 			buyHouse(player, placeIdx);
 		}
 	});
 
-	socket.on("sell-house", ({playerId, placeIdx}) => {
+	socket.on("sell-house", ({placeIdx}) => {
 		if (player !== undefined) {
 			sellHouse(player, placeIdx);
 		}
 	});
 
 	// Jail actions
-	socket.on("use-jail-card", ({playerId}) => {
+	socket.on("use-jail-card", () => {
 		if (player !== undefined) {
 			useGetOutOfJailFreeCard(player);
 		}
 	});
 
-	socket.on("pay-out-of-jail", ({playerId}) => {
+	socket.on("pay-out-of-jail", () => {
 		if (player !== undefined) {
 			payOutOfJail(player);
 		}
 	});
 
 	// Mortgage rules
-	socket.on("mortgage-property", ({playerId, placeIdx}) => {
+	socket.on("mortgage-property", ({placeIdx}) => {
 		if (player !== undefined) {
 			mortgageProperty(player, placeIdx);
 		}
 	});
 
-	socket.on("unmortgage-property", ({playerId, placeIdx}) => {
+	socket.on("unmortgage-property", ({placeIdx}) => {
 		if (player !== undefined) {
 			unmortgageProperty(player, placeIdx);
 		}

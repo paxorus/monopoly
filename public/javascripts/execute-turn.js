@@ -27,7 +27,7 @@ function updateTurn(nextPlayerId) {
 }
 
 function executeTurn() {
-	socket.emit("execute-turn", {playerId: GlobalState.me.num});
+	socket.emit("execute-turn");
 
 	// Switch to the normal interactive; only applicable on the first turn.
 	$("#initial-interactive").css("display", "none");
@@ -49,7 +49,7 @@ function respondToBuyOffer(ifBuy) {
 	// Hide the Buy/No buttons.
 	$("#button-box").children().remove();
 
-	socket.emit("respond-to-buy-offer", {playerId: GlobalState.me.num, ifBuy});
+	socket.emit("respond-to-buy-offer", {ifBuy});
 }
 
 function purchaseProperty(mover, placeIdx) {
@@ -98,14 +98,14 @@ function buildHouseButtons(placeIdx) {
 	adder.className = "button house-button house-adder";
 	adder.title = "Buy a House";
 	$(adder).append("<img class='house-icon' src='/images/house.svg'><sup class='house-plus-sign'>+</sup>");
-	adder.addEventListener("click", event => socket.emit("buy-house", {playerId: owner.num, placeIdx}));
+	adder.addEventListener("click", event => socket.emit("buy-house", {placeIdx}));
 	$("#hud-property" + placeIdx).append(adder);
 
 	const remover = document.createElement("div");
-	remover.className = "button-negative button-disabled house-button house-remover";
+	remover.className = "button button-disabled house-button house-remover";
 	remover.title = "Sell a House";
 	$(remover).append("<img class='house-icon' src='/images/house.svg'><sup class='house-minus-sign'>-</sup>");
-	remover.addEventListener("click", event => socket.emit("sell-house", {playerId: owner.num, placeIdx}));
+	remover.addEventListener("click", event => socket.emit("sell-house", {placeIdx}));
 	$("#hud-property" + placeIdx).append(remover);
 }
 
@@ -184,7 +184,7 @@ function repeat(n, func) {
 function mortgageOrUnmortgageProperty(owner, placeIdx) {
 	const place = places[placeIdx];
 	if (place.isMortgaged) {
-		socket.emit("unmortgage-property", {playerId: owner.num, placeIdx});
+		socket.emit("unmortgage-property", {placeIdx});
 		return;
 	}
 
@@ -193,7 +193,7 @@ function mortgageOrUnmortgageProperty(owner, placeIdx) {
 		return;
 	}
 
-	socket.emit("mortgage-property", {playerId: owner.num, placeIdx});
+	socket.emit("mortgage-property", {placeIdx});
 }
 
 function mortgageProperty(owner, placeIdx) {
@@ -241,7 +241,7 @@ function respondPayOutOfJail(hasAgreed) {
 	if (! hasAgreed) {
 		allowConcludeTurn();
 	} else {
-		socket.emit("pay-out-of-jail", {playerId: GlobalState.me.num});
+		socket.emit("pay-out-of-jail");
 	}
 }
 
@@ -261,7 +261,7 @@ function addGetOutOfJailFreeCard(mover) {
 }
 
 function useGetOutOfJailFreeCard(player) {
-	socket.emit("use-jail-card", {playerId: GlobalState.me.num});
+	socket.emit("use-jail-card");
 }
 
 function updateGetOutOfJailFreeCards(player) {

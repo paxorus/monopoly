@@ -42,7 +42,9 @@ function startUp({playerData, locationData, monopolies, yourPlayerId, currentPla
 		}
 	});
 
-	locationData.forEach(({ownerNum, houseCount, isMortgaged}, placeIdx) => {
+	const monopolyPlaces = new Set(monopolies.flatMap(monopoly => monopoly));
+
+	locationData.forEach(({placeIdx, ownerNum, houseCount, isMortgaged}) => {
 		if (ownerNum === -1 || ownerNum === undefined) {
 			return;
 		}
@@ -51,6 +53,11 @@ function startUp({playerData, locationData, monopolies, yourPlayerId, currentPla
 
 		purchaseProperty(owner, placeIdx);
 
+		// Add house buttons for any monopolies.
+		if (monopolyPlaces.has(placeIdx)) {
+			buildHouseButtons(placeIdx);			
+		}
+
 		for (let i = 0; i < houseCount; i ++) {
 			buyHouse(ownerNum, placeIdx);
 		}
@@ -58,13 +65,6 @@ function startUp({playerData, locationData, monopolies, yourPlayerId, currentPla
 		if (isMortgaged) {
 			mortgageProperty(owner, placeIdx);
 		}
-	});
-
-	// Add house buttons for any monopolies.
-	monopolies.forEach(monopoly => {
-		monopoly.forEach(placeIdx => {
-			buildHouseButtons(placeIdx);
-		});
 	});
 
 	// TODO: Display other users' actions.
@@ -84,13 +84,14 @@ function startUp({playerData, locationData, monopolies, yourPlayerId, currentPla
 		const savedMessages = playerData[yourPlayerId].savedMessages;
 
 		savedMessages
-			.filter(([eventName, message]) => eventName === "log")
+			.filter(([eventName, message]) => eventName === "dialog" || eventName === "notify")
 			.forEach(([eventName, message]) => log(message));
 
 		// If the last message was a call-to-action, repeat it. There is at least
 		// one saved message if a player has clicked "Start Game", which is the
 		// initial "advance-turn" message indicating the previous player has gone.
-		const [finalEventName, finalMessage] = savedMessages[savedMessages.length - 1];
+		const interactions = savedMessages.filter(([eventName, message]) => eventName !== "notify");
+		const [finalEventName, finalMessage] = interactions[interactions.length - 1];
 		switch (finalEventName) {
 			// Offers
 			case "allow-conclude-turn":

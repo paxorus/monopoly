@@ -128,8 +128,8 @@ describe("Execute Turn", () => {
 			assert.deepEqual(obeyLocationCalls, 1);
 
 			assert.deepEqual(mockSocket0.messages, [
-				["log", "You rolled a 2 and a 6."],
-				["log", "You landed on Vermont Avenue."],
+				["dialog", "You rolled a 2 and a 6."],
+				["dialog", "You landed on Vermont Avenue."],
 				["allow-conclude-turn", undefined]
 			]);
 		});
@@ -148,11 +148,11 @@ describe("Execute Turn", () => {
 			assert.deepEqual(obeyLocationCalls, 2);
 
 			assert.deepEqual(mockSocket0.messages, [
-				["log", "You rolled a 3 and a 3."],
-				["log", "You landed on Oriental Avenue."],
-				["log", "A double!"],
-				["log", "You rolled a 5 and a 6."],
-				["log", "You landed on Community Chest."],
+				["dialog", "You rolled a 3 and a 3."],
+				["dialog", "You landed on Oriental Avenue."],
+				["dialog", "A double!"],
+				["dialog", "You rolled a 5 and a 6."],
+				["dialog", "You landed on Community Chest."],
 				["allow-conclude-turn", undefined]
 			]);
 		});
@@ -171,16 +171,16 @@ describe("Execute Turn", () => {
 			assert.deepEqual(obeyLocationCalls, 3);
 
 			assert.deepEqual(mockSocket0.messages, [
-				["log", "You rolled a 3 and a 3."],
-				["log", "You landed on Oriental Avenue."],
-				["log", "A double!"],
-				["log", "You rolled a 5 and a 5."],
-				["log", "You landed on St. James Place."],
-				["log", "A double!"],
-				["log", "You rolled a 2 and a 2."],
-				["log", "You landed on Free Parking."],
-				["log", "A 3rd double! Troll alert! You're going to jail."],
-				["log", "You will be in jail for 3 turns!"],
+				["dialog", "You rolled a 3 and a 3."],
+				["dialog", "You landed on Oriental Avenue."],
+				["dialog", "A double!"],
+				["dialog", "You rolled a 5 and a 5."],
+				["dialog", "You landed on St. James Place."],
+				["dialog", "A double!"],
+				["dialog", "You rolled a 2 and a 2."],
+				["dialog", "You landed on Free Parking."],
+				["dialog", "A 3rd double! Troll alert! You're going to jail."],
+				["dialog", "You will be in jail for 3 turns!"],
 				["allow-conclude-turn", undefined]
 			]);
 		});
@@ -201,9 +201,9 @@ describe("Execute Turn", () => {
 			assert.deepEqual(obeyLocationCalls, 0);
 
 			assert.deepEqual(mockSocket0.messages, [
-				["log", "You rolled a 3 and a 3."],
-				["log", "A double! You're free!"],
-				["log", "You are now out of jail!"],
+				["dialog", "You rolled a 3 and a 3."],
+				["dialog", "A double! You're free!"],
+				["dialog", "You are now out of jail!"],
 				["allow-conclude-turn", undefined]
 			]);
 		});
@@ -224,8 +224,8 @@ describe("Execute Turn", () => {
 			assert.deepEqual(obeyLocationCalls, 0);
 
 			assert.deepEqual(mockSocket0.messages, [
-				["log", "You are now out of jail!"],
-				["log", "Your jail sentence is up. You're free to go!"],
+				["dialog", "You are now out of jail!"],
+				["dialog", "Your jail sentence is up. You're free to go!"],
 				["allow-conclude-turn", undefined]
 			]);
 		});
@@ -245,7 +245,7 @@ describe("Execute Turn", () => {
 			assert.deepEqual(obeyLocationCalls, 0);
 
 			assert.deepEqual(mockSocket0.messages, [
-				["log", "You rolled a 3 and a 4."],
+				["dialog", "You rolled a 3 and a 4."],
 				["offer-pay-out-of-jail", undefined]
 			]);
 		});

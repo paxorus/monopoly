@@ -1,5 +1,4 @@
 import assert from "./assert.js";
-import {places} from "../location-configs.js";
 import {startUp} from "../start-up.js";
 
 function houseImageNames(placeIdx) {
@@ -27,7 +26,7 @@ describe("Start Up", () => {
 		playerData[0].balance = 800;
 		playerData[1].placeIdx = 14;// Virginia Avenue
 		playerData[0].savedMessages = [
-			["log", "some message"],
+			["dialog", "some message"],
 			["offer-unowned-property", {placeIdx: 3}]
 		];
 
@@ -35,11 +34,12 @@ describe("Start Up", () => {
 		playerData[2].numJailCards = 2;
 		playerData[2].placeIdx = 10;
 
-		places[11].ownerNum = 0;
-		places[11].houseCount = 2;
-		places[16].ownerNum = 0;
-		places[18].ownerNum = 0;
-		places[19].ownerNum = 0;
+		const places = [
+			{placeIdx: 11, ownerNum: 0, houseCount: 2},
+			{placeIdx: 16, ownerNum: 0},
+			{placeIdx: 18, ownerNum: 0},
+			{placeIdx: 19, ownerNum: 0}
+		];
 
 		startUp({
 			playerData,
@@ -86,7 +86,7 @@ describe("Start Up", () => {
 				assert.deepEqual(buttonClassLists, [
 					"button house-button property-mortgager",
 					"button house-button house-adder",
-					"button-negative button-disabled house-button house-remover"
+					"button button-disabled house-button house-remover"
 				]);
 			});
 		});

@@ -47,10 +47,8 @@ window.socket = socket;
 socket.on("start-up", startUp);
 
 // Updates
-socket.on("log", text => {
-	console.log("log", text);
-	log(text);
-});
+socket.on("dialog", text => log(text));
+socket.on("notify", text => log(text));
 
 socket.on("update-balance", ({playerId, balance}) => {
 	GlobalState.players[playerId].updateBalance(balance);
@@ -66,7 +64,6 @@ socket.on("allow-conclude-turn", () => {
 });
 
 socket.on("advance-turn", ({nextPlayerId}) => {
-	console.log("advance-turn", nextPlayerId);
 	updateTurn(nextPlayerId);
 });
 
@@ -131,9 +128,7 @@ socket.on("unmortgage-property", ({playerId, placeIdx}) => {
 });
 
 function initializeGame(gameId) {
-	socket.emit("start-up", {
-		gameId
-	});
+	socket.emit("start-up", {gameId});
 }
 
 export {

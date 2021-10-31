@@ -105,7 +105,7 @@ describe("Player", () => {
 		});
 	});
 
-	describe("#emitToAll()", () => {
+	describe("#emitToEveryone()", () => {
 		it("emits to all players properly", () => {
 			mockSocket.resetMock();
 			mockSocket2.resetMock();
@@ -119,7 +119,7 @@ describe("Player", () => {
 			player2.configureEmitter(null, mockSocket2);
 
 			player.emit("boop", {x: 10});
-			player.emitToAll("troop", {y: 20});
+			player.emitToEveryone("troop", {y: 20});
 
 			assert.deepEqual(mockSocket.messages, [
 				["boop", {x: 10}],
@@ -144,7 +144,7 @@ describe("Player", () => {
 			player.goToJail();
 			assert.equal(player.jailDays, 3);
 			assert.equal(player.placeIdx, 10);
-			assert.deepEqual(player.savedMessages, [["log", "You will be in jail for 3 turns!"]]);
+			assert.deepEqual(player.savedMessages, [["dialog", "You will be in jail for 3 turns!"]]);
 
 			player.savedMessages = [];
 			player.decrementJailDays();
@@ -154,7 +154,7 @@ describe("Player", () => {
 			player.savedMessages = [];
 			player.getOutOfJail();
 			assert.equal(player.jailDays, 0);
-			assert.deepEqual(player.savedMessages, [["log", "You are now out of jail!"]]);
+			assert.deepEqual(player.savedMessages, [["dialog", "You are now out of jail!"]]);
 
 			assert.deepEqual(mockIo.messages, [
 				["update-location", {placeIdx: 10, playerId: 0}],
@@ -164,8 +164,8 @@ describe("Player", () => {
 			]);
 
 			assert.deepEqual(mockSocket.messages, [
-				["log", "You will be in jail for 3 turns!"],
-				["log", "You are now out of jail!"]
+				["dialog", "You will be in jail for 3 turns!"],
+				["dialog", "You are now out of jail!"]
 			]);
 		});
 	});

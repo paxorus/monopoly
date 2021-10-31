@@ -14,7 +14,7 @@ const games = {
 		monopolies: [],
 		placeRecords: [
 			{placeIdx: 1, ownerNum: 0, houseCount: 2, isMortgaged: false},
-			{placeIdx: 3, ownerNum: -1, houseCount: 0, isMortgaged: false},
+			{placeIdx: 3, ownerNum: 0, houseCount: 0, isMortgaged: false},
 			{placeIdx: 5, ownerNum: -1, houseCount: 0, isMortgaged: false},
 			{placeIdx: 6, ownerNum: -1, houseCount: 0, isMortgaged: false},
 			{placeIdx: 8, ownerNum: -1, houseCount: 0, isMortgaged: false},

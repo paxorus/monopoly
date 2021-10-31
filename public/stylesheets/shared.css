@@ -53,10 +53,10 @@ div.inline {
 	background-color: #666;/* Dark gray */
 }
 .button-negative:hover {
-	filter: saturate(125%);
+	filter: brightness(125%);
 }
 .button-negative:active {
-	filter: saturate(75%);
+	filter: brightness(75%);
 }
 
 .button-disabled {

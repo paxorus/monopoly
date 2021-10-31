@@ -15,6 +15,11 @@ export default class Player {
 		this.numJailCards = 0;
 	}
 
+	collectGoMoney() {
+		mover.updateBalance(200);
+		mover.log("Collected $200 for passing Go.");
+	}
+
 	updateJailDays(jailDays) {
 		this.jailDays = jailDays;
 	}

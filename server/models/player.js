@@ -85,7 +85,7 @@ class Player {
 	updateLocation(newLocation) {
 		this.placeIdx = newLocation;
 
-		// TODO: Why not use emitToAll() here?
+		// TODO: Consider switching to emitToEveryone() here. More readable and will step through _saveMessage.
 		if (this.io !== null) {
 			this.io.emit("update-location", {playerId: this.num, placeIdx: this.placeIdx});
 		}
@@ -108,9 +108,14 @@ class Player {
 		this._saveMessage(eventName, message);
 	}
 
-	emitToAll(eventName, message) {
-		// TODO: Consider renaming to emitToEveryone(), since emit() emits to all devices.
+	emitToEveryone(eventName, message) {
 		this.game.players.forEach(player => player.emit(eventName, message));
+	}
+
+	emitToEveryoneElse(eventName, message) {
+		this.game.players
+			.filter(player => player !== this)
+			.forEach(player => player.emit(eventName, message));
 	}
 
 	_saveMessage(eventName, message) {
@@ -119,14 +124,15 @@ class Player {
 			case "allow-conclude-turn":
 			case "offer-pay-out-of-jail":
 			case "offer-unowned-property":
-			case "log":
+			case "dialog":
+			case "notify":
 				this.addToSavedMessages([eventName, message]);
 				break;
 
 			case "advance-turn":
 				if (this.num === message.nextPlayerId) {
 					// If it's now this player's turn, clear messages from last turn before showing
-					// player the "Execute Turn" button.
+					// player the "Take Your Turn" button.
 					this.setSavedMessages([[eventName, message]]);
 				} else {
 					this.addToSavedMessages([eventName, message]);
@@ -136,7 +142,17 @@ class Player {
 	}
 
 	log(message) {
-		this.emit("log", message);
+		// Dialog relating to your turn.
+		this.emit("dialog", message);
+	}
+
+	notify(message) {
+		// Notifications relating to actions that can be taken any time or about other players, e.g. trades, rent paid to you.
+		this.emit("notify", message);
+	}
+
+	notifyEveryoneElse(message) {
+		this.emitToEveryoneElse("notify", message);		
 	}
 
 	getSavedMessages() {

@@ -11,7 +11,7 @@ The Pokemon sprites are loaded from Bulbapedia.
 * Go: Landing on Go is just $200, not $400.
 * Chance and Community Chest are uniformly random without replacement. In a physical game, players go through the deck before shuffling. This game is more like shuffling every time.
 * Income Tax: The income tax is a fixed $200; there is no option of 10% of all assets if that is lower.
-* Free Parking: Tax payments go to the Free Parking cash pool. Whoever lands there collects the entire cash pool.
+* Free Parking: Tax payments go to the Free Parking cash pool. The next player to land there collects the entire cash pool.
 
 ## Upcoming Features
 #### Game Essentials
@@ -33,10 +33,12 @@ The Pokemon sprites are loaded from Bulbapedia.
 
 #### Digital Benefits
 * Compute net worths for landing page game tiles.
-* Historical logs such as inter-player rent and all tenants for a property.
+* Show logs of previous turns. Currently, a player's notifications are wiped as soon as it's their turn again.
+* Notifications such as inter-player rent and history of tenants for a property.
 * Historical analytics such as net worth over time.
 
 #### Multiplayer
+* Improve gameplay messages so all players are notified of all events like rent payments, with reloadability.
 * Generate an expiring link so users can log in on a new device without a password (and effectively account).
 * Allow user to play from multiple tabs in real-time.
 
