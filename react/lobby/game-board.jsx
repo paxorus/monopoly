@@ -11,6 +11,50 @@ class GameBoard extends React.Component {
 		this.squareWidth = 68;
 		this.squareHeight = 66;
 		this.borders = 2;
+
+		this.state = {
+			playerAnimations: {}
+		};
+	}
+
+	componentDidUpdate(prevProps, prevState, snapshot) {
+		// If players set.
+		if (prevProps.players.length === 0) {
+			this.setState((state, props) => ({
+				playerAnimations: Object.fromEntries(props.players.map(player => [player.num, {placeIdx: player.placeIdx}]))
+			}));
+		}
+
+		// If player location changed.
+		prevProps.players.forEach(player => {
+			const targetPlaceIdx = this.props.players[player.num].placeIdx;
+			if (player.placeIdx !== targetPlaceIdx) {
+				this.animateSprite(player.num, player.placeIdx, targetPlaceIdx);
+			}
+		});
+	}
+
+	animateSprite(playerNum, currentPlaceIdx, endPlaceIdx) {
+		setTimeout(() => {
+			this.setState(state => {
+				const newLocation = (currentPlaceIdx + 1) % 40;
+
+				if (newLocation !== endPlaceIdx) {
+					// console.log(currentPlaceIdx, endPlaceIdx);
+					this.animateSprite(playerNum, newLocation, endPlaceIdx);
+				}
+
+				return {
+					playerAnimations: {
+						...state.playerAnimations,
+						[playerNum]: {
+							...state.playerAnimations[playerNum],
+							placeIdx: newLocation
+						}
+					}
+				};
+			});
+		}, 100);
 	}
 
 	range(a, b) {
@@ -57,21 +101,17 @@ class GameBoard extends React.Component {
 
 		return <div key={placeIdx} dataset-no={placeIdx} style={squareStyle} className={`location ${rowName}`} {...additionalProps}>
 			{this.renderSquareType(place, placeIdx, rowName, walkwayStyle, walkwayClass)}
+			{/*<div className="chem-trail" style={{width: `${100*Math.random()}px`, height: `${100*Math.random()}px`}}></div>*/}
 		</div>;
 	}
 
+	getPlayerLocation(player) {
+		const playerAnimation = this.state.playerAnimations[player.num];
+		return (playerAnimation !== undefined) ? playerAnimation.placeIdx : -1;
+	}
+
 	renderSquareType(place, placeIdx, rowName, walkwayStyle, walkwayClass) {
-		// const players = this.props.players.filter(player => player.placeIdx === placeIdx);
-		let players = [];
-		if (this.props.players.length > 0) {
-			players = [
-				this.props.players[0],
-				this.props.players[0],
-				this.props.players[0],
-				this.props.players[0],
-				this.props.players[0]
-			];
-		}
+		const players = this.props.players.filter(player => this.getPlayerLocation(player) === placeIdx);
 
 		if (place.housePrice > 0) {
 			return <div className={`walkway ${walkwayClass}`} style={walkwayStyle}>
