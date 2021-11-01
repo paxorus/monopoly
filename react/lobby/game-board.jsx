@@ -3,6 +3,7 @@ import validate from "/javascripts/validate-props.js";
 
 
 const JAIL_VERTICAL_WALKWAY_CAPACITY = 3;
+const MOVE_ANIMATION_LENGTH = 6;
 
 class GameBoard extends React.Component {
 	constructor(props) {
@@ -21,7 +22,7 @@ class GameBoard extends React.Component {
 		// If players set.
 		if (prevProps.players.length === 0) {
 			this.setState((state, props) => ({
-				playerAnimations: Object.fromEntries(props.players.map(player => [player.num, {placeIdx: player.placeIdx}]))
+				playerAnimations: Object.fromEntries(props.players.map(player => [player.num, {current: player.placeIdx}]))
 			}));
 		}
 
@@ -29,19 +30,32 @@ class GameBoard extends React.Component {
 		prevProps.players.forEach(player => {
 			const targetPlaceIdx = this.props.players[player.num].placeIdx;
 			if (player.placeIdx !== targetPlaceIdx) {
-				this.animateSprite(player.num, player.placeIdx, targetPlaceIdx);
+				this.setState(state => ({
+					playerAnimations: {
+						...state.playerAnimations,
+						[player.num]: {
+							end: targetPlaceIdx,
+							start: player.placeIdx,
+							current: player.placeIdx,
+							head: player.placeIdx
+						}
+					}
+				}));
+				this.animateSprite(player.num, player.placeIdx, player.placeIdx, targetPlaceIdx);
 			}
 		});
 	}
 
-	animateSprite(playerNum, currentPlaceIdx, endPlaceIdx) {
+	animateSprite(playerNum, currentPlaceIdx, headPlaceIdx, endPlaceIdx) {
+		// headPlaceIdx: A pointer to the head of the theoretical train that continues moving
+		// even after currentPlaceIdx reaches endPlaceIdx, to dissolve the residual chem trail.
 		setTimeout(() => {
 			this.setState(state => {
-				const newLocation = (currentPlaceIdx + 1) % 40;
+				const newCurrentIdx = (currentPlaceIdx === endPlaceIdx) ? endPlaceIdx : ((currentPlaceIdx + 1) % 40);
+				const newHeadIdx = (headPlaceIdx + 1) % 40;
 
-				if (newLocation !== endPlaceIdx) {
-					// console.log(currentPlaceIdx, endPlaceIdx);
-					this.animateSprite(playerNum, newLocation, endPlaceIdx);
+				if (newHeadIdx < (endPlaceIdx + MOVE_ANIMATION_LENGTH) % 40) {
+					this.animateSprite(playerNum, newCurrentIdx, newHeadIdx, endPlaceIdx);
 				}
 
 				return {
@@ -49,7 +63,8 @@ class GameBoard extends React.Component {
 						...state.playerAnimations,
 						[playerNum]: {
 							...state.playerAnimations[playerNum],
-							placeIdx: newLocation
+							current: newCurrentIdx,
+							head: newHeadIdx
 						}
 					}
 				};
@@ -99,45 +114,75 @@ class GameBoard extends React.Component {
 
 		const additionalProps = (placeIdx == Locations.FreeParking) ? {id: "alltax"} : {};
 
+		const [isAfterImage, chemTrailSize] = this.getFrame(placeIdx);
+
 		return <div key={placeIdx} dataset-no={placeIdx} style={squareStyle} className={`location ${rowName}`} {...additionalProps}>
-			{this.renderSquareType(place, placeIdx, rowName, walkwayStyle, walkwayClass)}
-			{/*<div className="chem-trail" style={{width: `${100*Math.random()}px`, height: `${100*Math.random()}px`}}></div>*/}
+			{this.renderSquareType(place, placeIdx, rowName, walkwayStyle, walkwayClass, isAfterImage)}
+			<div className="chem-trail" style={{width: `${chemTrailSize}px`, height: `${chemTrailSize}px`, marginLeft: `-${chemTrailSize/2}px`, marginTop: `-${chemTrailSize/2}px`}}></div>
 		</div>;
+	}
+
+	getFrame(placeIdx) {
+		const arePlayersStill = Object.values(this.state.playerAnimations).every(({end}) => end === undefined);
+		if (arePlayersStill) {
+			return [false, 0];
+		}
+		const {start, current, head, end} = this.state.playerAnimations[0];
+
+		if (placeIdx < start || placeIdx >= current) {
+			return [false, 0];
+		}
+
+		const frameNumber = (head - placeIdx + 40) % 40;
+
+		const isAfterImage = frameNumber === 1;
+		let chemTrailSize = 0;
+		if (frameNumber >= 2 && frameNumber <= MOVE_ANIMATION_LENGTH) {
+			// Given [2, MOVE_ANIMATION_LENGTH], output [60, 0].
+			chemTrailSize = 60 - 60 / (MOVE_ANIMATION_LENGTH - 2) * (frameNumber - 2);
+		}
+
+		return [isAfterImage, chemTrailSize];
 	}
 
 	getPlayerLocation(player) {
 		const playerAnimation = this.state.playerAnimations[player.num];
-		return (playerAnimation !== undefined) ? playerAnimation.placeIdx : -1;
+		return (playerAnimation !== undefined) ? playerAnimation.current : -1;
 	}
 
-	renderSquareType(place, placeIdx, rowName, walkwayStyle, walkwayClass) {
+	renderSquareType(place, placeIdx, rowName, walkwayStyle, walkwayClass, isAfterImage) {
 		const players = this.props.players.filter(player => this.getPlayerLocation(player) === placeIdx);
+		const afterImages = this.props.players.filter(player =>
+			this.getPlayerLocation(player) === placeIdx + 1 && isAfterImage);
 
 		if (place.housePrice > 0) {
 			return <div className={`walkway ${walkwayClass}`} style={walkwayStyle}>
 				{/* Property walkway */}
-				{this.renderPlayerSprites(players)}
+				{this.renderPlayerSprites(players, afterImages)}
 				{/* House plot */}
 				<div id={`house-plot${placeIdx}`} className={`house-plot-${rowName}`}></div>
 			</div>;
 		} else if (placeIdx === Locations.Jail) {
 			// Jail
-			const inJail = this.renderPlayerSprites(players.filter(player => player.jailDays > 0));
-			const justVisiting = this.renderPlayerSprites(players.filter(player => player.jailDays === 0));
+			const inJail = this.renderPlayerSprites(players.filter(player => player.jailDays > 0), []);
+			const justVisiting = this.renderPlayerSprites(players.filter(player => player.jailDays === 0), afterImages);
 			return <div>
 				<div id="jail">{inJail}</div>
 				<div id="jail-vertical-walkway">{justVisiting.slice(0, JAIL_VERTICAL_WALKWAY_CAPACITY)}</div>
 				<div id="jail-horizontal-walkway">{justVisiting.slice(JAIL_VERTICAL_WALKWAY_CAPACITY)}</div>
 			</div>;
 		} else {
-			return this.renderPlayerSprites(players);
+			return this.renderPlayerSprites(players, afterImages);
 		}
 	}
 
-	renderPlayerSprites(players) {
-		return players.map(player =>
-			<img id={`marker${player.num}`} key={player.num} className="circ" src={player.spriteFileName} />
-		)
+	renderPlayerSprites(players, afterImages) {
+		return [
+			...players.map(player =>
+				<img id={`marker${player.num}`} key={player.num} className="circ" src={player.spriteFileName} />),
+			...afterImages.map(player =>
+				<img id={`marker${player.num}`} key={player.num} className="circ" src={player.spriteFileName} style={{opacity: 0.5}} />)
+		]
 	}
 
 	render() {
