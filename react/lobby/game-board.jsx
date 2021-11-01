@@ -14,7 +14,7 @@ class GameBoard extends React.Component {
 		this.borders = 2;
 
 		this.state = {
-			playerAnimations: {}
+			playerMotions: {}
 		};
 	}
 
@@ -22,7 +22,7 @@ class GameBoard extends React.Component {
 		// If players set.
 		if (prevProps.players.length === 0) {
 			this.setState((state, props) => ({
-				playerAnimations: Object.fromEntries(props.players.map(player => [player.num, {current: player.placeIdx}]))
+				playerMotions: Object.fromEntries(props.players.map(player => [player.num, {current: player.placeIdx}]))
 			}));
 		}
 
@@ -31,8 +31,8 @@ class GameBoard extends React.Component {
 			const targetPlaceIdx = this.props.players[player.num].placeIdx;
 			if (player.placeIdx !== targetPlaceIdx) {
 				this.setState(state => ({
-					playerAnimations: {
-						...state.playerAnimations,
+					playerMotions: {
+						...state.playerMotions,
 						[player.num]: {
 							end: targetPlaceIdx,
 							start: player.placeIdx,
@@ -54,22 +54,32 @@ class GameBoard extends React.Component {
 				const newCurrentIdx = (currentPlaceIdx === endPlaceIdx) ? endPlaceIdx : ((currentPlaceIdx + 1) % 40);
 				const newHeadIdx = (headPlaceIdx + 1) % 40;
 
-				if (newHeadIdx < (endPlaceIdx + MOVE_ANIMATION_LENGTH) % 40) {
-					this.animateSprite(playerNum, newCurrentIdx, newHeadIdx, endPlaceIdx);
+				if (newHeadIdx === (endPlaceIdx + MOVE_ANIMATION_LENGTH) % 40) {
+					// End the animation.
+					return {
+						playerMotions: {
+							...state.playerMotions,
+							[playerNum]: {
+								current: newCurrentIdx
+							}
+						}
+					};
 				}
 
+				this.animateSprite(playerNum, newCurrentIdx, newHeadIdx, endPlaceIdx);
+
 				return {
-					playerAnimations: {
-						...state.playerAnimations,
+					playerMotions: {
+						...state.playerMotions,
 						[playerNum]: {
-							...state.playerAnimations[playerNum],
+							...state.playerMotions[playerNum],
 							current: newCurrentIdx,
 							head: newHeadIdx
 						}
 					}
 				};
 			});
-		}, 100);
+		}, 50);
 	}
 
 	range(a, b) {
@@ -123,37 +133,49 @@ class GameBoard extends React.Component {
 	}
 
 	getFrame(placeIdx) {
-		const arePlayersStill = Object.values(this.state.playerAnimations).every(({end}) => end === undefined);
+		const arePlayersStill = Object.values(this.state.playerMotions).every(({end}) => end === undefined);
 		if (arePlayersStill) {
 			return [false, 0];
 		}
-		const {start, current, head, end} = this.state.playerAnimations[0];
+		const {start, current, head, end} = this.state.playerMotions[0];
 
-		if (placeIdx < start || placeIdx >= current) {
+		if (start < end && (placeIdx < start || placeIdx >= current)) {
+			return [false, 0];
+		}
+
+		if (start > end && (placeIdx < start && placeIdx >= current)) {
 			return [false, 0];
 		}
 
 		const frameNumber = (head - placeIdx + 40) % 40;
 
-		const isAfterImage = frameNumber === 1;
+		if (frameNumber === 1) {
+			// Show player's after-image.
+			return [true, 0];
+		}
+
+		// Show chem trail.
 		let chemTrailSize = 0;
 		if (frameNumber >= 2 && frameNumber <= MOVE_ANIMATION_LENGTH) {
 			// Given [2, MOVE_ANIMATION_LENGTH], output [60, 0].
 			chemTrailSize = 60 - 60 / (MOVE_ANIMATION_LENGTH - 2) * (frameNumber - 2);
 		}
 
-		return [isAfterImage, chemTrailSize];
+		return [false, chemTrailSize];
 	}
 
-	getPlayerLocation(player) {
-		const playerAnimation = this.state.playerAnimations[player.num];
-		return (playerAnimation !== undefined) ? playerAnimation.current : -1;
+	isPlayerHere(player, placeIdx) {
+		const playerMotion = this.state.playerMotions[player.num];
+		if (playerMotion === undefined) {
+			// Player's location state has not been initialized yet.
+			return false;
+		}
+		return playerMotion.current === placeIdx;
 	}
 
 	renderSquareType(place, placeIdx, rowName, walkwayStyle, walkwayClass, isAfterImage) {
-		const players = this.props.players.filter(player => this.getPlayerLocation(player) === placeIdx);
-		const afterImages = this.props.players.filter(player =>
-			this.getPlayerLocation(player) === placeIdx + 1 && isAfterImage);
+		const players = this.props.players.filter(player => this.isPlayerHere(player, placeIdx));
+		const afterImages = this.props.players.filter(player => this.isPlayerHere(player, placeIdx + 1) && isAfterImage);
 
 		if (place.housePrice > 0) {
 			return <div className={`walkway ${walkwayClass}`} style={walkwayStyle}>
