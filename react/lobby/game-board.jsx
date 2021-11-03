@@ -51,10 +51,10 @@ class GameBoard extends React.Component {
 		// even after currentPlaceIdx reaches endPlaceIdx, to dissolve the residual chem trail.
 		setTimeout(() => {
 			this.setState(state => {
-				const newCurrentIdx = (currentPlaceIdx === endPlaceIdx) ? endPlaceIdx : ((currentPlaceIdx + 1) % 40);
-				const newHeadIdx = (headPlaceIdx + 1) % 40;
+				const newCurrentIdx = (currentPlaceIdx === endPlaceIdx) ? endPlaceIdx : boardSum(currentPlaceIdx, 1);
+				const newHeadIdx = boardSum(headPlaceIdx, 1);
 
-				if (newHeadIdx === (endPlaceIdx + MOVE_ANIMATION_LENGTH) % 40) {
+				if (newHeadIdx === boardSum(endPlaceIdx, MOVE_ANIMATION_LENGTH)) {
 					// End the animation.
 					return {
 						playerMotions: {
@@ -147,7 +147,7 @@ class GameBoard extends React.Component {
 			return [false, 0];
 		}
 
-		const frameNumber = (head - placeIdx + 40) % 40;
+		const frameNumber = boardMinus(head, placeIdx);
 
 		if (frameNumber === 1) {
 			// Show player's after-image.
@@ -239,6 +239,14 @@ class GameBoard extends React.Component {
 			))}
 		</div>
 	}
+}
+
+function boardSum(a, b) {
+	return (a + b) % 40;
+}
+
+function boardMinus(a, b) {
+	return (a - b + 40) % 40;
 }
 
 GameBoard.propTypes = {
