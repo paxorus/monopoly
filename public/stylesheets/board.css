@@ -78,7 +78,7 @@
 	right: 0;
 	width: calc(var(--square-width) * 2/3);
 	height: calc(var(--square-height) * 2/3);
-	background-image: url('/images/in-jail.svg');
+	background-image: url("/images/in-jail.svg");
 	/* Add 1px to hide small right margin */
 	background-size: calc(var(--square-width) * 2/3 + 1px) calc(var(--square-height) * 2/3);
 }

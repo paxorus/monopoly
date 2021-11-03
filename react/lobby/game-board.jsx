@@ -37,47 +37,65 @@ class GameBoard extends React.Component {
 							end: targetPlaceIdx,
 							start: player.placeIdx,
 							current: player.placeIdx,
-							head: player.placeIdx
+							swanSongIdx: 0
 						}
 					}
 				}));
-				this.animateSprite(player.num, player.placeIdx, player.placeIdx, targetPlaceIdx);
+				this.animateSprite(player.num, player.placeIdx, 0, targetPlaceIdx);
 			}
 		});
 	}
 
-	animateSprite(playerNum, currentPlaceIdx, headPlaceIdx, endPlaceIdx) {
-		// headPlaceIdx: A pointer to the head of the theoretical train that continues moving
-		// even after currentPlaceIdx reaches endPlaceIdx, to dissolve the residual chem trail.
+	animateSprite(playerNum, currentPlaceIdx, swanSongIdx, endPlaceIdx) {
 		setTimeout(() => {
 			this.setState(state => {
-				const newCurrentIdx = (currentPlaceIdx === endPlaceIdx) ? endPlaceIdx : boardSum(currentPlaceIdx, 1);
-				const newHeadIdx = boardSum(headPlaceIdx, 1);
+				const newCurrentIdx = boardSum(currentPlaceIdx, 1);
 
-				if (newHeadIdx === boardSum(endPlaceIdx, MOVE_ANIMATION_LENGTH)) {
-					// End the animation.
-					return {
-						playerMotions: {
-							...state.playerMotions,
-							[playerNum]: {
-								current: newCurrentIdx
-							}
-						}
-					};
+				if (newCurrentIdx === endPlaceIdx) {
+					this.animateChemTrailSwanSong(playerNum, newCurrentIdx, 0, endPlaceIdx);
+				} else {
+					this.animateSprite(playerNum, newCurrentIdx, 0, endPlaceIdx);
 				}
-
-				this.animateSprite(playerNum, newCurrentIdx, newHeadIdx, endPlaceIdx);
 
 				return {
 					playerMotions: {
 						...state.playerMotions,
 						[playerNum]: {
 							...state.playerMotions[playerNum],
-							current: newCurrentIdx,
-							head: newHeadIdx
+							current: newCurrentIdx
 						}
 					}
 				};
+			});
+		}, 50);
+	}
+
+	animateChemTrailSwanSong(playerNum, currentPlaceIdx, swanSongIdx, endPlaceIdx) {
+		setTimeout(() => {
+			this.setState(state => {
+				if (swanSongIdx === MOVE_ANIMATION_LENGTH) {
+					// End the animation.
+					return {
+						playerMotions: {
+							...state.playerMotions,
+							[playerNum]: {
+								current: currentPlaceIdx
+							}
+						}
+					};
+				} else {
+					// Run the swan song, to clean up the chem trail, now that the player has reached their destination.
+					this.animateChemTrailSwanSong(playerNum, currentPlaceIdx, swanSongIdx + 1, endPlaceIdx);
+					return {
+						playerMotions: {
+							...state.playerMotions,
+							[playerNum]: {
+								...state.playerMotions[playerNum],
+								swanSongIdx
+							}
+						}
+					};
+				}
 			});
 		}, 50);
 	}
@@ -137,17 +155,17 @@ class GameBoard extends React.Component {
 		if (arePlayersStill) {
 			return [false, 0];
 		}
-		const {start, current, head, end} = this.state.playerMotions[0];
+		const {start, current, swanSongIdx, end} = this.state.playerMotions[0];
 
-		if (start < end && (placeIdx < start || placeIdx >= current)) {
+		if (start <= current && (placeIdx < start || placeIdx >= current)) {
 			return [false, 0];
 		}
 
-		if (start > end && (placeIdx < start && placeIdx >= current)) {
+		if (start > current && (placeIdx < start && placeIdx >= current)) {
 			return [false, 0];
 		}
 
-		const frameNumber = boardMinus(head, placeIdx);
+		const frameNumber = boardMinus(boardSum(current, swanSongIdx), placeIdx);
 
 		if (frameNumber === 1) {
 			// Show player's after-image.
