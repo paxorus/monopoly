@@ -4,7 +4,7 @@ import validate from "/javascripts/validate-props.js";
 
 const JAIL_VERTICAL_WALKWAY_CAPACITY = 3;
 const MOVE_ANIMATION_LENGTH = 6;
-const STEP_DURATION_MS = 250;// 50
+const STEP_DURATION_MS = 50;
 
 class GameBoard extends React.Component {
 	constructor(props) {
@@ -23,7 +23,7 @@ class GameBoard extends React.Component {
 
 	componentDidUpdate(prevProps, prevState, snapshot) {
 		// If players set: initialize motion vectors.
-		if (prevProps.players.length === 0) {
+		if (prevProps.players.length === 0 && this.props.players.length > 0) {
 			this.setState((state, props) => ({
 				playerMotions: Object.fromEntries(props.players.map(player => [player.num, {current: player.placeIdx}]))
 			}));

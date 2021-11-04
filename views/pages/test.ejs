@@ -8,11 +8,20 @@
 <body>
 	<div id="mocha"></div>
 
+	<div id="react"></div>
 	<div style="display: none">
 		<%- include("../partials/game") %>
 	</div>
-	<script src="https://unpkg.com/mocha@4.0.1/mocha.js"></script>
+
+	<!-- Third party -->
 	<script src="/javascripts/third-party/jquery.js"></script>
+	<!-- Load React. -->
+	<script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+	<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+	<script src="https://unpkg.com/prop-types@15.6/prop-types.js" crossorigin></script>
+
+	<script src="https://unpkg.com/sinon@6.1.4/pkg/sinon.js"></script>
+	<script src="https://unpkg.com/mocha@4.0.1/mocha.js"></script>
 	<script type="module">
 		mocha.setup("bdd");// Behavior-driven development
 	</script>
@@ -21,6 +30,7 @@
 		import "/javascripts/test/display-card.test.js";
 		import "/javascripts/test/execute-turn.test.js";
 		import "/javascripts/test/player.test.js";
+		import "/javascripts/test-react/game-board.test.js";
 
 		mocha.checkLeaks();
 		mocha.run();
