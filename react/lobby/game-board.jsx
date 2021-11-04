@@ -4,6 +4,7 @@ import validate from "/javascripts/validate-props.js";
 
 const JAIL_VERTICAL_WALKWAY_CAPACITY = 3;
 const MOVE_ANIMATION_LENGTH = 6;
+const STEP_DURATION_MS = 250;// 50
 
 class GameBoard extends React.Component {
 	constructor(props) {
@@ -16,38 +17,46 @@ class GameBoard extends React.Component {
 		this.state = {
 			playerMotions: {}
 		};
+
+		this.timeoutIds = {};
 	}
 
 	componentDidUpdate(prevProps, prevState, snapshot) {
-		// If players set.
+		// If players set: initialize motion vectors.
 		if (prevProps.players.length === 0) {
 			this.setState((state, props) => ({
 				playerMotions: Object.fromEntries(props.players.map(player => [player.num, {current: player.placeIdx}]))
 			}));
 		}
 
-		// If player location changed.
+		// If player location changed: start player motion.
 		prevProps.players.forEach(player => {
 			const targetPlaceIdx = this.props.players[player.num].placeIdx;
 			if (player.placeIdx !== targetPlaceIdx) {
-				this.setState(state => ({
-					playerMotions: {
-						...state.playerMotions,
-						[player.num]: {
-							end: targetPlaceIdx,
-							start: player.placeIdx,
-							current: player.placeIdx,
-							swanSongIdx: 0
-						}
-					}
-				}));
-				this.animateSprite(player.num, player.placeIdx, 0, targetPlaceIdx);
+				this.startPlayerMotion(player, targetPlaceIdx);
 			}
 		});
 	}
 
+	startPlayerMotion(player, targetPlaceIdx) {
+		const {num, placeIdx} = player;
+		clearTimeout(this.timeoutIds[num]);
+		this.setState(state => ({
+			playerMotions: {
+				...state.playerMotions,
+				[num]: {
+					end: targetPlaceIdx,
+					start: placeIdx,
+					current: placeIdx,
+					swanSongIdx: 0
+				}
+			}
+		}));
+		this.animateSprite(num, placeIdx, 0, targetPlaceIdx);		
+	}
+
 	animateSprite(playerNum, currentPlaceIdx, swanSongIdx, endPlaceIdx) {
-		setTimeout(() => {
+		this.timeoutIds[playerNum] = setTimeout(() => {
 			this.setState(state => {
 				const newCurrentIdx = boardSum(currentPlaceIdx, 1);
 
@@ -67,10 +76,11 @@ class GameBoard extends React.Component {
 					}
 				};
 			});
-		}, 50);
+		}, STEP_DURATION_MS);
 	}
 
 	animateChemTrailSwanSong(playerNum, currentPlaceIdx, swanSongIdx, endPlaceIdx) {
+		// Run the swan song to clean up the chem trail, now that the player has reached their destination.
 		setTimeout(() => {
 			this.setState(state => {
 				if (swanSongIdx === MOVE_ANIMATION_LENGTH) {
@@ -84,7 +94,6 @@ class GameBoard extends React.Component {
 						}
 					};
 				} else {
-					// Run the swan song, to clean up the chem trail, now that the player has reached their destination.
 					this.animateChemTrailSwanSong(playerNum, currentPlaceIdx, swanSongIdx + 1, endPlaceIdx);
 					return {
 						playerMotions: {
@@ -97,7 +106,7 @@ class GameBoard extends React.Component {
 					};
 				}
 			});
-		}, 50);
+		}, STEP_DURATION_MS);
 	}
 
 	range(a, b) {
@@ -142,20 +151,31 @@ class GameBoard extends React.Component {
 
 		const additionalProps = (placeIdx == Locations.FreeParking) ? {id: "alltax"} : {};
 
-		const [isAfterImage, chemTrailSize] = this.getFrame(placeIdx);
+		const {playersWithAfterImages, chemTrailSize} = this.getFrame(placeIdx);
 
 		return <div key={placeIdx} dataset-no={placeIdx} style={squareStyle} className={`location ${rowName}`} {...additionalProps}>
-			{this.renderSquareType(place, placeIdx, rowName, walkwayStyle, walkwayClass, isAfterImage)}
+			{this.renderSquareType(place, placeIdx, rowName, walkwayStyle, walkwayClass, playersWithAfterImages)}
 			<div className="chem-trail" style={{width: `${chemTrailSize}px`, height: `${chemTrailSize}px`, marginLeft: `-${chemTrailSize/2}px`, marginTop: `-${chemTrailSize/2}px`}}></div>
 		</div>;
 	}
 
 	getFrame(placeIdx) {
-		const arePlayersStill = Object.values(this.state.playerMotions).every(({end}) => end === undefined);
-		if (arePlayersStill) {
-			return [false, 0];
-		}
-		const {start, current, swanSongIdx, end} = this.state.playerMotions[0];
+		const playerFrames = Object.entries(this.state.playerMotions)
+			.filter(([playerNum, playerMotion]) => playerMotion.end !== undefined)
+			.map(([playerNum, playerMotion]) => [playerNum, ...this.getFrameForPlayer(placeIdx, playerMotion)]);
+		const playersWithAfterImages = Object.fromEntries(playerFrames
+			.map(([playerNum, isAfterImage, chemTrailSize]) => [playerNum, isAfterImage]));
+		const chemTrailSize = playerFrames
+			.reduce((accumulator, [playerNum, isAfterImage, chemTrailSize]) => Math.max(accumulator, chemTrailSize), 0);
+
+		return {
+			playersWithAfterImages,
+			chemTrailSize
+		};
+	}
+
+	getFrameForPlayer(placeIdx, playerMotion) {
+		const {start, current, swanSongIdx, end} = playerMotion;
 
 		if (start <= current && (placeIdx < start || placeIdx >= current)) {
 			return [false, 0];
@@ -191,9 +211,9 @@ class GameBoard extends React.Component {
 		return playerMotion.current === placeIdx;
 	}
 
-	renderSquareType(place, placeIdx, rowName, walkwayStyle, walkwayClass, isAfterImage) {
+	renderSquareType(place, placeIdx, rowName, walkwayStyle, walkwayClass, playersWithAfterImages) {
 		const players = this.props.players.filter(player => this.isPlayerHere(player, placeIdx));
-		const afterImages = this.props.players.filter(player => this.isPlayerHere(player, placeIdx + 1) && isAfterImage);
+		const afterImages = this.props.players.filter(player => this.isPlayerHere(player, placeIdx + 1) && playersWithAfterImages[player.num]);
 
 		if (place.housePrice > 0) {
 			return <div className={`walkway ${walkwayClass}`} style={walkwayStyle}>
