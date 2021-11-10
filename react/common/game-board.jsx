@@ -1,10 +1,11 @@
 import {places, Locations} from "/javascripts/location-configs.js";
+import PlayerSprite from "/javascripts/common/player-sprite.js";
 import validate from "/javascripts/validate-props.js";
-
 
 const JAIL_VERTICAL_WALKWAY_CAPACITY = 3;
 const MOVE_ANIMATION_LENGTH = 6;
 const STEP_DURATION_MS = 50;
+
 
 class GameBoard extends React.Component {
 	constructor(props) {
@@ -109,11 +110,6 @@ class GameBoard extends React.Component {
 		}, STEP_DURATION_MS);
 	}
 
-	range(a, b) {
-		// (5, 10) -> [5,6,7,8,9]
-		return new Array(b - a).fill(0).map((_, i) => i + a);
-	}
-
 	getSquarePosition(rowName, placeIdx) {
 		switch (rowName) {
 			case "bottom":
@@ -216,21 +212,9 @@ class GameBoard extends React.Component {
 		const afterImages = this.props.players.filter(player => this.isPlayerHere(player, placeIdx + 1) && playersWithAfterImages[player.num]);
 
 		if (place.housePrice > 0) {
-			return <div className={`walkway ${walkwayClass}`} style={walkwayStyle}>
-				{/* Property walkway */}
-				{this.renderPlayerSprites(players, afterImages)}
-				{/* House plot */}
-				<div id={`house-plot${placeIdx}`} className={`house-plot-${rowName}`}></div>
-			</div>;
+			return this.renderProperty(players, afterImages, placeIdx, rowName, walkwayClass, walkwayStyle);
 		} else if (placeIdx === Locations.Jail) {
-			// Jail
-			const inJail = this.renderPlayerSprites(players.filter(player => player.jailDays > 0), []);
-			const justVisiting = this.renderPlayerSprites(players.filter(player => player.jailDays === 0), afterImages);
-			return <div>
-				<div id="jail">{inJail}</div>
-				<div id="jail-vertical-walkway">{justVisiting.slice(0, JAIL_VERTICAL_WALKWAY_CAPACITY)}</div>
-				<div id="jail-horizontal-walkway">{justVisiting.slice(JAIL_VERTICAL_WALKWAY_CAPACITY)}</div>
-			</div>;
+			return this.renderJail(players, afterImages);
 		} else {
 			return this.renderPlayerSprites(players, afterImages);
 		}
@@ -239,37 +223,56 @@ class GameBoard extends React.Component {
 	renderPlayerSprites(players, afterImages) {
 		return [
 			...players.map(player =>
-				<img id={`marker${player.num}`} key={player.num} className="circ" src={player.spriteFileName} />),
+				<PlayerSprite key={player.num} spriteFileName={player.spriteFileName} />),
 			...afterImages.map(player =>
-				<img id={`marker${player.num}`} key={player.num} className="circ" src={player.spriteFileName} style={{opacity: 0.5}} />)
+				<PlayerSprite key={player.num} spriteFileName={player.spriteFileName} faded />)
 		]
 	}
 
+	renderProperty(players, afterImages, placeIdx, rowName, walkwayClass, walkwayStyle) {
+		return <div className={`walkway ${walkwayClass}`} style={walkwayStyle}>
+			{/* Property walkway */}
+			{this.renderPlayerSprites(players, afterImages)}
+			{/* House plot */}
+			<div className={`house-plot-${rowName}`}></div>
+		</div>;		
+	}
+
+	renderJail(players, afterImages) {
+		const inJail = this.renderPlayerSprites(players.filter(player => player.jailDays > 0), []);
+		const justVisiting = this.renderPlayerSprites(players.filter(player => player.jailDays === 0), afterImages);
+		return <div>
+			<div>{inJail}</div>
+			<div>{justVisiting.slice(0, JAIL_VERTICAL_WALKWAY_CAPACITY)}</div>
+			<div>{justVisiting.slice(JAIL_VERTICAL_WALKWAY_CAPACITY)}</div>
+		</div>;		
+	}
+
 	render() {
-		return <div id="board" style={{opacity: this.props.faded ? 0.2 : 1}}>
+		return <div style={{opacity: this.props.faded ? 0.2 : 1}}>
 			{/* Bottom row */}
-			{this.range(0, 10).map(placeIdx => this.buildSquare(
+			{range(0, 10).map(placeIdx => this.buildSquare(
 				placeIdx,
 				"bottom",
 				{bottom: 0},
 				"horizontal"
 			))}
 			{/* Left row */}
-			{this.range(10, 20).map(placeIdx => this.buildSquare(
+			{range(10, 20).map(placeIdx => this.buildSquare(
 				placeIdx,
 				"left",
 				{left: 0},
 				"vertical"
 			))}
 			{/* Left row */}
-			{this.range(20, 30).map(placeIdx => this.buildSquare(
+			{range(20, 30).map(placeIdx => this.buildSquare(
 				placeIdx,
 				"top",
 				{top: 0},
 				"horizontal"
 			))}
 			{/* Left row */}
-			{this.range(30, 40).map(placeIdx => this.buildSquare(
+			{range(30, 40).map(placeIdx => this.buildSquare(
 				placeIdx,
 				"right",
 				{right: 0},
@@ -286,6 +289,12 @@ function boardSum(a, b) {
 function boardMinus(a, b) {
 	return (a - b + 40) % 40;
 }
+
+function range(a, b) {
+	// (5, 10) -> [5,6,7,8,9]
+	return new Array(b - a).fill(0).map((_, i) => i + a);
+}
+
 
 GameBoard.propTypes = {
 	faded: PropTypes.bool,
