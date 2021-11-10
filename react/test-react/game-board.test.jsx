@@ -1,4 +1,4 @@
-import GameBoard from "/javascripts/lobby/game-board.js";
+import GameBoard from "/javascripts/common/game-board.js";
 import assert from "/javascripts/test/assert.js";
 
 
@@ -167,21 +167,6 @@ describe("Game Board", () => {
 			});
 		});
 	});
-
-	describe("#range()", () => {
-		it("creates a range", () => {
-			const gameBoard = new MockGameBoard(mockProps);
-			const actual = gameBoard.range(5, 10);
-			assert.deepEqual(actual, [5, 6, 7, 8, 9]);
-		});
-
-		it("handles an empty range", () => {
-			const gameBoard = new MockGameBoard(mockProps);
-			const actual = gameBoard.range(15, 15);
-			assert.deepEqual(actual, []);
-		});
-	});
-
 
 	class MockGameBoard extends GameBoard {
 		setState(mapOrFunc) {
