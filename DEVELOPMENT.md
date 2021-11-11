@@ -11,6 +11,7 @@ Minor TODOs are left throughout the code as well.
 * Consider React/Redux for the game and landing pages.
 * DB persistence (currently all state is held in-memory)
 * Server error handling (currently a single bad request can send it down)
+* Implement a JS Option and replace all JS nulls
 
 #### Medium
 * Test coverage for GET and Lobby controllers

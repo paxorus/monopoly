@@ -1,4 +1,4 @@
-import {places, Locations} from "/javascripts/location-configs.js";
+import {PlaceConfigs, Locations} from "/javascripts/gameplay/location-configs.js";
 import PlayerSprite from "/javascripts/common/player-sprite.js";
 import validate from "/javascripts/validate-props.js";
 
@@ -138,7 +138,7 @@ class GameBoard extends React.Component {
 	}
 
 	buildSquare(placeIdx, rowName, walkwayStyle, walkwayClass) {
-		const place = places[placeIdx];
+		const place = PlaceConfigs[placeIdx];
 
 		const squareStyle = {
 			...this.getSquarePosition(rowName, placeIdx % 10),
@@ -231,17 +231,21 @@ class GameBoard extends React.Component {
 			...players.map(player =>
 				<PlayerSprite key={player.num}
 					spriteFileName={player.spriteFileName}
-					onClick={this.props.onClickPlayer} />),
+					onClick={event => this.props.onClickPlayer(event, player.num)}
+					onMouseOver={overOrOut => this.props.onMouseOverPlayer(player.num, overOrOut)} />),
 			...afterImages.map(player =>
 				<PlayerSprite key={player.num}
 					spriteFileName={player.spriteFileName}
-					onClick={this.props.onClickPlayer}
+					onClick={event => this.props.onClickPlayer(event, player.num)}
+					onMouseOver={overOrOut => this.props.onMouseOverPlayer(player.num, overOrOut)}
 					faded />)
 		]
 	}
 
 	renderProperty(players, afterImages, placeIdx, rowName, walkwayClass, walkwayStyle) {
-		return <div className={`walkway ${walkwayClass}`} style={walkwayStyle}>
+		const walkwayHighlightedClass = (this.props.highlightedPlaces.has(placeIdx)) ? "location-highlighted" : "";
+
+		return <div className={`walkway ${walkwayClass} ${walkwayHighlightedClass}`} style={walkwayStyle}>
 			{/* Property walkway */}
 			{this.renderPlayerSprites(players, afterImages)}
 			{/* House plot */}
@@ -309,6 +313,7 @@ function range(a, b) {
 
 GameBoard.propTypes = {
 	faded: PropTypes.bool,
+	highlightedPlaces: PropTypes.instanceOf(Set),
 	players: PropTypes.arrayOf(PropTypes.exact({
 		num: PropTypes.number,
 		spriteFileName: PropTypes.string,
@@ -316,7 +321,8 @@ GameBoard.propTypes = {
 		jailDays: PropTypes.number
 	})),
 	onClickLocation: PropTypes.func,
-	onClickPlayer: PropTypes.func
+	onClickPlayer: PropTypes.func,
+	onMouseOverPlayer: PropTypes.func
 };
 
 GameBoard.defaultProps = {

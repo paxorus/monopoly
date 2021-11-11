@@ -9,7 +9,9 @@ class PlayerSprite extends React.Component {
 	render() {
 		return <img className="circ"
 			src={this.props.spriteFileName}
-			onClick={this.props.onClick.bind(this)}
+			onClick={this.props.onClick}
+			onMouseOver={() => this.props.onMouseOver(true)}
+			onMouseOut={() => this.props.onMouseOver(false)}
 			style={{opacity: (this.props.faded ? 0.5 : 1) }} />;
 	}
 }
@@ -17,7 +19,8 @@ class PlayerSprite extends React.Component {
 PlayerSprite.propTypes = {
 	faded: PropTypes.bool,
 	spriteFileName: PropTypes.string,
-	onClick: PropTypes.func
+	onClick: PropTypes.func,
+	onMouseOver: PropTypes.func
 };
 
 PlayerSprite.defaultProps = {

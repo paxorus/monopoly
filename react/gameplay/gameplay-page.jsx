@@ -1,6 +1,7 @@
-import {places, Locations} from "/javascripts/location-configs.js";
+import {PlaceConfigs, Locations} from "/javascripts/gameplay/location-configs.js";
 import LocationCard from "/javascripts/gameplay/location-card.js";
 import GameBoard from "/javascripts/common/game-board.js";
+import Player from "/javascripts/gameplay/player.js";
 import validate from "/javascripts/validate-props.js";
 
 
@@ -99,171 +100,111 @@ class GameplayPage extends React.Component {
 
 		this.state = {
 			players: [],
+			places: [],
 			selectedPlaceIdx: -1,
-			selectedOwnerNum: -1
+			// selectedPlaceOwnerNum: -1,
+			highlightedProperties: new Set()
 		};
 	}
 
 	startUp({playerData, locationData, monopolies, yourPlayerId, currentPlayerId, tax, numTurns}) {
+		// Handle: monopolies, currentPlayerId, numTurns
 		const players = playerData.map(({name, num, spriteFileName, balance, placeIdx}) => {
 			// TODO: Move to player.js.
 			const player = new Player(name, num, spriteFileName);
 			player.balance = balance;
-			player.updateLocation(placeIdx);
+			player.placeIdx = placeIdx;
 			return player;
 		});
 
+		const locationDataByIdx = Object.fromEntries(locationData
+			.map(({placeIdx, ownerNum, houseCount, isMortgaged}) => [placeIdx, {ownerNum, houseCount, isMortgaged}]));
+		const places = PlaceConfigs.map((placeConfig, placeIdx) => {
+			if (placeIdx in locationDataByIdx) {
+				return {
+					...placeConfig,
+					...locationDataByIdx[placeIdx],
+					placeIdx
+				}
+			}
+
+			return {
+				...placeConfig,
+				placeIdx,
+				ownerNum: -1,
+				houseCount: 0,
+				isMortgaged: false
+			}
+		});
+
+		// TODO
+		places[1].ownerNum = 0;
+
 		this.setState({
 			players,
+			places,
 			me: players[yourPlayerId],
 			tax
 		});
 	}
 
-	// addPlayerToList(playerId, name, sprite) {
-	// 	this.setState(state => ({
-	// 		memberMap: {
-	// 			...state.memberMap,
-	// 			[playerId]: {name, sprite}
-	// 		}
-	// 	}));
-	// }
-
-	// removePlayerFromList(playerId) {
-	// 	this.setState(state => {
-	// 		const memberMap = {...state.memberMap};
-	// 		delete memberMap[playerId];
-	// 		return {memberMap};
-	// 	});
-	// }
-
-	// handleAdminConvertToGame() {
-	// 	// This will reload the page for all users.
-	// 	this.socket.emit("convert-to-game");
-	// }
-
-	// handleAdminDisbandLobby() {
-	// 	// This will load the landing page for all users, and issue an explanatory toast.
-	// 	this.socket.emit("disband-lobby");
-	// }
-
-	// handleAdminClickDisband() {
-	// 	this.setState({isDisbandModalOpen: true});
-	// }
-
-	// handleClickEdit() {
-	// 	// Open modal to create player
-	// 	this.setState({isEditModalOpen: true});
-	// }
-
-	// handleGuestClickLeave() {
-	// 	this.setState(state => {
-	// 		this.socket.emit("leave-lobby");
-	// 		return {hasJoinedGame: false};
-	// 	});
-	// }
-
-	// handleJoinGame({gameName, name, sprite}) {
-	// 	this.setState(state => {
-	// 		if (this.isAdmin) {
-	// 			this.socket.emit("update-admin", {gameName, name, sprite});
-	// 		} else if (state.hasJoinedGame) {
-	// 			this.socket.emit("update-member", {name, sprite});
-	// 		} else {
-	// 			this.socket.emit("join-lobby", {name, sprite});
-	// 		}
-
-	// 		return {
-	// 			isEditModalOpen: false,
-	// 			hasJoinedGame: true
-	// 		};
-	// 	});
-	// }
-
-	// handleClickCloseEditModal() {
-	// 	this.setState({isEditModalOpen: false});
-	// }
-
-	// handleClickCloseDisbandModal() {
-	// 	this.setState({isDisbandModalOpen: false});
-	// }
-
-	// buildEditModal(handleModalSlide) {
-	// 	return <EditPlayerModal
-	// 		key="edit"
-	// 		isAdmin={this.isAdmin}
-	// 		isOpen={this.state.isEditModalOpen}
-	// 		playerIcons={this.props.playerIcons}
-	// 		gameName={this.state.gameName}
-	// 		player={this.state.memberMap[this.props.yourId]}
-	// 		hasJoinedGame={this.state.hasJoinedGame}
-	// 		onJoinGame={this.handleJoinGame.bind(this)}
-	// 		onModalSlide={handleModalSlide}
-	// 		onClickCloseModal={this.handleClickCloseEditModal.bind(this)} />;
-	// }
-
-	// buildDisbandModal(handleModalSlide) {
-	// 	return <Modal title="Disband Lobby"
-	// 		key="disband"
-	// 		isOpen={this.state.isDisbandModalOpen}
-	// 		onModalSlide={handleModalSlide}
-	// 		onClickCloseModal={this.handleClickCloseDisbandModal.bind(this)}>
-	// 		This will boot out all players and delete the lobby. Are you sure?
-	// 		<br />
-	// 		<br />
-	// 		<div className="button inline left-margin" style={{float: "right"}} onClick={this.handleClickCloseDisbandModal.bind(this)}>Keep Lobby</div>
-	// 		<div className="button-secondary inline" style={{float: "right"}} onClick={this.handleAdminDisbandLobby.bind(this)}>Delete Lobby</div>
-	// 	</Modal>
-	// }
-
-	// getModals() {
-	// 	const modals = [{
-	// 		isOpen: this.state.isEditModalOpen,
-	// 		onClose: this.handleClickCloseEditModal.bind(this),
-	// 		build: this.buildEditModal.bind(this)
-	// 	}];
-
-	// 	if (this.isAdmin) {
-	// 		modals.push({
-	// 			isOpen: this.state.isDisbandModalOpen,
-	// 			onClose: this.handleClickCloseDisbandModal.bind(this),
-	// 			build: this.buildDisbandModal.bind(this)
-	// 		});
-	// 	}
-
-	// 	return modals;
-	// }
-
-	handleClickHudHeader(playerNum) {
-		// Expand HUD on click.
-		// if (dashboard.style.display === "none") {
-		// 	slide(playerNum);
-		// }
-	}
-
+	/**
+	 * Close location card.
+	 */
 	handleClickCloseLocationCard() {
 		this.setState({selectedPlaceIdx: -1});
 	}
 
+	/**
+	 * Open HUD.
+	 */
+	handleClickOwnerOnLocationCard(playerNum) {
+		// TODO: Open HUD
+		console.log("open hud for " + playerNum);
+	}
+
+	handleClickHudHeader(playerNum) {
+		console.log("open hud for " + playerNum);
+	}
+
+	handleClickPlayerOnBoard(event, playerNum) {
+		// TODO: Open HUD
+		console.log("open hud for " + playerNum);
+		event.stopPropagation();// Don't click the square.
+	}
+
+	/**
+	 * Open location card.
+	 */
 	handleClickLocationOnBoard(selectedPlaceIdx) {
 		this.setState({selectedPlaceIdx});
 	}
 
-	handleClickOwnerOnLocationCard() {
-		// TODO: Open HUD
+	highlightProperties(playerNum, overOrOut) {
+		console.log(playerNum, overOrOut);
+		this.setState(state => {
+			if (!overOrOut || playerNum === -1) {
+				return {highlightedProperties: new Set()};
+			}
+			const highlightedProperties = state.places
+				.filter(place => place.ownerNum === playerNum)
+				.map(place => place.placeIdx);
+
+			return {highlightedProperties: new Set(highlightedProperties)};			
+		});
 	}
 
-	handleMouseOverOwnerOnLocationCard(selectedOwnerNum, overOrOut) {
-		if (overOrOut) {
-			this.setState({selectedOwnerNum});
-		} else {
-			this.setState({selectedOwnerNum: -1});
+	getSelectedPlaceOwnerNum() {
+		if (this.state.selectedPlaceIdx === -1) {
+			return -1;
 		}
+		const place = this.state.places[this.state.selectedPlaceIdx];
+		return place.ownerNum;		
 	}
 
-	handleClickPlayerOnBoard(event) {
-		// TODO: Open HUD
-		event.stopPropagation();// Don't click the square.
+	getSelectedPlaceOwnerName() {
+		const ownerNum = this.getSelectedPlaceOwnerNum();
+		return (ownerNum === -1) ? "-unowned-" : this.state.players[ownerNum].name;
 	}
 
 	render() {
@@ -273,13 +214,14 @@ class GameplayPage extends React.Component {
 				players={this.state.players.map(({num, spriteFileName, placeIdx, jailDays}) => ({num, spriteFileName, placeIdx, jailDays}))}
 				onClickLocation={this.handleClickLocationOnBoard.bind(this)}
 				onClickPlayer={this.handleClickPlayerOnBoard.bind(this)}
-			/>
+				onMouseOverPlayer={this.highlightProperties.bind(this)}
+				highlightedPlaces={this.state.highlightedProperties} />
 
 			<LocationCard placeIdx={this.state.selectedPlaceIdx}
-				playerNames={this.state.players.map(player => player.name)}
+				ownerName={this.getSelectedPlaceOwnerName()}
 				onClickClose={this.handleClickCloseLocationCard.bind(this)}
 				onClickOwner={this.handleClickOwnerOnLocationCard.bind(this)}
-				onMouseOverOwner={this.handleMouseOverOwnerOnLocationCard.bind(this)} />
+				onMouseOverOwner={overOrOut => this.highlightProperties(this.getSelectedPlaceOwnerNum(), overOrOut)} />
 
 			<div id="initial-interactive" className="interactive" style={{display: "none"}}>
 				You will go first.
@@ -309,7 +251,7 @@ class GameplayPage extends React.Component {
 					<div id={`head${player.num}`} className="player-display-head" onClick={() => this.handleClickHudHeader(player.num)}>
 						<img className="display-sprite" src={player.spriteFileName} />
 						{`${player.name}: `}
-						<span id={`loc${player.num}`}>{places[player.placeIdx].name}</span>
+						<span id={`loc${player.num}`}>{PlaceConfigs[player.placeIdx].name}</span>
 						<div id={`bal${player.num}`} style={{float: "right"}}>{"$" + player.balance}</div>
 					</div>
 

@@ -1,4 +1,4 @@
-import {places, Locations, BLACK_TEXT_COLORS} from "/javascripts/location-configs.js";
+import {PlaceConfigs, Locations, BLACK_TEXT_COLORS} from "/javascripts/gameplay/location-configs.js";
 import validate from "/javascripts/validate-props.js";
 
 
@@ -13,7 +13,7 @@ class LocationCard extends React.Component {
 			return null;
 		}
 
-		const place = places[placeIdx];
+		const place = PlaceConfigs[placeIdx];
 		const headerStyle = {
 			color: BLACK_TEXT_COLORS.has(placeIdx) ? "black" : "white",
 			backgroundColor: place.cardColor || place.color
@@ -61,7 +61,7 @@ class LocationCard extends React.Component {
 				// Display railroad rents.
 				return <div id="rent-table">
 					<div id="price">{`Price: $${place.price}`}</div>
-					<div id="owner-name">{this.getOwnerName(place.ownerNum)}</div>
+					<div id="owner-name">{this.getOwnerName()}</div>
 					<br />
 					<table>
 						<tbody>
@@ -115,24 +115,24 @@ class LocationCard extends React.Component {
 		}
 	}
 
-	getOwnerName(ownerNum) {
-		if (ownerNum === -1) {
+	getOwnerName() {
+		if (this.props.ownerName === "-unowned-") {
 			return "Unowned";
 		}
 
 		return <span
 			className="owner-name-clickable"
-			onMouseOver={() => this.props.onMouseOverOwner(ownerNum, true)}
-			onMouseOut={() => this.props.onMouseOverOwner(ownerNum, false)}
-			onClick={() => this.props.onClickOwner(ownerNum)}>
-			{`Owned by ${this.props.playerNames[ownerNum]}`}
+			onMouseOver={() => this.props.onMouseOverOwner(true)}
+			onMouseOut={() => this.props.onMouseOverOwner(false)}
+			onClick={() => this.props.onClickOwner()}>
+			{`Owned by ${this.props.ownerName}`}
 		</span>;
 	}
 }
 
 LocationCard.propTypes = {
 	placeIdx: PropTypes.number,
-	playerNames: PropTypes.arrayOf(PropTypes.string),
+	ownerName: PropTypes.string,
 	onClickClose: PropTypes.func,
 	onClickOwner: PropTypes.func,
 	onMouseOverOwner: PropTypes.func
