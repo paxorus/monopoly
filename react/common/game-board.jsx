@@ -149,7 +149,13 @@ class GameBoard extends React.Component {
 
 		const {playersWithAfterImages, chemTrailSize} = this.getFrame(placeIdx);
 
-		return <div key={placeIdx} dataset-no={placeIdx} style={squareStyle} className={`location ${rowName}`} {...additionalProps}>
+		return <div key={placeIdx}
+			dataset-no={placeIdx}
+			style={squareStyle}
+			className={`location ${rowName}`}
+			onClick={() => this.props.onClickLocation(placeIdx)}
+			{...additionalProps}
+		>
 			{this.renderSquareType(place, placeIdx, rowName, walkwayStyle, walkwayClass, playersWithAfterImages)}
 			<div className="chem-trail" style={{width: `${chemTrailSize}px`, height: `${chemTrailSize}px`, marginLeft: `-${chemTrailSize/2}px`, marginTop: `-${chemTrailSize/2}px`}}></div>
 		</div>;
@@ -223,9 +229,14 @@ class GameBoard extends React.Component {
 	renderPlayerSprites(players, afterImages) {
 		return [
 			...players.map(player =>
-				<PlayerSprite key={player.num} spriteFileName={player.spriteFileName} />),
+				<PlayerSprite key={player.num}
+					spriteFileName={player.spriteFileName}
+					onClick={this.props.onClickPlayer} />),
 			...afterImages.map(player =>
-				<PlayerSprite key={player.num} spriteFileName={player.spriteFileName} faded />)
+				<PlayerSprite key={player.num}
+					spriteFileName={player.spriteFileName}
+					onClick={this.props.onClickPlayer}
+					faded />)
 		]
 	}
 
@@ -235,7 +246,7 @@ class GameBoard extends React.Component {
 			{this.renderPlayerSprites(players, afterImages)}
 			{/* House plot */}
 			<div className={`house-plot-${rowName}`}></div>
-		</div>;		
+		</div>;
 	}
 
 	renderJail(players, afterImages) {
@@ -303,12 +314,16 @@ GameBoard.propTypes = {
 		spriteFileName: PropTypes.string,
 		placeIdx: PropTypes.number,
 		jailDays: PropTypes.number
-	}))
+	})),
+	onClickLocation: PropTypes.func,
+	onClickPlayer: PropTypes.func
 };
 
 GameBoard.defaultProps = {
 	faded: false,
-	players: []
+	players: [],
+	onClickLocation: () => {},
+	onClickPlayer: () => {}
 }
 
 export default GameBoard;

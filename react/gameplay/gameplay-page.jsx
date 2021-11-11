@@ -1,4 +1,5 @@
 import {places, Locations} from "/javascripts/location-configs.js";
+import LocationCard from "/javascripts/gameplay/location-card.js";
 import GameBoard from "/javascripts/common/game-board.js";
 import validate from "/javascripts/validate-props.js";
 
@@ -97,7 +98,9 @@ class GameplayPage extends React.Component {
 		this.socket = socket;
 
 		this.state = {
-			players: []
+			players: [],
+			selectedPlaceIdx: -1,
+			selectedOwnerNum: -1
 		};
 	}
 
@@ -238,38 +241,45 @@ class GameplayPage extends React.Component {
 		// }
 	}
 
+	handleClickCloseLocationCard() {
+		this.setState({selectedPlaceIdx: -1});
+	}
+
+	handleClickLocationOnBoard(selectedPlaceIdx) {
+		this.setState({selectedPlaceIdx});
+	}
+
+	handleClickOwnerOnLocationCard() {
+		// TODO: Open HUD
+	}
+
+	handleMouseOverOwnerOnLocationCard(selectedOwnerNum, overOrOut) {
+		if (overOrOut) {
+			this.setState({selectedOwnerNum});
+		} else {
+			this.setState({selectedOwnerNum: -1});
+		}
+	}
+
+	handleClickPlayerOnBoard(event) {
+		// TODO: Open HUD
+		event.stopPropagation();// Don't click the square.
+	}
+
 	render() {
 		return <div>
 
-			<GameBoard players={this.state.players.map(({num, spriteFileName, placeIdx, jailDays}) => ({num, spriteFileName, placeIdx, jailDays}))} />
+			<GameBoard
+				players={this.state.players.map(({num, spriteFileName, placeIdx, jailDays}) => ({num, spriteFileName, placeIdx, jailDays}))}
+				onClickLocation={this.handleClickLocationOnBoard.bind(this)}
+				onClickPlayer={this.handleClickPlayerOnBoard.bind(this)}
+			/>
 
-			{/* Property description card */}
-			<div id="location-card">
-				<div className="head" id="propname"></div>
-				<center style={{backgroundColor: "rgb(213,232,212)"}}>
-					<div id="tax-info"></div>
-					<div id="rent-table">
-						<div id="price"></div>
-						<div id="owner-name"></div>
-						<br />
-						<table>
-						<tbody>
-							<tr id="rent0"></tr>
-							<tr id="rent1"></tr>
-							<tr id="rent2"></tr>
-							<tr id="rent3"></tr>
-							<tr id="rent4"></tr>
-							<tr id="rent5"></tr>
-						</tbody>
-						</table>
-						<br id="mortgage-margin" />
-						<div id="mortgage-value"></div>
-						<div id="price-per-house"></div>
-					</div>
-					<div className="button-negative" onClick={this.hideLocationCard}>Close</div>
-				</center>
-			</div>
-
+			<LocationCard placeIdx={this.state.selectedPlaceIdx}
+				playerNames={this.state.players.map(player => player.name)}
+				onClickClose={this.handleClickCloseLocationCard.bind(this)}
+				onClickOwner={this.handleClickOwnerOnLocationCard.bind(this)}
+				onMouseOverOwner={this.handleMouseOverOwnerOnLocationCard.bind(this)} />
 
 			<div id="initial-interactive" className="interactive" style={{display: "none"}}>
 				You will go first.

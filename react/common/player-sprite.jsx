@@ -7,13 +7,17 @@ class PlayerSprite extends React.Component {
 	}
 
 	render() {
-		return <img className="circ" src={this.props.spriteFileName} style={{opacity: (this.props.faded ? 0.5 : 1) }} />;
+		return <img className="circ"
+			src={this.props.spriteFileName}
+			onClick={this.props.onClick.bind(this)}
+			style={{opacity: (this.props.faded ? 0.5 : 1) }} />;
 	}
 }
 
 PlayerSprite.propTypes = {
 	faded: PropTypes.bool,
-	spriteFileName: PropTypes.string
+	spriteFileName: PropTypes.string,
+	onClick: PropTypes.func
 };
 
 PlayerSprite.defaultProps = {

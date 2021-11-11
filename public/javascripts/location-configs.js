@@ -24,7 +24,7 @@ const BLACK_TEXT_COLORS = new Set([
 
 const places = [
 	{name: "Go", price: 0, color: "rgb(213, 232, 212)", cardColor: Colors.GRAY, imageName: "/images/go.svg"},
-	{name: "Mediterranean Avenue", price: 60, rents: [2, 10, 30, 90, 160, 250], housePrice: 50, ownerNum: -1, houseCount: 0, isMortgaged: false, color: Colors.BROWN},
+	{name: "Mediterranean Avenue", price: 60, rents: [2, 10, 30, 90, 160, 250], housePrice: 50, ownerNum: 0, houseCount: 0, isMortgaged: false, color: Colors.BROWN},
 	{name: "Community Chest", price: 0, color: "#48C", imageName: "/images/community-chest.svg"},
 	{name: "Baltic Avenue", price: 60, rents: [4, 20, 60, 180, 320, 450], housePrice: 50, ownerNum: -1, houseCount: 0, isMortgaged: false, color: Colors.BROWN},
 	{name: "Income Tax", price: 0, color: Colors.TAX},
