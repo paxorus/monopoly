@@ -158,13 +158,8 @@ class GameplayPage extends React.Component {
 	}
 
 	/**
-	 * Open HUD.
+	 * Open player dashboard.
 	 */
-	handleClickPlayerOnBoard(event, playerNum) {
-		event.stopPropagation();// Don't click the square.
-		this.openDashboard(playerNum);
-	}
-
 	openDashboard(playerNum) {
 		this.setState(state => ({
 			isDashboardOpen: {
@@ -217,7 +212,7 @@ class GameplayPage extends React.Component {
 			<GameBoard
 				players={this.state.players.map(({num, spriteFileName, placeIdx, jailDays}) => ({num, spriteFileName, placeIdx, jailDays}))}
 				onClickLocation={this.handleClickLocationOnBoard.bind(this)}
-				onClickPlayer={this.handleClickPlayerOnBoard.bind(this)}
+				onClickPlayer={this.openDashboard.bind(this)}
 				onMouseOverPlayer={this.highlightProperties.bind(this)}
 				highlightedPlaces={this.state.highlightedProperties} />
 

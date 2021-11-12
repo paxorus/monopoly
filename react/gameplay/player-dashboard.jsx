@@ -5,7 +5,7 @@ import validate from "/javascripts/validate-props.js";
 
 const DASHBOARD_HEIGHT = 450;
 const FRAME_DURATION_MS = 10;
-const PERCENT_PROGRESS_PER_FRAME = 10;
+const PERCENT_PROGRESS_PER_FRAME = 5;
 
 class PlayerDashboard extends React.Component {
 	constructor(props) {

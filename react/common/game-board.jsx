@@ -110,6 +110,11 @@ class GameBoard extends React.Component {
 		}, STEP_DURATION_MS);
 	}
 
+	handleClickPlayer(event, playerNum) {
+		event.stopPropagation();// Don't click the square.
+		this.props.onClickPlayer(playerNum);
+	}
+
 	getSquarePosition(rowName, placeIdx) {
 		switch (rowName) {
 			case "bottom":
@@ -231,12 +236,12 @@ class GameBoard extends React.Component {
 			...players.map(player =>
 				<PlayerSprite key={player.num}
 					spriteFileName={player.spriteFileName}
-					onClick={event => this.props.onClickPlayer(event, player.num)}
+					onClick={event => this.handleClickPlayer(event, player.num)}
 					onMouseOver={overOrOut => this.props.onMouseOverPlayer(player.num, overOrOut)} />),
 			...afterImages.map(player =>
 				<PlayerSprite key={player.num}
 					spriteFileName={player.spriteFileName}
-					onClick={event => this.props.onClickPlayer(event, player.num)}
+					onClick={event => this.handleClickPlayer(event, player.num)}
 					onMouseOver={overOrOut => this.props.onMouseOverPlayer(player.num, overOrOut)}
 					faded />)
 		]
