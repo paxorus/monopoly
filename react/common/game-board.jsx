@@ -257,9 +257,9 @@ class GameBoard extends React.Component {
 		const inJail = this.renderPlayerSprites(players.filter(player => player.jailDays > 0), []);
 		const justVisiting = this.renderPlayerSprites(players.filter(player => player.jailDays === 0), afterImages);
 		return <div>
-			<div>{inJail}</div>
-			<div>{justVisiting.slice(0, JAIL_VERTICAL_WALKWAY_CAPACITY)}</div>
-			<div>{justVisiting.slice(JAIL_VERTICAL_WALKWAY_CAPACITY)}</div>
+			<div id="jail">{inJail}</div>
+			<div id="jail-vertical-walkway">{justVisiting.slice(0, JAIL_VERTICAL_WALKWAY_CAPACITY)}</div>
+			<div id="jail-horizontal-walkway">{justVisiting.slice(JAIL_VERTICAL_WALKWAY_CAPACITY)}</div>
 		</div>;		
 	}
 

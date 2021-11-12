@@ -137,9 +137,6 @@ class GameplayPage extends React.Component {
 			}
 		});
 
-		// TODO
-		places[1].ownerNum = 0;
-
 		this.setState({
 			players,
 			places,
@@ -181,7 +178,6 @@ class GameplayPage extends React.Component {
 	}
 
 	highlightProperties(playerNum, overOrOut) {
-		console.log(playerNum, overOrOut);
 		this.setState(state => {
 			if (!overOrOut || playerNum === -1) {
 				return {highlightedProperties: new Set()};
