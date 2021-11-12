@@ -56,8 +56,16 @@ class PlayerDashboard extends React.Component {
 		return `${currentHeight}px`;
 	}
 
+	renderJailCards(numJailCards, jailDays) {
+		const isUsageEnabled = (jailDays > 0 && numJailCards > 0) ? "" : "button-disabled";
+		return <div className="dashboard-jail-cards">
+			<br />Get Out of Jail Free x{numJailCards}
+			{this.props.isMe && <span className={`button use-jail-card ${isUsageEnabled}`}>Use Card</span>}
+		</div>;
+	}
+
 	render() {
-		const {num, spriteFileName, name, placeIdx, balance} = this.props.player;
+		const {num, spriteFileName, name, placeIdx, balance, numJailCards, jailDays} = this.props.player;
 		return <div key={num}>
 			{/* Header: name, location, and balance. */}
 			<div className="player-display-head" onClick={() => this.props.onClickHeader(num)}>
@@ -73,8 +81,14 @@ class PlayerDashboard extends React.Component {
 
 			{/* Dashboard */}
 			<div style={{height: this.getHeight()}} className="dashboard">
-				<span></span>
-				<span></span>
+				{this.props.properties.map(property => <div className="hud-property" key={property.placeIdx}
+					onMouseOver={() => this.props.onMouseOverProperty(property.placeIdx, true)}
+					onMouseOut={() => this.props.onMouseOverProperty(property.placeIdx, false)}
+					onClick={() => this.props.onClickProperty(property.placeIdx)}>
+					<div className="hud-property-color" style={{backgroundColor: property.color}}></div>
+					<span className="hud-property-name">{property.name}</span>
+				</div>)}
+				{this.renderJailCards(numJailCards, jailDays)}
 			</div>
 		</div>
 	}
@@ -82,8 +96,22 @@ class PlayerDashboard extends React.Component {
 
 PlayerDashboard.propTypes = {
 	isOpen: PropTypes.bool,
+	isMe: PropTypes.bool,
 	player: PropTypes.instanceOf(Player),
-	onClickHeader: PropTypes.func
+	properties: PropTypes.arrayOf(PropTypes.exact({
+		name: PropTypes.string,
+		price: PropTypes.number,
+		rents: PropTypes.arrayOf(PropTypes.number),
+		housePrice: PropTypes.number,
+		color: PropTypes.string,
+		ownerNum: PropTypes.number,
+		houseCount: PropTypes.number,
+		isMortgaged: PropTypes.bool,
+		placeIdx: PropTypes.number
+	})),
+	onClickHeader: PropTypes.func,
+	onClickProperty: PropTypes.func,
+	onMouseOverProperty: PropTypes.func
 };
 
 export default PlayerDashboard;

@@ -103,19 +103,22 @@
 .hud-property {
 	padding: 5px 0;
 	padding-left: 10px;
+	cursor: pointer;
 }
 .hud-property:hover {
 	background-color: rgb(213, 232, 212);
 	filter: brightness(0.9);
 }
 .hud-property-name {
-	cursor: pointer;
 	margin-left: 8px;
 }
 .hud-property-color {
 	height: 25px;
 	width: 15px;
 	display: inline-block;
+}
+.dashboard-jail-cards {
+	padding-left: 10px;
 }
 
 /* Interactive message box */

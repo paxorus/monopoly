@@ -104,7 +104,8 @@ class GameplayPage extends React.Component {
 			places: [],
 			selectedPlaceIdx: -1,
 			highlightedProperties: new Set(),
-			isDashboardOpen: {}
+			isDashboardOpen: {},
+			me: null
 		};
 	}
 
@@ -172,8 +173,21 @@ class GameplayPage extends React.Component {
 	/**
 	 * Open location card.
 	 */
-	handleClickLocationOnBoard(selectedPlaceIdx) {
+	handleClickLocation(selectedPlaceIdx) {
 		this.setState({selectedPlaceIdx});
+	}
+
+	/**
+	 * Highlight properties.
+	 */
+	handleMouseOverProperty(placeIdx, overOrOut) {
+		this.setState(state => {
+			if (!overOrOut) {
+				return {highlightedProperties: new Set()};
+			}
+
+			return {highlightedProperties: new Set([placeIdx])}
+		});
 	}
 
 	highlightProperties(playerNum, overOrOut) {
@@ -206,12 +220,16 @@ class GameplayPage extends React.Component {
 		return this.state.isDashboardOpen[playerNum];
 	}
 
+	getProperties(playerNum) {
+		return this.state.places.filter(place => place.ownerNum === this.state.me.num);
+	}
+
 	render() {
 		return <div>
 
 			<GameBoard
 				players={this.state.players.map(({num, spriteFileName, placeIdx, jailDays}) => ({num, spriteFileName, placeIdx, jailDays}))}
-				onClickLocation={this.handleClickLocationOnBoard.bind(this)}
+				onClickLocation={this.handleClickLocation.bind(this)}
 				onClickPlayer={this.openDashboard.bind(this)}
 				onMouseOverPlayer={this.highlightProperties.bind(this)}
 				highlightedPlaces={this.state.highlightedProperties} />
@@ -247,8 +265,12 @@ class GameplayPage extends React.Component {
 				{this.state.players.map(player => <PlayerDashboard
 					key={player.num}
 					isOpen={this.getIsDashboardOpen(player.num)}
+					isMe={player === this.state.me}
 					player={player}
-					onClickHeader={this.openDashboard.bind(this)} />)}
+					properties={this.getProperties(player)}
+					onClickHeader={this.openDashboard.bind(this)}
+					onClickProperty={this.handleClickLocation.bind(this)}
+					onMouseOverProperty={this.handleMouseOverProperty.bind(this)} />)}
 			</div>
 		</div>
 	}
