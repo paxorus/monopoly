@@ -68,6 +68,39 @@ class PlayerDashboard extends React.Component {
 		</div>;
 	}
 
+	renderPropertyActionButtons(property) {
+		return <div className="inline">
+			{this.renderMortgageButton(property)}
+			{this.props.myMonopolies.has(property.placeIdx) && this.renderBuyHouseButton(property)}
+			{this.props.myMonopolies.has(property.placeIdx) && this.renderSellHouseButton(property)}
+		</div>
+	}
+
+	renderMortgageButton(property) {
+		const title = property.isMortgaged ? "Unmortgage the Property" : "Mortgage the Property";
+		const symbol = property.isMortgaged ? "$" : "!";
+		return <span className="button house-button property-mortgager" title={title}>
+			<img className="house-icon" src="/images/mortgage.svg" />
+			<sup className="mortgage-symbol">{symbol}</sup>
+		</span>;
+	}
+
+	renderBuyHouseButton(property) {
+		const enabledClass = property.houseCount < 5 ? "" : "button-disabled";
+		return <span className={`button ${enabledClass} house-button house-adder`} title="Buy a House">
+			<img className="house-icon" src="/images/house.svg" />
+			<sup className="house-plus-sign">+</sup>
+		</span>;
+	}
+
+	renderSellHouseButton(property) {
+		const enabledClass = property.houseCount > 0 ? "" : "button-disabled";
+		return <span className={`button ${enabledClass} house-button house-remover`} title="Sell a House">
+			<img className="house-icon" src="/images/house.svg" />
+			<sup className="house-minus-sign">-</sup>
+		</span>;
+	}
+
 	render() {
 		const {num, spriteFileName, name, placeIdx, balance, numJailCards, jailDays} = this.props.player;
 		return <div key={num}>
@@ -94,7 +127,7 @@ class PlayerDashboard extends React.Component {
 						<span className="hud-property-name">{property.name}</span>
 
 						{/* Property action buttons */}
-
+						{this.props.isMe && this.renderPropertyActionButtons(property)}
 					</div>
 				)}
 				{this.renderJailCards(numJailCards, jailDays)}
@@ -118,6 +151,7 @@ PlayerDashboard.propTypes = {
 		isMortgaged: PropTypes.bool,
 		placeIdx: PropTypes.number
 	})),
+	myMonopolies: PropTypes.instanceOf(Set),
 	onClickHeader: PropTypes.func,
 	onClickProperty: PropTypes.func,
 	onMouseOverProperty: PropTypes.func

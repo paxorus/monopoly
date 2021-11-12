@@ -105,12 +105,13 @@ class GameplayPage extends React.Component {
 			selectedPlaceIdx: -1,
 			highlightedProperties: new Set(),
 			isDashboardOpen: {},
-			me: null
+			me: null,
+			monopolies: []
 		};
 	}
 
 	startUp({playerData, locationData, monopolies, yourPlayerId, currentPlayerId, tax, numTurns}) {
-		// Handle: monopolies, currentPlayerId, numTurns
+		// Handle: currentPlayerId, numTurns
 		const players = playerData.map(({name, num, spriteFileName, balance, placeIdx}) => {
 			// TODO: Move to player.js.
 			const player = new Player(name, num, spriteFileName);
@@ -147,7 +148,8 @@ class GameplayPage extends React.Component {
 			places,
 			me: players[yourPlayerId],
 			tax,
-			isDashboardOpen
+			isDashboardOpen,
+			monopolies
 		});
 	}
 
@@ -270,6 +272,7 @@ class GameplayPage extends React.Component {
 					isOpen={this.getIsDashboardOpen(player.num)}
 					isMe={player === this.state.me}
 					player={player}
+					myMonopolies={new Set(this.state.monopolies.flatMap(monopoly => monopoly))}
 					properties={this.getProperties(player.num)}
 					onClickHeader={this.openDashboard.bind(this)}
 					onClickProperty={this.handleClickLocation.bind(this)}
