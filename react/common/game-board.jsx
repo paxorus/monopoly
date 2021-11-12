@@ -249,13 +249,28 @@ class GameBoard extends React.Component {
 
 	renderProperty(players, afterImages, placeIdx, rowName, walkwayClass, walkwayStyle) {
 		const walkwayHighlightedClass = (this.props.highlightedPlaces.has(placeIdx)) ? "location-highlighted" : "";
+		let houseCount = (placeIdx in this.props.places) ? this.props.places[placeIdx].houseCount : 0;
 
-		return <div className={`walkway ${walkwayClass} ${walkwayHighlightedClass}`} style={walkwayStyle}>
-			{/* Property walkway */}
-			{this.renderPlayerSprites(players, afterImages)}
-			{/* House plot */}
-			<div className={`house-plot-${rowName}`}></div>
-		</div>;
+		return [
+			<div key={0} className={`walkway ${walkwayClass} ${walkwayHighlightedClass}`} style={walkwayStyle}>
+				{/* Property walkway */}
+				{this.renderPlayerSprites(players, afterImages)}
+			</div>,
+			<div key={1} className={`house-plot-${rowName}`}>
+				{(houseCount < 5) ?
+					repeat(houseCount, i => this.renderBuildingIcon(placeIdx, "house", i))
+					:
+					this.renderBuildingIcon(placeIdx, "hotel", 0)}
+			</div>
+		];
+	}
+
+	renderBuildingIcon(placeIdx, buildingType, reactKey) {
+		const isLeftRow = placeIdx > 10 && placeIdx < 20;
+		const isRightRow = placeIdx > 30 && placeIdx < 49;
+		const verticalClassName = (isLeftRow || isRightRow) ? "placed-house-vertical" : "";
+
+		return <img key={reactKey} src={`/images/${buildingType}.svg`} className={`placed-house ${verticalClassName}`} />
 	}
 
 	renderJail(players, afterImages) {
@@ -315,6 +330,10 @@ function range(a, b) {
 	return new Array(b - a).fill(0).map((_, i) => i + a);
 }
 
+function repeat(n, func) {
+	return new Array(n).fill(null).map((_, i) => func(i));
+}
+
 
 GameBoard.propTypes = {
 	faded: PropTypes.bool,
@@ -325,6 +344,19 @@ GameBoard.propTypes = {
 		placeIdx: PropTypes.number,
 		jailDays: PropTypes.number
 	})),
+	places: PropTypes.arrayOf(PropTypes.exact({
+		name: PropTypes.string,
+		price: PropTypes.number,
+		rents: PropTypes.arrayOf(PropTypes.number),
+		housePrice: PropTypes.number,
+		color: PropTypes.string,
+		ownerNum: PropTypes.number,
+		houseCount: PropTypes.number,
+		isMortgaged: PropTypes.bool,
+		placeIdx: PropTypes.number,
+		cardColor: PropTypes.string,
+		imageName: PropTypes.string
+	})),
 	onClickLocation: PropTypes.func,
 	onClickPlayer: PropTypes.func,
 	onMouseOverPlayer: PropTypes.func
@@ -333,6 +365,7 @@ GameBoard.propTypes = {
 GameBoard.defaultProps = {
 	faded: false,
 	players: [],
+	places: [],
 	onClickLocation: () => {},
 	onClickPlayer: () => {}
 }

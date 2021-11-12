@@ -46,6 +46,12 @@
 	right: 0;
 	width: 33.3%;
 }
+.house-plot-left, .house-plot-right {
+    height: 100%;
+    flex-direction: column;
+    display: flex;
+    justify-content: center;
+}
 .house-plot-top {
 	position: absolute;
 	bottom: 0;

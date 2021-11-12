@@ -233,6 +233,7 @@ class GameplayPage extends React.Component {
 
 			<GameBoard
 				players={this.state.players.map(({num, spriteFileName, placeIdx, jailDays}) => ({num, spriteFileName, placeIdx, jailDays}))}
+				places={this.state.places}
 				onClickLocation={this.handleClickLocation.bind(this)}
 				onClickPlayer={this.openDashboard.bind(this)}
 				onMouseOverPlayer={this.highlightProperties.bind(this)}

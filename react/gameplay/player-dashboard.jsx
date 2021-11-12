@@ -79,7 +79,8 @@ class PlayerDashboard extends React.Component {
 	renderMortgageButton(property) {
 		const title = property.isMortgaged ? "Unmortgage the Property" : "Mortgage the Property";
 		const symbol = property.isMortgaged ? "$" : "!";
-		return <span className="button house-button property-mortgager" title={title}>
+		const enabledClass = property.houseCount === 0 ? "" : "button-disabled";
+		return <span className={`button ${enabledClass} house-button property-mortgager`} title={title}>
 			<img className="house-icon" src="/images/mortgage.svg" />
 			<sup className="mortgage-symbol">{symbol}</sup>
 		</span>;

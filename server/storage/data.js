@@ -39,8 +39,8 @@ const games = {
 			{placeIdx: 32, ownerNum: -1, houseCount: 0, isMortgaged: false},
 			{placeIdx: 34, ownerNum: -1, houseCount: 0, isMortgaged: false},
 			{placeIdx: 35, ownerNum: -1, houseCount: 0, isMortgaged: false},
-			{placeIdx: 37, ownerNum: -1, houseCount: 0, isMortgaged: false},
-			{placeIdx: 39, ownerNum: -1, houseCount: 0, isMortgaged: false}
+			{placeIdx: 37, ownerNum: 1, houseCount: 5, isMortgaged: false},
+			{placeIdx: 39, ownerNum: 1, houseCount: 5, isMortgaged: false}
 		],
 		currentPlayerId: 0,
 		playerData: [
