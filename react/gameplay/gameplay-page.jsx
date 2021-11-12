@@ -1,4 +1,4 @@
-import {PlaceConfigs, Locations} from "/javascripts/gameplay/location-configs.js";
+import {PlaceConfigs, propertyComparator, Locations} from "/javascripts/gameplay/location-configs.js";
 import LocationCard from "/javascripts/gameplay/location-card.js";
 import GameBoard from "/javascripts/common/game-board.js";
 import Player from "/javascripts/gameplay/player.js";
@@ -221,7 +221,9 @@ class GameplayPage extends React.Component {
 	}
 
 	getProperties(playerNum) {
-		return this.state.places.filter(place => place.ownerNum === this.state.me.num);
+		return this.state.places
+			.filter(place => place.ownerNum === playerNum)
+			.sort((place1, place2) => propertyComparator(place1.placeIdx, place2.placeIdx));
 	}
 
 	render() {
@@ -268,7 +270,7 @@ class GameplayPage extends React.Component {
 					isOpen={this.getIsDashboardOpen(player.num)}
 					isMe={player === this.state.me}
 					player={player}
-					properties={this.getProperties(player)}
+					properties={this.getProperties(player.num)}
 					onClickHeader={this.openDashboard.bind(this)}
 					onClickProperty={this.handleClickLocation.bind(this)}
 					onMouseOverProperty={this.handleMouseOverProperty.bind(this)} />)}

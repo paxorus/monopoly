@@ -14,6 +14,8 @@ class PlayerDashboard extends React.Component {
 		this.state = {
 			percentOpen: props.isOpen ? 100 : 0
 		};
+
+		this.timeoutId = -1;
 	}
 
 	componentDidUpdate(prevProps, prevState, snapshot) {
@@ -26,7 +28,8 @@ class PlayerDashboard extends React.Component {
 	}
 
 	slideOpen() {
-		setTimeout(() => {
+		clearTimeout(this.timeoutId);
+		this.timeoutId = setTimeout(() => {
 			this.setState(state => {
 				if (state.percentOpen < 100) {
 					this.slideOpen();
@@ -39,7 +42,8 @@ class PlayerDashboard extends React.Component {
 	}
 
 	slideClosed() {
-		setTimeout(() => {
+		clearTimeout(this.timeoutId);
+		this.timeoutId = setTimeout(() => {
 			this.setState(state => {
 				if (state.percentOpen > 0) {
 					this.slideClosed();
@@ -79,15 +83,20 @@ class PlayerDashboard extends React.Component {
 			{/* Divider bar. TODO: Convert this to a bottom margin of the header. */}
 			<div className="dashboard-divider"></div>
 
-			{/* Dashboard */}
+			{/* Property list */}
 			<div style={{height: this.getHeight()}} className="dashboard">
-				{this.props.properties.map(property => <div className="hud-property" key={property.placeIdx}
-					onMouseOver={() => this.props.onMouseOverProperty(property.placeIdx, true)}
-					onMouseOut={() => this.props.onMouseOverProperty(property.placeIdx, false)}
-					onClick={() => this.props.onClickProperty(property.placeIdx)}>
-					<div className="hud-property-color" style={{backgroundColor: property.color}}></div>
-					<span className="hud-property-name">{property.name}</span>
-				</div>)}
+				{this.props.properties.map(property =>
+					<div className="hud-property" key={property.placeIdx}
+						onMouseOver={() => this.props.onMouseOverProperty(property.placeIdx, true)}
+						onMouseOut={() => this.props.onMouseOverProperty(property.placeIdx, false)}
+						onClick={() => this.props.onClickProperty(property.placeIdx)}>
+						<div className="hud-property-color" style={{backgroundColor: property.color}}></div>
+						<span className="hud-property-name">{property.name}</span>
+
+						{/* Property action buttons */}
+
+					</div>
+				)}
 				{this.renderJailCards(numJailCards, jailDays)}
 			</div>
 		</div>
