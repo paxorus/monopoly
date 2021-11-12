@@ -38,7 +38,7 @@ class LocationCard extends React.Component {
 			case Locations.LuxuryTax:
 				return "Tax: $100";
 			case Locations.FreeParking:
-				return `Cash pool: ${this.props.tax}`;
+				return `Cash pool: $${this.props.tax}`;
 			default:
 				return null;
 		}
@@ -133,6 +133,7 @@ class LocationCard extends React.Component {
 LocationCard.propTypes = {
 	placeIdx: PropTypes.number,
 	ownerName: PropTypes.string,
+	tax: PropTypes.number,
 	onClickClose: PropTypes.func,
 	onClickOwner: PropTypes.func,
 	onMouseOverOwner: PropTypes.func

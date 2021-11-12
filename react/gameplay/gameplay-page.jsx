@@ -236,6 +236,7 @@ class GameplayPage extends React.Component {
 
 			<LocationCard placeIdx={this.state.selectedPlaceIdx}
 				ownerName={this.getSelectedPlaceOwnerName()}
+				tax={this.state.tax}
 				onClickClose={this.handleClickCloseLocationCard.bind(this)}
 				onClickOwner={() => this.openDashboard(this.getSelectedPlaceOwnerNum())}
 				onMouseOverOwner={overOrOut => this.highlightProperties(this.getSelectedPlaceOwnerNum(), overOrOut)} />
