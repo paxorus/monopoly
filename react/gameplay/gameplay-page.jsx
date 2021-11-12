@@ -2,6 +2,7 @@ import {PlaceConfigs, Locations} from "/javascripts/gameplay/location-configs.js
 import LocationCard from "/javascripts/gameplay/location-card.js";
 import GameBoard from "/javascripts/common/game-board.js";
 import Player from "/javascripts/gameplay/player.js";
+import PlayerDashboard from "/javascripts/gameplay/player-dashboard.js";
 import validate from "/javascripts/validate-props.js";
 
 
@@ -102,7 +103,6 @@ class GameplayPage extends React.Component {
 			players: [],
 			places: [],
 			selectedPlaceIdx: -1,
-			// selectedPlaceOwnerNum: -1,
 			highlightedProperties: new Set()
 		};
 	}
@@ -155,12 +155,12 @@ class GameplayPage extends React.Component {
 	/**
 	 * Open HUD.
 	 */
-	handleClickOwnerOnLocationCard(playerNum) {
+	handleClickOwnerOnLocationCard() {
 		// TODO: Open HUD
-		console.log("open hud for " + playerNum);
+		console.log("open hud for " + this.getSelectedPlaceOwnerNum());
 	}
 
-	handleClickHudHeader(playerNum) {
+	handleClickDashboardHeader(playerNum) {
 		console.log("open hud for " + playerNum);
 	}
 
@@ -241,25 +241,10 @@ class GameplayPage extends React.Component {
 
 			{/* Player HUDs */}
 			<div id="heads">
-				{this.state.players.map(player => <div key={player.num}>
-
-					{/* Header: name, location, and balance. */}
-					<div id={`head${player.num}`} className="player-display-head" onClick={() => this.handleClickHudHeader(player.num)}>
-						<img className="display-sprite" src={player.spriteFileName} />
-						{`${player.name}: `}
-						<span id={`loc${player.num}`}>{PlaceConfigs[player.placeIdx].name}</span>
-						<div id={`bal${player.num}`} style={{float: "right"}}>{"$" + player.balance}</div>
-					</div>
-
-					{/* Divider bar. TODO: Convert this to a bottom margin of the header. */}
-					<div className="dashboard-divider"></div>
-
-					{/* Dashboard */}
-					<div id={`user${player.num}`} style={{display: "none"}} className="dashboard">
-						<span id={`property-list${player.num}`}></span>
-						<span id={`jail-card${player.num}`}></span>
-					</div>
-				</div>)}
+				{this.state.players.map(player => <PlayerDashboard
+					key={player.num}
+					player={player}
+					onClickHeader={this.handleClickDashboardHeader.bind(this)} />)}
 			</div>
 		</div>
 	}
