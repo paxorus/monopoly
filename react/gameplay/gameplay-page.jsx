@@ -103,7 +103,8 @@ class GameplayPage extends React.Component {
 			players: [],
 			places: [],
 			selectedPlaceIdx: -1,
-			highlightedProperties: new Set()
+			highlightedProperties: new Set(),
+			isDashboardOpen: {}
 		};
 	}
 
@@ -137,11 +138,15 @@ class GameplayPage extends React.Component {
 			}
 		});
 
+		const isDashboardOpen = Object.fromEntries(players.map(({num}) => [num, false]));
+		isDashboardOpen[yourPlayerId] = true;
+
 		this.setState({
 			players,
 			places,
 			me: players[yourPlayerId],
-			tax
+			tax,
+			isDashboardOpen
 		});
 	}
 
@@ -155,19 +160,18 @@ class GameplayPage extends React.Component {
 	/**
 	 * Open HUD.
 	 */
-	handleClickOwnerOnLocationCard() {
-		// TODO: Open HUD
-		console.log("open hud for " + this.getSelectedPlaceOwnerNum());
-	}
-
-	handleClickDashboardHeader(playerNum) {
-		console.log("open hud for " + playerNum);
-	}
-
 	handleClickPlayerOnBoard(event, playerNum) {
-		// TODO: Open HUD
-		console.log("open hud for " + playerNum);
 		event.stopPropagation();// Don't click the square.
+		this.openDashboard(playerNum);
+	}
+
+	openDashboard(playerNum) {
+		this.setState(state => ({
+			isDashboardOpen: {
+				...state.isDashboardOpen,
+				[playerNum]: !state.isDashboardOpen[playerNum]
+			}
+		}));
 	}
 
 	/**
@@ -203,6 +207,10 @@ class GameplayPage extends React.Component {
 		return (ownerNum === -1) ? "-unowned-" : this.state.players[ownerNum].name;
 	}
 
+	getIsDashboardOpen(playerNum) {
+		return this.state.isDashboardOpen[playerNum];
+	}
+
 	render() {
 		return <div>
 
@@ -216,7 +224,7 @@ class GameplayPage extends React.Component {
 			<LocationCard placeIdx={this.state.selectedPlaceIdx}
 				ownerName={this.getSelectedPlaceOwnerName()}
 				onClickClose={this.handleClickCloseLocationCard.bind(this)}
-				onClickOwner={this.handleClickOwnerOnLocationCard.bind(this)}
+				onClickOwner={() => this.openDashboard(this.getSelectedPlaceOwnerNum())}
 				onMouseOverOwner={overOrOut => this.highlightProperties(this.getSelectedPlaceOwnerNum(), overOrOut)} />
 
 			<div id="initial-interactive" className="interactive" style={{display: "none"}}>
@@ -243,8 +251,9 @@ class GameplayPage extends React.Component {
 			<div id="heads">
 				{this.state.players.map(player => <PlayerDashboard
 					key={player.num}
+					isOpen={this.getIsDashboardOpen(player.num)}
 					player={player}
-					onClickHeader={this.handleClickDashboardHeader.bind(this)} />)}
+					onClickHeader={this.openDashboard.bind(this)} />)}
 			</div>
 		</div>
 	}
