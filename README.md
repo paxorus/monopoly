@@ -34,7 +34,6 @@ The Pokemon sprites are loaded from Bulbapedia.
 #### Digital Benefits
 * Compute net worths for landing page game tiles.
 * Show logs of previous turns. Currently, a player's notifications are wiped as soon as it's their turn again.
-* Notifications such as inter-player rent and history of tenants for a property.
 * Historical analytics such as net worth over time.
 
 #### Multiplayer
@@ -44,5 +43,4 @@ The Pokemon sprites are loaded from Bulbapedia.
 
 #### Cosmetics
 * Display the dice sides instead of the numbers.
-* Animate the player's piece moving across the board.
 * Enrich the logged text so it's readable. At least widen it.

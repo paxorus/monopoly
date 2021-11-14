@@ -19,10 +19,6 @@
 .location-highlighted {
 	background-color: rgb(142, 193, 139);
 }
-.left, .right {
-	display: flex;
-	align-items: center;
-}
 .right {
 	left: calc(10 * (var(--square-width) + 2px));
 }
@@ -50,6 +46,12 @@
 	right: 0;
 	width: 33.3%;
 }
+.house-plot-left, .house-plot-right {
+    height: 100%;
+    flex-direction: column;
+    display: flex;
+    justify-content: center;
+}
 .house-plot-top {
 	position: absolute;
 	bottom: 0;
@@ -64,18 +66,31 @@
 	display: block;
 }
 
+.chem-trail {
+	width: 0;
+	height: 0;
+	border-radius: 50%;
+
+	position: absolute;
+	background-color: #08F;
+	opacity: 0.8;
+	left: 50%;
+	top: 50%;
+}
+
 #jail {
 	position: absolute;
 	top: 0;
 	right: 0;
 	width: calc(var(--square-width) * 2/3);
 	height: calc(var(--square-height) * 2/3);
-	background-image: url('/images/in-jail.svg');
+	background-image: url("/images/in-jail.svg");
 	/* Add 1px to hide small right margin */
 	background-size: calc(var(--square-width) * 2/3 + 1px) calc(var(--square-height) * 2/3);
 }
 #jail-vertical-walkway {
 	position: absolute;
+	top: 0;
 	left: 0;
 	width: calc(var(--square-width) / 3); /* location.width - jail.width */
 	height: var(--square-height);

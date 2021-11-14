@@ -103,7 +103,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw==" crossorigin="anonymous"></script>
 
-<script src="/javascripts/third-party/jquery.js"></script>
+<script src="https://unpkg.com/jquery@3.6.0/dist/jquery.min.js" crossorigin></script>
 
 <script>
 const inProgressGames = <%- JSON.stringify(inProgressGames) %>;
@@ -178,7 +178,7 @@ $(".game-summary-tile").on("animationstart", event => {
 
 <script src="/javascripts/landing/new-game-form.js"></script>
 <script type="module">
-	import {openModal, closeModal} from "/javascripts/common/modal-animation.js";
+	import {openModal, closeModal} from "/javascripts/landing/modal-animation.js";
 
 	const modalElements = {
 		modal: $("#new-game-form-modal"),

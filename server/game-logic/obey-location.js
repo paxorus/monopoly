@@ -17,7 +17,7 @@ function obeyLocation(mover) {
 			payRent(mover, owner, rent, place.name);
 			return AdvanceToNextPlayer;
 		} else {
-			mover.log(`You landed on your own property, ${place.name}.`);
+			mover.log(`You already own ${place.name}.`);
 		}
 	} else {
 		return obeySpecialSquare(mover);

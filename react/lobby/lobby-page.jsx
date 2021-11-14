@@ -1,6 +1,6 @@
 import EditPlayerModal from "/javascripts/lobby/edit-player-modal.js";
 import InviteLink from "/javascripts/lobby/invite-link.js";
-import GameBoard from "/javascripts/lobby/game-board.js";
+import GameBoard from "/javascripts/common/game-board.js";
 import Modal from "/javascripts/lobby/modal.js";
 import ModalPage from "/javascripts/lobby/modal-page.js";
 import PlayerList from "/javascripts/lobby/player-list.js";
@@ -170,7 +170,7 @@ class LobbyPage extends React.Component {
 	render() {
 		return <ModalPage modals={this.getModals()}>
 
-			<GameBoard />
+			<GameBoard faded />
 
 			{/* Container that excludes the game board layer. */}
 			<div id="lobby-foreground">

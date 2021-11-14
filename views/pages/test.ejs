@@ -1,26 +1,27 @@
 <html>
 <head>
 	<title>Mocha Client Tests</title>
-	<link href="/stylesheets/main.css" rel="stylesheet"></link>
+	<link href="/stylesheets/gameplay.css" rel="stylesheet"></link>
 	<link href="/stylesheets/shared.css" rel="stylesheet"></link>
 	<link href="https://unpkg.com/mocha@4.0.1/mocha.css" rel="stylesheet" />
 </head>
 <body>
 	<div id="mocha"></div>
 
-	<div style="display: none">
-		<%- include("../partials/game") %>
-	</div>
+	<div id="react"></div>
+
+	<!-- Load React. -->
+	<script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+	<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+	<script src="https://unpkg.com/prop-types@15.6/prop-types.js" crossorigin></script>
+
+	<script src="https://unpkg.com/sinon@6.1.4/pkg/sinon.js"></script>
 	<script src="https://unpkg.com/mocha@4.0.1/mocha.js"></script>
-	<script src="/javascripts/third-party/jquery.js"></script>
 	<script type="module">
 		mocha.setup("bdd");// Behavior-driven development
 	</script>
 	<script type="module">
-		import "/javascripts/test/start-up.test.js";
-		import "/javascripts/test/display-card.test.js";
-		import "/javascripts/test/execute-turn.test.js";
-		import "/javascripts/test/player.test.js";
+		import "/javascripts/test-react/common/game-board.test.js";
 
 		mocha.checkLeaks();
 		mocha.run();

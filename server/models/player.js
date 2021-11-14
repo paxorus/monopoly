@@ -47,6 +47,11 @@ class Player {
 		this.io = null;
 	}
 
+	collectGoMoney() {
+		this.updateBalance(200);
+		this.log("Collected $200 for passing Go.");
+	}
+
 	decrementJailDays(jailDays) {
 		this.jailDays --;
 
