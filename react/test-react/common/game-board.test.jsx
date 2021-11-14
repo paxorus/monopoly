@@ -1,5 +1,5 @@
 import GameBoard from "/javascripts/common/game-board.js";
-import assert from "/javascripts/test/assert.js";
+import assert from "/javascripts/test-react/assert.js";
 
 
 describe("Game Board", () => {

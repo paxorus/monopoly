@@ -10,8 +10,6 @@
 
 	<div id="react"></div>
 
-	<!-- Third party -->
-	<script src="/javascripts/third-party/jquery.js"></script>
 	<!-- Load React. -->
 	<script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
 	<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
@@ -23,7 +21,7 @@
 		mocha.setup("bdd");// Behavior-driven development
 	</script>
 	<script type="module">
-		import "/javascripts/test-react/game-board.test.js";
+		import "/javascripts/test-react/common/game-board.test.js";
 
 		mocha.checkLeaks();
 		mocha.run();
