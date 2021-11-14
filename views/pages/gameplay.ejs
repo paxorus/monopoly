@@ -4,7 +4,7 @@
 <link href="/stylesheets/board.css" rel="stylesheet"></link>
 <link href="/stylesheets/gameplay.css" rel="stylesheet"></link>
 </head>
-<body style="overflow-x: hidden;">
+<body style="/*overflow-x: hidden;*/">
 
 
 <div id="react"></div>
@@ -20,11 +20,6 @@
 <script src="/javascripts/third-party/jquery.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 
-<!-- <script type="module" src="/javascripts/display-card.js"></script>
-<script type="module" src="/javascripts/execute-turn.js"></script>
-<script type="module" src="/javascripts/start-up.js"></script>
-<script type="module" src="/javascripts/event-handlers.js"></script>
- -->
 <script type="module">
 	import {render} from "/javascripts/gameplay/gameplay-page.js";
 	render(<%- JSON.stringify({gameId}) %>, document.querySelector("#react"));

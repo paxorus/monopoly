@@ -17,8 +17,8 @@ class GameplayPage extends React.Component {
 		socket.on("start-up", this.startUp.bind(this));
 
 		// Updates
-		socket.on("dialog", text => this.logMessage(["dialog", text]));
-		socket.on("notify", text => this.logMessage(["notify", text]));
+		socket.on("dialog", text => this.logMessage("dialog", text));
+		socket.on("notify", text => this.logMessage("notify", text));
 
 		socket.on("update-balance", ({playerId, balance}) => {
 			this.updatePlayer(playerId, {balance});
@@ -30,28 +30,23 @@ class GameplayPage extends React.Component {
 
 		// Turn actions
 		socket.on("allow-conclude-turn", () => {
-			this.logMessage(["allow-conclude-turn", null]);
+			this.logMessage("allow-conclude-turn", null);
 		});
 
 		socket.on("advance-turn", ({nextPlayerId}) => {
 			this.setState({currentPlayerId: nextPlayerId});
 			this.clearMessages();
-			this.logMessage(["advance-turn", {nextPlayerId}]);
+			this.logMessage("advance-turn", {nextPlayerId});
 		});
 
 		// Property actions
 		socket.on("offer-unowned-property", ({placeIdx}) => {
-			this.logMessage(["offer-unowned-property", {placeIdx}]);
+			this.logMessage("offer-unowned-property", {placeIdx});
 		});
 
 		socket.on("purchase-property", ({playerId, placeIdx}) => {
 			this.updatePlace(placeIdx, {ownerNum: playerId});
 		});
-
-		// TODO: Remove server event.
-		// socket.on("build-house-buttons", ({placeIdx}) => {
-		// 	buildHouseButtons(placeIdx);
-		// });
 
 		socket.on("buy-house", ({playerId, placeIdx}) => {
 			this.updatePlace(placeIdx, place => ({houseCount: place.houseCount + 1}));
@@ -83,7 +78,7 @@ class GameplayPage extends React.Component {
 		});
 
 		socket.on("offer-pay-out-of-jail", () => {
-			this.logMessage(["offer-pay-out-of-jail", null]);
+			this.logMessage("offer-pay-out-of-jail", null);
 		});
 
 		// Tax actions
@@ -165,34 +160,33 @@ class GameplayPage extends React.Component {
 	}
 
 	executeTurn() {
-		this.logMessage(["waiting-on-server"]);
+		this.logMessage("waiting-on-server");
 		this.socket.emit("execute-turn");
 	}
 
 	concludeTurn() {
-		this.logMessage(["waiting-on-server"]);
+		this.logMessage("waiting-on-server");
 		this.socket.emit("advance-turn");
 	}
 
 	respondToBuyOffer(ifBuy) {
-		this.logMessage(["waiting-on-server"]);
+		this.logMessage("waiting-on-server");
 		this.socket.emit("respond-to-buy-offer", {ifBuy});
 	}
 
 	respondPayOutOfJail(hasAgreed) {
 		if (hasAgreed) {
-			this.logMessage(["waiting-on-server"]);
+			this.logMessage("waiting-on-server");
 			socket.emit("pay-out-of-jail");
 		} else {
-			this.logMessage(["allow-conclude-turn", null]);
+			this.logMessage("allow-conclude-turn");
 		}
 	}
 
-	// TODO: Split arg in 2, it's never passed in as one.
-	logMessage(message) {
-		console.log(message[0], message[1]);
+	logMessage(eventName, eventData) {
+		console.log(eventName, eventData);
 		this.setState(state => ({
-			messages: [...state.messages, message]
+			messages: [...state.messages, [eventName, eventData]]
 		}));
 	}
 

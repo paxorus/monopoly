@@ -53,14 +53,8 @@ class MessageBox extends React.Component {
 				</div>;
 
 			case "advance-turn":
-				// updateTurn(finalMessage.nextPlayerId);
 				// Display whose turn it is.
 				if (finalMessage.nextPlayerId === this.props.myPlayerId) {
-					// $("#waiting-on-player").css("display", "none");
-					// $("#execute-turn").css("display", "block");
-					// $("#interactive").css("display", "block");
-					// MessageBox.clear();
-					// this.props.clearMessages(finalMessage);
 					return <div className="button" onClick={this.props.executeTurn} id="execute-turn">Take Your Turn</div>;
 				} else {
 					return <div>{`It's ${this.props.players[finalMessage.nextPlayerId].name}'s turn.`}</div>
@@ -71,7 +65,6 @@ class MessageBox extends React.Component {
 	render() {
 	 	if (this.props.myPlayerId !== this.props.currentPlayerId) {
 			// "It's _'s turn."
-			// console.log(this.props.currentPlayerId);
 			return <div id="waiting-on-player" className="interactive">
 				It's <span id="current-player-name">{this.props.players[this.props.currentPlayerId].name}</span>'s turn.
 			</div>;
@@ -89,13 +82,9 @@ class MessageBox extends React.Component {
 			}
 		}
 
-		return <div id="interactive" className="interactive">
-			<div id="message-box">
-				{this.renderMessages()}
-			</div>
-			<div id="button-box">
-				{this.renderCtaButton()}
-			</div>
+		return <div id="message-box" className="interactive">
+			{this.renderMessages()}
+			{this.renderCtaButton()}
 		</div>;
 	}
 }

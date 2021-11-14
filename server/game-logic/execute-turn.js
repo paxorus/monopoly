@@ -132,7 +132,6 @@ function purchaseProperty(mover, placeIdx) {
 		const propertyNamesString = concatenatePropertyNames(propertyNames);
 		mover.log(`Monopoly! You may now build houses on ${propertyNamesString}, and their rents have doubled.`);
 		mover.notifyEveryoneElse(`${mover.name} achieved a monopoly and may now build houses on ${propertyNamesString}.`);
-		monopoly.forEach(placeIdx => mover.emit("build-house-buttons", {placeIdx}));
 	}
 }
 
