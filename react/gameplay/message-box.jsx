@@ -9,7 +9,7 @@ class MessageBox extends React.Component {
 
 		// TODO: Display other users' actions.
 		// this.state = {
-			
+
 		// };
 	}
 
@@ -49,11 +49,11 @@ class MessageBox extends React.Component {
 				const place = PlaceConfigs[finalMessage.placeIdx];
 				const myName = this.props.players[this.props.myPlayerId].name;
 				const enabledClass = this.props.waitingForServer ? "button-disabled" : "";
-				return [
-					<div>{`${myName}, would you like to buy ${place.name} for $${place.price}?`}</div>,
-					<div className={`button ${enabledClass}`} onClick={() => this.props.respondToBuyOffer(true)}>{`Buy ${place.name}`}</div>,
+				return <div>
+					<div>{`${myName}, would you like to buy ${place.name} for $${place.price}?`}</div>
+					<div className={`button ${enabledClass}`} onClick={() => this.props.respondToBuyOffer(true)}>{`Buy ${place.name}`}</div>
 					<div className={`button-negative ${enabledClass}`} onClick={() => this.props.respondToBuyOffer(false)}>No Thanks</div>
-				];
+				</div>;
 
 			case "advance-turn":
 				// updateTurn(finalMessage.nextPlayerId);

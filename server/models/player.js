@@ -109,8 +109,7 @@ class Player {
 
 	emit(eventName, message) {
 		// console.log(eventName, message, this.num);
-		this.sockets.forEach(socket => socket.emit("game-action", [eventName, message]));
-		this.sockets.forEach(socket => socket.emit(eventName, message));
+=		this.sockets.forEach(socket => socket.emit(eventName, message));
 		this._saveMessage(eventName, message);
 	}
 

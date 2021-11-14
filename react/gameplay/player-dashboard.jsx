@@ -1,4 +1,5 @@
 import {PlaceConfigs} from "/javascripts/gameplay/location-configs.js";
+import {Place} from "/javascripts/gameplay/place.js";
 import Player from "/javascripts/gameplay/player.js";
 import validate from "/javascripts/validate-props.js";
 
@@ -141,17 +142,7 @@ PlayerDashboard.propTypes = {
 	isOpen: PropTypes.bool,
 	isMe: PropTypes.bool,
 	player: PropTypes.instanceOf(Player),
-	properties: PropTypes.arrayOf(PropTypes.exact({
-		name: PropTypes.string,
-		price: PropTypes.number,
-		rents: PropTypes.arrayOf(PropTypes.number),
-		housePrice: PropTypes.number,
-		color: PropTypes.string,
-		ownerNum: PropTypes.number,
-		houseCount: PropTypes.number,
-		isMortgaged: PropTypes.bool,
-		placeIdx: PropTypes.number
-	})),
+	properties: PropTypes.arrayOf(PropTypes.instanceOf(Place)),
 	myMonopolies: PropTypes.instanceOf(Set),
 	onClickHeader: PropTypes.func,
 	onClickProperty: PropTypes.func,
