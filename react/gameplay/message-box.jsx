@@ -36,7 +36,7 @@ class MessageBox extends React.Component {
 				const me = this.props.players[this.props.myPlayerId];
 				const plural = (me.jailDays > 1) ? "s" : "";
 				return <div>
-					<div>{`No double... ${me.name}, you have ${me.jailDays} turn${plural} remaining on your sentence.`}</div>;
+					<div>{`No double... ${me.name}, you have ${me.jailDays} turn${plural} remaining on your sentence.`}</div>
 					<div>{`${me.name}, would you like to pay $50 to get out of jail?`}</div>
 					<div className="button" onClick={() => this.props.respondPayOutOfJail(true)}>Pay $50</div>
 					<div className="button-negative" onClick={() => this.props.respondPayOutOfJail(false)}>No Thanks</div>
@@ -60,6 +60,7 @@ class MessageBox extends React.Component {
 					// $("#execute-turn").css("display", "block");
 					// $("#interactive").css("display", "block");
 					// MessageBox.clear();
+					// this.props.clearMessages(finalMessage);
 					return <div className="button" onClick={this.props.executeTurn} id="execute-turn">Take Your Turn</div>;
 				} else {
 					return <div>{`It's ${this.props.players[finalMessage.nextPlayerId].name}'s turn.`}</div>
@@ -70,7 +71,7 @@ class MessageBox extends React.Component {
 	render() {
 	 	if (this.props.myPlayerId !== this.props.currentPlayerId) {
 			// "It's _'s turn."
-			console.log(this.props.currentPlayerId);
+			// console.log(this.props.currentPlayerId);
 			return <div id="waiting-on-player" className="interactive">
 				It's <span id="current-player-name">{this.props.players[this.props.currentPlayerId].name}</span>'s turn.
 			</div>;
@@ -109,7 +110,8 @@ MessageBox.propTypes = {
 	executeTurn: PropTypes.func,
 	concludeTurn: PropTypes.func,
 	respondToBuyOffer: PropTypes.func,
-	respondPayOutOfJail: PropTypes.func
+	respondPayOutOfJail: PropTypes.func,
+	clearMessages: PropTypes.func
 };
 
 export default MessageBox;

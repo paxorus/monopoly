@@ -35,6 +35,8 @@ class GameplayPage extends React.Component {
 
 		socket.on("advance-turn", ({nextPlayerId}) => {
 			this.setState({currentPlayerId: nextPlayerId});
+			this.clearMessages();
+			this.logMessage(["advance-turn", {nextPlayerId}]);
 		});
 
 		// Property actions
@@ -194,7 +196,7 @@ class GameplayPage extends React.Component {
 		}));
 	}
 
-	clearMessages(message) {
+	clearMessages() {
 		this.setState({messages: []});
 	}
 
@@ -301,7 +303,8 @@ class GameplayPage extends React.Component {
 					executeTurn={this.executeTurn.bind(this)}
 					concludeTurn={this.concludeTurn.bind(this)}
 					respondToBuyOffer={this.respondToBuyOffer.bind(this)}
-					respondPayOutOfJail={this.respondPayOutOfJail.bind(this)} />}
+					respondPayOutOfJail={this.respondPayOutOfJail.bind(this)}
+					clearMessages={this.clearMessages.bind(this)} />}
 
 			{/* Player Dashboards */}
 			<div id="heads">
