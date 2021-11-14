@@ -366,8 +366,10 @@ GameBoard.defaultProps = {
 	faded: false,
 	players: [],
 	places: [],
+	highlightedPlaces: new Set(),
 	onClickLocation: () => {},
-	onClickPlayer: () => {}
+	onClickPlayer: () => {},
+	onMouseOverPlayer: () => {}
 }
 
 export default GameBoard;
