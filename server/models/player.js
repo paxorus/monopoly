@@ -47,6 +47,11 @@ class Player {
 		this.io = null;
 	}
 
+	collectGoMoney() {
+		this.updateBalance(200);
+		this.log("Collected $200 for passing Go.");
+	}
+
 	decrementJailDays(jailDays) {
 		this.jailDays --;
 
@@ -104,6 +109,7 @@ class Player {
 
 	emit(eventName, message) {
 		// console.log(eventName, message, this.num);
+		this.sockets.forEach(socket => socket.emit("game-action", [eventName, message]));
 		this.sockets.forEach(socket => socket.emit(eventName, message));
 		this._saveMessage(eventName, message);
 	}

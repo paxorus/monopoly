@@ -131,10 +131,6 @@
 	margin-left: -125px;
 }
 
-#interactive {
-	display: none;
-}
-
 #message-box {
 	overflow-y: auto;
 	max-height: 400px;

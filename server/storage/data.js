@@ -72,7 +72,7 @@ const games = {
 				numJailCards: 0,
 				savedMessages: [
 					["advance-turn", {nextPlayerId: 1}],
-					["log", "you already went, dude"]
+					["dialog", "you already went, dude"]
 				]
 			}
 

@@ -1,6 +1,7 @@
 import {PlaceConfigs, propertyComparator, Locations} from "/javascripts/gameplay/location-configs.js";
 import LocationCard from "/javascripts/gameplay/location-card.js";
 import GameBoard from "/javascripts/common/game-board.js";
+import MessageBox from "/javascripts/gameplay/message-box.js";
 import Player from "/javascripts/gameplay/player.js";
 import PlayerDashboard from "/javascripts/gameplay/player-dashboard.js";
 import validate from "/javascripts/validate-props.js";
@@ -14,87 +15,12 @@ class GameplayPage extends React.Component {
 		window.socket = socket;
 
 		socket.on("start-up", this.startUp.bind(this));
-
-		// // Updates
-		// socket.on("dialog", text => log(text));
-		// socket.on("notify", text => log(text));
-
-		// socket.on("update-balance", ({playerId, balance}) => {
-		// 	GlobalState.players[playerId].updateBalance(balance);
-		// });
-
-		// socket.on("update-location", ({playerId, placeIdx}) => {
-		// 	GlobalState.players[playerId].updateLocation(placeIdx);
-		// });
-
-		// // Turn actions
-		// socket.on("allow-conclude-turn", () => {
-		// 	allowConcludeTurn();
-		// });
-
-		// socket.on("advance-turn", ({nextPlayerId}) => {
-		// 	updateTurn(nextPlayerId);
-		// });
-
-		// // Property actions
-		// socket.on("offer-unowned-property", ({placeIdx}) => {
-		// 	offerUnownedProperty(GlobalState.me, placeIdx);
-		// });
-
-		// socket.on("purchase-property", ({playerId, placeIdx}) => {
-		// 	purchaseProperty(GlobalState.players[playerId], placeIdx);
-		// });
-
-		// socket.on("build-house-buttons", ({placeIdx}) => {
-		// 	buildHouseButtons(placeIdx);
-		// });
-
-		// socket.on("buy-house", ({playerId, placeIdx}) => {
-		// 	buyHouse(GlobalState.players[playerId], placeIdx);
-		// });
-
-		// socket.on("sell-house", ({playerId, placeIdx}) => {
-		// 	sellHouse(GlobalState.players[playerId], placeIdx);
-		// });
-
-		// // Jail actions
-		// socket.on("go-to-jail", ({playerId}) => {
-		// 	GlobalState.players[playerId].goToJail();
-		// });
-
-		// socket.on("get-out-of-jail", ({playerId}) => {
-		// 	GlobalState.players[playerId].getOutOfJail();
-		// });
-
-		// socket.on("add-jail-card", ({playerId}) => {
-		// 	addGetOutOfJailFreeCard(GlobalState.players[playerId]);
-		// });
-
-		// socket.on("use-jail-card", ({playerId}) => {
-		// 	updateGetOutOfJailFreeCards(GlobalState.players[playerId]);
-		// });
-
-		// socket.on("update-jail-days", ({playerId, jailDays}) => {
-		// 	GlobalState.players[playerId].updateJailDays(jailDays);
-		// });
-
-		// socket.on("offer-pay-out-of-jail", () => {
-		// 	offerPayOutOfJail();
-		// });
-
-		// // Tax actions
-		// socket.on("update-tax", ({tax}) => {
-		// 	GlobalState.tax = tax;
-		// });
-
-		// // Mortgage actions
-		// socket.on("mortgage-property", ({playerId, placeIdx}) => {
-		// 	mortgageProperty(GlobalState.players[playerId], placeIdx);
-		// });
-
-		// socket.on("unmortgage-property", ({playerId, placeIdx}) => {
-		// 	unmortgageProperty(GlobalState.players[playerId], placeIdx);
-		// });
+		socket.on("game-action", (message) => {
+			console.log("here", message);
+			this.setState(state => ({
+				messages: [...state.messages, message]
+			}));
+		});
 
 		socket.emit("start-up", {gameId: props.gameId});
 		this.socket = socket;
@@ -106,7 +32,12 @@ class GameplayPage extends React.Component {
 			highlightedProperties: new Set(),
 			isDashboardOpen: {},
 			me: null,
-			monopolies: []
+			monopolies: [],
+			messages: [],
+			myPlayerId: -1,
+			waitingForServer: false
+			// showStartGame: false,
+			// waitingOnPlayer: "-null-player-"
 		};
 	}
 
@@ -120,6 +51,49 @@ class GameplayPage extends React.Component {
 			return player;
 		});
 
+		const places = this.hydratePlaces(locationData);
+
+		const isDashboardOpen = Object.fromEntries(players.map(({num}) => [num, false]));
+		isDashboardOpen[yourPlayerId] = true;
+
+		this.setState({
+			players,
+			places,
+			me: players[yourPlayerId],
+			tax,
+			isDashboardOpen,
+			monopolies,
+			numTurns,
+			currentPlayerId,
+			myPlayerId: yourPlayerId,
+			messages: playerData[yourPlayerId].savedMessages
+		});
+	}
+
+	executeTurn() {
+		this.socket.emit("execute-turn");
+	}
+
+	concludeTurn() {
+		this.socket.emit("advance-turn")
+	}
+
+	respondToBuyOffer(ifBuy) {
+		// Hide the Buy/No buttons.
+		// $("#button-box").children().remove();
+		this.setState({waitingForServer: true});
+		socket.emit("respond-to-buy-offer", {ifBuy});
+	}
+
+
+	offerUnownedProperty(mover, placeIdx) {
+		// const place = places[placeIdx];
+		// log(mover.name + ", would you like to buy " + place.name + " for $" + place.price + "?");
+		// $("#button-box").append("<div class='button' onclick='respondToBuyOffer(true)'>Buy " + place.name + "</div>");
+		// $("#button-box").append("<div class='button-negative' onclick='respondToBuyOffer(false)'>No Thanks</div>");
+	}
+
+	hydratePlaces(locationData) {
 		const locationDataByIdx = Object.fromEntries(locationData
 			.map(({placeIdx, ownerNum, houseCount, isMortgaged}) => [placeIdx, {ownerNum, houseCount, isMortgaged}]));
 		const places = PlaceConfigs.map((placeConfig, placeIdx) => {
@@ -140,17 +114,17 @@ class GameplayPage extends React.Component {
 			}
 		});
 
-		const isDashboardOpen = Object.fromEntries(players.map(({num}) => [num, false]));
-		isDashboardOpen[yourPlayerId] = true;
+		return places;	
+	}
 
-		this.setState({
-			players,
-			places,
-			me: players[yourPlayerId],
-			tax,
-			isDashboardOpen,
-			monopolies
+	logMessage(message) {
+		this.setState(state => {
+			messages: [...state.messages, message]
 		});
+	}
+
+	clearMessages(message) {
+		this.setState({messages: []});
 	}
 
 	/**
@@ -246,27 +220,18 @@ class GameplayPage extends React.Component {
 				onClickOwner={() => this.openDashboard(this.getSelectedPlaceOwnerNum())}
 				onMouseOverOwner={overOrOut => this.highlightProperties(this.getSelectedPlaceOwnerNum(), overOrOut)} />
 
-			<div id="initial-interactive" className="interactive" style={{display: "none"}}>
-				You will go first.
-				<div className="button" onClick={this.executeTurn}>Start Game</div>
-			</div>
+			{(this.state.currentPlayerId !== undefined) &&
+				<MessageBox messages={this.state.messages}
+					numTurns={this.state.numTurns}
+					currentPlayerId={this.state.currentPlayerId}
+					myPlayerId={this.state.myPlayerId}
+					players={this.state.players}
+					waitingForServer={this.state.waitingForServer}
+					executeTurn={this.executeTurn.bind(this)}
+					concludeTurn={this.concludeTurn.bind(this)}
+					respondToBuyOffer={this.respondToBuyOffer.bind(this)} />}
 
-			<div id="waiting-on-player" className="interactive" style={{display: "none"}}>
-				It's <span id="current-player-name"></span>'s turn.
-			</div>
-
-			<div id="interactive" className="interactive">
-				<div className="button" onClick={this.executeTurn} id="execute-turn" style={{display: "none"}}>Take Your Turn</div>
-				<div id="message-box">
-				</div>
-				<div id="button-box">
-				</div>
-				<div className="button" onClick={this.executeTurn} id="end-turn" style={{display: "none"}}>End Turn</div>
-				{/* <br /> */}
-				{/* <div className="button" onClick="trade()">Trade</div> */}
-			</div>
-
-			{/* Player HUDs */}
+			{/* Player Dashboards */}
 			<div id="heads">
 				{this.state.players.map(player => <PlayerDashboard
 					key={player.num}
