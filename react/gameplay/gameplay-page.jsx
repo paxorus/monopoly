@@ -16,16 +16,9 @@ class GameplayPage extends React.Component {
 
 		socket.on("start-up", this.startUp.bind(this));
 
-		// socket.on("game-action", ([eventName, eventData]) => {
-		// 	console.log(eventName, eventData);
-		// 	this.logMessage([eventName, eventData]);
-		// });
-
 		// Updates
 		socket.on("dialog", text => this.logMessage(["dialog", text]));
 		socket.on("notify", text => this.logMessage(["notify", text]));
-
-		// this.logMessage([eventName, eventData]);
 
 		socket.on("update-balance", ({playerId, balance}) => {
 			this.updatePlayer(playerId, {balance});
@@ -58,7 +51,6 @@ class GameplayPage extends React.Component {
 		// 	buildHouseButtons(placeIdx);
 		// });
 
-		// TODO: Combine buy-house and sell-house by sending houseCount. Or not: Easier to write in message box this way.
 		socket.on("buy-house", ({playerId, placeIdx}) => {
 			this.updatePlace(placeIdx, place => ({houseCount: place.houseCount + 1}));
 		});
@@ -74,17 +66,14 @@ class GameplayPage extends React.Component {
 
 		socket.on("get-out-of-jail", ({playerId}) => {
 			this.updatePlayer(playerId, {jailDays: 0});
-			// GlobalState.players[playerId].getOutOfJail();
 		});
 
 		socket.on("add-jail-card", ({playerId}) => {
 			this.updatePlayer(playerId, player => ({numJailCards: player.numJailCards + 1}));
-			// addGetOutOfJailFreeCard(GlobalState.players[playerId]);
 		});
 
 		socket.on("use-jail-card", ({playerId}) => {
 			this.updatePlayer(playerId, player => ({numJailCards: player.numJailCards - 1}));
-			// updateGetOutOfJailFreeCards(GlobalState.players[playerId]);
 		});
 
 		socket.on("update-jail-days", ({playerId, jailDays}) => {
@@ -97,19 +86,16 @@ class GameplayPage extends React.Component {
 
 		// Tax actions
 		socket.on("update-tax", ({tax}) => {
-			// GlobalState.tax = tax;
 			this.setState({tax});
 		});
 
 		// Mortgage actions
 		socket.on("mortgage-property", ({playerId, placeIdx}) => {
 			this.updatePlayer(placeIdx, {isMortgaged: true});
-			// mortgageProperty(GlobalState.players[playerId], placeIdx);
 		});
 
 		socket.on("unmortgage-property", ({playerId, placeIdx}) => {
 			this.updatePlayer(placeIdx, {isMortgaged: false});
-			// unmortgageProperty(GlobalState.players[playerId], placeIdx);
 		});
 
 		socket.emit("start-up", {gameId: props.gameId});
@@ -191,6 +177,16 @@ class GameplayPage extends React.Component {
 		this.socket.emit("respond-to-buy-offer", {ifBuy});
 	}
 
+	respondPayOutOfJail(hasAgreed) {
+		if (hasAgreed) {
+			this.logMessage(["waiting-on-server"]);
+			socket.emit("pay-out-of-jail");
+		} else {
+			this.logMessage(["allow-conclude-turn", null]);
+		}
+	}
+
+	// TODO: Split arg in 2, it's never passed in as one.
 	logMessage(message) {
 		console.log(message[0], message[1]);
 		this.setState(state => ({
@@ -304,7 +300,8 @@ class GameplayPage extends React.Component {
 					waitingForServer={this.state.waitingForServer}
 					executeTurn={this.executeTurn.bind(this)}
 					concludeTurn={this.concludeTurn.bind(this)}
-					respondToBuyOffer={this.respondToBuyOffer.bind(this)} />}
+					respondToBuyOffer={this.respondToBuyOffer.bind(this)}
+					respondPayOutOfJail={this.respondPayOutOfJail.bind(this)} />}
 
 			{/* Player Dashboards */}
 			<div id="heads">

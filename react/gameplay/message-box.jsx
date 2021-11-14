@@ -8,13 +8,7 @@ class MessageBox extends React.Component {
 		validate(super(props));
 
 		// TODO: Display other users' actions.
-		// this.state = {
-
-		// };
 	}
-
-	// updateTurn(nextPlayerId) {
-	// }
 
 	renderMessages() {
 		return this.props.messages
@@ -36,16 +30,19 @@ class MessageBox extends React.Component {
 		switch (finalEventName) {
 			// Offers
 			case "allow-conclude-turn":
-				// allowConcludeTurn();
 				return <div className="button" onClick={this.props.concludeTurn} id="end-turn">End Turn</div>;
 
 			case "offer-pay-out-of-jail":
-				// offerPayOutOfJail();
-				return null;
+				const me = this.props.players[this.props.myPlayerId];
+				const plural = (me.jailDays > 1) ? "s" : "";
+				return <div>
+					<div>{`No double... ${me.name}, you have ${me.jailDays} turn${plural} remaining on your sentence.`}</div>;
+					<div>{`${me.name}, would you like to pay $50 to get out of jail?`}</div>
+					<div className="button" onClick={() => this.props.respondPayOutOfJail(true)}>Pay $50</div>
+					<div className="button-negative" onClick={() => this.props.respondPayOutOfJail(false)}>No Thanks</div>
+				</div>;
 
 			case "offer-unowned-property":
-				// offerUnownedProperty(GlobalState.me, );
-				// const place = this.props.places[finalMessage.placeIdx];
 				const place = PlaceConfigs[finalMessage.placeIdx];
 				const myName = this.props.players[this.props.myPlayerId].name;
 				const enabledClass = this.props.waitingForServer ? "button-disabled" : "";
@@ -111,7 +108,8 @@ MessageBox.propTypes = {
 	waitingForServer: PropTypes.bool,
 	executeTurn: PropTypes.func,
 	concludeTurn: PropTypes.func,
-	respondToBuyOffer: PropTypes.func
+	respondToBuyOffer: PropTypes.func,
+	respondPayOutOfJail: PropTypes.func
 };
 
 export default MessageBox;
