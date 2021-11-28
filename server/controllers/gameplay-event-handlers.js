@@ -19,10 +19,8 @@ function onGameplayConnection(gameplayIo, socket, userId) {
 	let game = undefined;
 	let player = undefined;
 
-	// console.log(`${userId} opened a game`);
-
 	socket.on("disconnect", () => {
-		console.log(`${userId} closed a game`);
+		console.log(`${userId} closed game ${game ? game.id : ""}`);
 		if (player !== undefined) {
 			player.removeEmitter(socket);
 		}
@@ -47,6 +45,8 @@ function onGameplayConnection(gameplayIo, socket, userId) {
 			console.error(game.players.map(player => player.userId));
 			return;
 		}
+
+		console.log(`${userId} opened game ${gameId}`);
 
 		socket.join(gameId);
 

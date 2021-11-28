@@ -1,5 +1,5 @@
 import {PlaceConfigs} from "/javascripts/gameplay/location-configs.js";
-import Player from "/javascripts/gameplay/player.js";
+import Player from "/javascripts/common/models/player.js";
 import validate from "/javascripts/validate-props.js";
 
 

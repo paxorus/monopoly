@@ -1,10 +1,21 @@
 const assert = require("assert");
+const proxyquire = require("proxyquire");
 const {Game, GameRecord, Lobby, LobbyRecord} = require("../../models/game.js");
 const RandomInt = require("../../fickle/random-int.js");
 const TimeNow = require("../../fickle/time-now.js");
 
 
 describe("GameRecord", () => {
+
+	const {Game, GameRecord, Lobby, LobbyRecord} = proxyquire("../../models/game.js", {
+		"./player.js": {
+			PlayerIcons: [
+				{imageSrc: "user sprite 1", borderColor: "user color 1"},
+				{imageSrc: "user sprite 2", borderColor: "user color 2"},
+				{imageSrc: "user sprite 3", borderColor: "user color 3"}
+			]
+		}
+	});
 
 	describe("#buildFromLobby()", () => {
 		it("should build a game record from a lobby record", () => {
@@ -28,6 +39,7 @@ describe("GameRecord", () => {
 						"rollCount": 0,
 						"savedMessages": [],
 						"spriteFileName": "user sprite 1",
+						"borderColor": "user color 1",
 						"userId": "user id 1"
 					},
 					{
@@ -41,6 +53,7 @@ describe("GameRecord", () => {
 						"rollCount": 0,
 						"savedMessages": [],
 						"spriteFileName": "user sprite 2",
+						"borderColor": "user color 2",
 						"userId": "user id 2"
 					},
 					{
@@ -54,6 +67,7 @@ describe("GameRecord", () => {
 						"rollCount": 0,
 						"savedMessages": [],
 						"spriteFileName": "user sprite 3",
+						"borderColor": "user color 3",
 						"userId": "user id 3"
 					}
 				],

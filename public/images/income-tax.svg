@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+  <rect x="151.822" y="98.828" width="75" height="75" style="fill-rule: nonzero; paint-order: fill; stroke: rgb(0, 0, 0); fill: rgba(255, 255, 255, 0); stroke-width: 6px;" transform="matrix(0.707107, 0.707107, -0.707107, 0.707107, 97.5606, -94.236366)" bx:origin="-0.170017 0.490571"></rect>
+  <rect x="189.285" y="103.733" width="50" height="50" style="" transform="matrix(0.707107, 0.707107, -0.707107, 0.707107, 74.860924, -107.195076)" bx:origin="-0.5 0.5"></rect>
+</svg>

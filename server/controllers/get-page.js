@@ -20,6 +20,7 @@ function getLandingPage(req, res) {
 		const completedGames = userGames.filter(game => game.hasCompleted).map(game => summarizeGame(game, userId));
 
 		const lobbies = user.lobbyIds.map(lobbyId => summarizeLobby(Lookup.fetchLobby(lobbyId)), userId);
+		const playerIcons = PlayerIcons.map(playerIcon => playerIcon.imageSrc);
 
 		res.clearCookie("landingToast");
 		res.render("pages/landing", {
@@ -27,7 +28,7 @@ function getLandingPage(req, res) {
 			completedGames,
 			lobbies,
 			yourId: userId,
-			playerIcons: PlayerIcons,
+			playerIcons,
 			landingToast: landingToast || null
 		});
 	} else {
@@ -38,7 +39,7 @@ function getLandingPage(req, res) {
 			completedGames: [],
 			lobbies: [],
 			yourId: userId,
-			playerIcons: PlayerIcons,
+			playerIcons,
 			landingToast: null
 		});
 	}
@@ -66,6 +67,7 @@ function getGameplayOrLobbyPage(req, res) {
 	if (lobbyOption !== undefined) {
 		// Render lobby.
 		const lobby = lobbyOption;
+		const playerIcons = PlayerIcons.map(playerIcon => playerIcon.imageSrc);
 		res.render("pages/lobby", {
 			parameters: {
 				lobbyId: lobby.id,
@@ -78,7 +80,7 @@ function getGameplayOrLobbyPage(req, res) {
 				yourId: userId,
 				joinedPlayers: lobby.memberMap,
 				hasJoinedGame: userId in lobby.memberMap,
-				playerIcons: PlayerIcons
+				playerIcons
 			}
 		});
 		return;

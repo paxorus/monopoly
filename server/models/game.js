@@ -1,4 +1,4 @@
-const {Player, PlayerRecord} = require("../models/player.js");
+const {Player, PlayerIcons, PlayerRecord} = require("../models/player.js");
 const RandomInt = require("../fickle/random-int.js");
 const {getTimeNow} = require("../fickle/time-now.js");
 const {PlacesArray, PlacesArrayRecord} = require("./places-array.js");
@@ -60,7 +60,10 @@ class GameRecord {
 
 	buildFromLobby(lobbyRecord) {
 		const playerRecords = Object.entries(lobbyRecord.memberMap)
-			.map(([userId, {name, sprite}], idx) => new PlayerRecord(name, userId, idx, sprite));
+			.map(([userId, {name, sprite}], idx) => {
+				const borderColor = PlayerIcons.find(playerIcon => playerIcon.imageSrc === sprite).borderColor;
+				return new PlayerRecord(name, userId, idx, sprite, borderColor);
+			});
 
 		return new GameRecord(
 			lobbyRecord.id,

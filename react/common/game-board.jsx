@@ -1,8 +1,8 @@
-import {PlaceConfigs, Locations} from "/javascripts/gameplay/location-configs.js";
-import PlayerSprite from "/javascripts/common/player-sprite.js";
+import GameBoardSquare from "/javascripts/common/game-board-square.js";
+import {Place} from "/javascripts/common/models/place.js";
+import Player from "/javascripts/common/models/player.js";
 import validate from "/javascripts/validate-props.js";
 
-const JAIL_VERTICAL_WALKWAY_CAPACITY = 3;
 const MOVE_ANIMATION_LENGTH = 6;
 const STEP_DURATION_MS = 50;
 
@@ -10,10 +10,6 @@ const STEP_DURATION_MS = 50;
 class GameBoard extends React.Component {
 	constructor(props) {
 		validate(super(props));
-
-		this.squareWidth = 68;
-		this.squareHeight = 66;
-		this.borders = 2;
 
 		this.state = {
 			playerMotions: {}
@@ -110,62 +106,6 @@ class GameBoard extends React.Component {
 		}, STEP_DURATION_MS);
 	}
 
-	handleClickPlayer(event, playerNum) {
-		event.stopPropagation();// Don't click the square.
-		this.props.onClickPlayer(playerNum);
-	}
-
-	getSquarePosition(rowName, placeIdx) {
-		switch (rowName) {
-			case "bottom":
-				return {left: (this.borders + this.squareWidth) * (10 - placeIdx) + "px"};
-			case "left":
-				return {top: (this.borders + this.squareHeight) * (10 - placeIdx) + "px"};
-			case "top":
-				return {left: (this.borders + this.squareWidth) * placeIdx + "px"};
-			case "right":
-				return {top: (this.borders + this.squareHeight) * placeIdx + "px"};
-		}
-	}
-
-	getSquareBackground(place) {
-		if (place.imageName) {
-			return {
-				backgroundImage: `url('${place.imageName}')`,
-				backgroundRepeat: "no-repeat",
-				backgroundSize: `${this.squareWidth}px ${this.squareHeight}px`
-			};
-		} else {
-			return {
-				backgroundColor: place.color
-			};
-		}
-	}
-
-	buildSquare(placeIdx, rowName, walkwayStyle, walkwayClass) {
-		const place = PlaceConfigs[placeIdx];
-
-		const squareStyle = {
-			...this.getSquarePosition(rowName, placeIdx % 10),
-			...this.getSquareBackground(place)
-		};
-
-		const additionalProps = (placeIdx == Locations.FreeParking) ? {id: "alltax"} : {};
-
-		const {playersWithAfterImages, chemTrailSize} = this.getFrame(placeIdx);
-
-		return <div key={placeIdx}
-			dataset-no={placeIdx}
-			style={squareStyle}
-			className={`location ${rowName}`}
-			onClick={() => this.props.onClickLocation(placeIdx)}
-			{...additionalProps}
-		>
-			{this.renderSquareType(place, placeIdx, rowName, walkwayStyle, walkwayClass, playersWithAfterImages)}
-			<div className="chem-trail" style={{width: `${chemTrailSize}px`, height: `${chemTrailSize}px`, marginLeft: `-${chemTrailSize/2}px`, marginTop: `-${chemTrailSize/2}px`}}></div>
-		</div>;
-	}
-
 	getFrame(placeIdx) {
 		const playerFrames = Object.entries(this.state.playerMotions)
 			.filter(([playerNum, playerMotion]) => playerMotion.end !== undefined)
@@ -218,101 +158,37 @@ class GameBoard extends React.Component {
 		return playerMotion.current === placeIdx;
 	}
 
-	renderSquareType(place, placeIdx, rowName, walkwayStyle, walkwayClass, playersWithAfterImages) {
+	renderSquare(placeIdx, rowName) {
+		const {playersWithAfterImages, chemTrailSize} = this.getFrame(placeIdx);
+		const houseCount = (placeIdx in this.props.places) ? this.props.places[placeIdx].houseCount : 0;
 		const players = this.props.players.filter(player => this.isPlayerHere(player, placeIdx));
-		const afterImages = this.props.players.filter(player => this.isPlayerHere(player, placeIdx + 1) && playersWithAfterImages[player.num]);
+		const afterImages = this.props.players.filter(player => this.isPlayerHere(player, boardSum(placeIdx + 1)) && playersWithAfterImages[player.num]);
 
-		if (place.housePrice > 0) {
-			return this.renderProperty(players, afterImages, placeIdx, rowName, walkwayClass, walkwayStyle);
-		} else if (placeIdx === Locations.Jail) {
-			return this.renderJail(players, afterImages);
-		} else {
-			return this.renderPlayerSprites(players, afterImages);
-		}
-	}
+		return <GameBoardSquare
+			key={placeIdx}
+			placeIdx={placeIdx}
+			rowName={rowName}
+			isHighlighted={this.props.highlightedPlaces.has(placeIdx)}
+			players={players}
+			afterImages={afterImages}
+			chemTrailSize={chemTrailSize}
+			houseCount={houseCount}
 
-	renderPlayerSprites(players, afterImages) {
-		return [
-			...players.map(player =>
-				<PlayerSprite key={player.num}
-					spriteFileName={player.spriteFileName}
-					onClick={event => this.handleClickPlayer(event, player.num)}
-					onMouseOver={overOrOut => this.props.onMouseOverPlayer(player.num, overOrOut)} />),
-			...afterImages.map(player =>
-				<PlayerSprite key={player.num}
-					spriteFileName={player.spriteFileName}
-					onClick={event => this.handleClickPlayer(event, player.num)}
-					onMouseOver={overOrOut => this.props.onMouseOverPlayer(player.num, overOrOut)}
-					faded />)
-		]
-	}
-
-	renderProperty(players, afterImages, placeIdx, rowName, walkwayClass, walkwayStyle) {
-		const walkwayHighlightedClass = (this.props.highlightedPlaces.has(placeIdx)) ? "location-highlighted" : "";
-		let houseCount = (placeIdx in this.props.places) ? this.props.places[placeIdx].houseCount : 0;
-
-		return [
-			<div key={0} className={`walkway ${walkwayClass} ${walkwayHighlightedClass}`} style={walkwayStyle}>
-				{/* Property walkway */}
-				{this.renderPlayerSprites(players, afterImages)}
-			</div>,
-			<div key={1} className={`house-plot-${rowName}`}>
-				{(houseCount < 5) ?
-					repeat(houseCount, i => this.renderBuildingIcon(placeIdx, "house", i))
-					:
-					this.renderBuildingIcon(placeIdx, "hotel", 0)}
-			</div>
-		];
-	}
-
-	renderBuildingIcon(placeIdx, buildingType, reactKey) {
-		const isLeftRow = placeIdx > 10 && placeIdx < 20;
-		const isRightRow = placeIdx > 30 && placeIdx < 49;
-		const verticalClassName = (isLeftRow || isRightRow) ? "placed-house-vertical" : "";
-
-		return <img key={reactKey} src={`/images/${buildingType}.svg`} className={`placed-house ${verticalClassName}`} />
-	}
-
-	renderJail(players, afterImages) {
-		const inJail = this.renderPlayerSprites(players.filter(player => player.jailDays > 0), []);
-		const justVisiting = this.renderPlayerSprites(players.filter(player => player.jailDays === 0), afterImages);
-		return <div>
-			<div id="jail">{inJail}</div>
-			<div id="jail-vertical-walkway">{justVisiting.slice(0, JAIL_VERTICAL_WALKWAY_CAPACITY)}</div>
-			<div id="jail-horizontal-walkway">{justVisiting.slice(JAIL_VERTICAL_WALKWAY_CAPACITY)}</div>
-		</div>;		
+			onClickLocation={this.props.onClickLocation}
+			onClickPlayer={this.props.onClickPlayer}
+			onMouseOverPlayer={this.props.onMouseOverPlayer} />;
 	}
 
 	render() {
 		return <div style={{opacity: this.props.faded ? 0.2 : 1}}>
 			{/* Bottom row */}
-			{range(0, 10).map(placeIdx => this.buildSquare(
-				placeIdx,
-				"bottom",
-				{bottom: 0},
-				"horizontal"
-			))}
+			{range(0, 10).map(placeIdx => this.renderSquare(placeIdx, "bottom"))}
 			{/* Left row */}
-			{range(10, 20).map(placeIdx => this.buildSquare(
-				placeIdx,
-				"left",
-				{left: 0},
-				"vertical"
-			))}
-			{/* Left row */}
-			{range(20, 30).map(placeIdx => this.buildSquare(
-				placeIdx,
-				"top",
-				{top: 0},
-				"horizontal"
-			))}
-			{/* Left row */}
-			{range(30, 40).map(placeIdx => this.buildSquare(
-				placeIdx,
-				"right",
-				{right: 0},
-				"vertical"
-			))}
+			{range(10, 20).map(placeIdx => this.renderSquare(placeIdx, "left"))}
+			{/* Top row */}
+			{range(20, 30).map(placeIdx => this.renderSquare(placeIdx, "top"))}
+			{/* Right row */}
+			{range(30, 40).map(placeIdx => this.renderSquare(placeIdx, "right"))}
 		</div>
 	}
 }
@@ -330,33 +206,12 @@ function range(a, b) {
 	return new Array(b - a).fill(0).map((_, i) => i + a);
 }
 
-function repeat(n, func) {
-	return new Array(n).fill(null).map((_, i) => func(i));
-}
-
 
 GameBoard.propTypes = {
 	faded: PropTypes.bool,
 	highlightedPlaces: PropTypes.instanceOf(Set),
-	players: PropTypes.arrayOf(PropTypes.exact({
-		num: PropTypes.number,
-		spriteFileName: PropTypes.string,
-		placeIdx: PropTypes.number,
-		jailDays: PropTypes.number
-	})),
-	places: PropTypes.arrayOf(PropTypes.exact({
-		name: PropTypes.string,
-		price: PropTypes.number,
-		rents: PropTypes.arrayOf(PropTypes.number),
-		housePrice: PropTypes.number,
-		color: PropTypes.string,
-		ownerNum: PropTypes.number,
-		houseCount: PropTypes.number,
-		isMortgaged: PropTypes.bool,
-		placeIdx: PropTypes.number,
-		cardColor: PropTypes.string,
-		imageName: PropTypes.string
-	})),
+	players: PropTypes.arrayOf(PropTypes.instanceOf(Player)),
+	places: PropTypes.arrayOf(PropTypes.instanceOf(Place)),
 	onClickLocation: PropTypes.func,
 	onClickPlayer: PropTypes.func,
 	onMouseOverPlayer: PropTypes.func

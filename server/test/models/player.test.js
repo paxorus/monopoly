@@ -5,7 +5,7 @@ const {PlayerRecord, Player} = require("../../models/player.js");
 describe("PlayerRecord", () => {
 	describe("#constructor()", () => {
 		it("builds", () => {
-			const actual = new PlayerRecord("my name", "my id", 0, "my image");
+			const actual = new PlayerRecord("my name", "my id", 0, "my image", "my sprite color");
 
 			assert.deepEqual(actual, {
 				"balance": 1500,
@@ -18,6 +18,7 @@ describe("PlayerRecord", () => {
 				"rollCount": 0,
 				"savedMessages": [],
 				"spriteFileName": "my image",
+				"borderColor": "my sprite color",
 				"userId": "my id"
 			});
 		});

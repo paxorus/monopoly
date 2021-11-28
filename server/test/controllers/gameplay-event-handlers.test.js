@@ -10,7 +10,7 @@ describe("Gameplay Event Handlers", () => {
 
 		let actualGameActionCalls = [];
 
-		const dummyPlayerRecords = [new PlayerRecord("my player name", "my user id", 0, "my player sprite")];
+		const dummyPlayerRecords = [new PlayerRecord("my player name", "my user id", 0, "my player sprite", "my sprite color")];
 
 		const {onGameplayConnection} = proxyquire("../../controllers/gameplay-event-handlers.js", {
 			// Stub the game logic functions.
@@ -135,6 +135,7 @@ describe("Gameplay Event Handlers", () => {
 								"rollCount": 0,
 								"savedMessages": [],
 								"spriteFileName": "my player sprite",
+								"borderColor": "my sprite color",
 								"userId": "my user id"
 							}
 						],

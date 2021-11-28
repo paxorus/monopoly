@@ -56,6 +56,7 @@
 	position: absolute;
 	bottom: 0;
 	width: 100%;
+	height: 33.3%;
 }
 .placed-house {
 	width: calc(var(--square-height) / 4);
@@ -101,4 +102,24 @@
 	right: 0;
 	width: calc(var(--square-width) * 2/3); /* jail.width */
 	height: calc(var(--square-height) / 3); /* location.height - jail.height */
+}
+
+.place-name {
+	font-size: 12px;
+	text-align: center;
+}
+.place-name-left, .place-name-right {
+	writing-mode: vertical-rl;
+}
+.place-name-left {
+	padding-right: 2px;
+}
+.place-name-right {
+	position: absolute;
+	padding-left: 4px;
+}
+.railroad-name {
+	color: #eee;
+	background-color: rgba(0, 0, 0, 0.4);
+	margin-top: 25%;
 }

@@ -1,9 +1,9 @@
 import {PlaceConfigs, propertyComparator, Locations} from "/javascripts/gameplay/location-configs.js";
 import LocationCard from "/javascripts/gameplay/location-card.js";
 import GameBoard from "/javascripts/common/game-board.js";
-import {hydratePlaces} from "/javascripts/gameplay/place.js";
+import {hydratePlaces} from "/javascripts/common/models/place.js";
 import MessageBox from "/javascripts/gameplay/message-box.js";
-import Player from "/javascripts/gameplay/player.js";
+import Player from "/javascripts/common/models/player.js";
 import PlayerDashboard from "/javascripts/gameplay/player-dashboard.js";
 import validate from "/javascripts/validate-props.js";
 
@@ -131,12 +131,13 @@ class GameplayPage extends React.Component {
 	}
 
 	startUp({playerData, locationData, monopolies, yourPlayerId, currentPlayerId, tax, numTurns}) {
-		// Handle: currentPlayerId, numTurns
-		const players = playerData.map(({name, num, spriteFileName, balance, placeIdx}) => {
+		const players = playerData.map(({name, num, spriteFileName, borderColor, balance, placeIdx, jailDays, numJailCards}) => {
 			// TODO: Move to player.js.
-			const player = new Player(name, num, spriteFileName);
+			const player = new Player(name, num, spriteFileName, borderColor);
 			player.balance = balance;
 			player.placeIdx = placeIdx;
+			player.jailDays = jailDays;
+			player.numJailCards = numJailCards;
 			return player;
 		});
 
@@ -273,7 +274,7 @@ class GameplayPage extends React.Component {
 		return <div>
 
 			<GameBoard
-				players={this.state.players.map(({num, spriteFileName, placeIdx, jailDays}) => ({num, spriteFileName, placeIdx, jailDays}))}
+				players={this.state.players}
 				places={this.state.places}
 				onClickLocation={this.handleClickLocation.bind(this)}
 				onClickPlayer={this.openDashboard.bind(this)}

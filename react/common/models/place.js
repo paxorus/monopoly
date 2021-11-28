@@ -1,5 +1,5 @@
 import {PlaceConfigs} from "/javascripts/gameplay/location-configs.js";
-import ImmutableModel from "/javascripts/gameplay/immutable-model.js";
+import ImmutableModel from "/javascripts/common/models/immutable-model.js";
 
 /**
  * Given a dehydrated state of the properties (locationData), build an array of 40 places.

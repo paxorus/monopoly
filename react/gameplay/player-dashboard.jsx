@@ -1,6 +1,6 @@
 import {PlaceConfigs} from "/javascripts/gameplay/location-configs.js";
-import {Place} from "/javascripts/gameplay/place.js";
-import Player from "/javascripts/gameplay/player.js";
+import {Place} from "/javascripts/common/models/place.js";
+import Player from "/javascripts/common/models/player.js";
 import validate from "/javascripts/validate-props.js";
 
 
@@ -104,19 +104,14 @@ class PlayerDashboard extends React.Component {
 	}
 
 	render() {
-		const {num, spriteFileName, name, placeIdx, balance, numJailCards, jailDays} = this.props.player;
+		const {num, spriteFileName, borderColor, name, placeIdx, balance, numJailCards, jailDays} = this.props.player;
 		return <div key={num}>
 			{/* Header: name, location, and balance. */}
 			<div className="player-display-head" onClick={() => this.props.onClickHeader(num)}>
-				<img className="display-sprite" src={spriteFileName} />
-				<span>{`${name}: ${PlaceConfigs[placeIdx].name}`}</span>
-				<div style={{float: "right"}}>
-					{"$" + balance}
-				</div>
+				<img className="display-sprite" style={{borderColor}} src={spriteFileName} />
+				<div className="inline display-name-place">{`${name}: ${PlaceConfigs[placeIdx].name}`}</div>
+				<div className="display-balance">{"$" + balance}</div>
 			</div>
-
-			{/* Divider bar. TODO: Convert this to a bottom margin of the header. */}
-			<div className="dashboard-divider"></div>
 
 			{/* Property list */}
 			<div style={{height: this.getHeight()}} className="dashboard">

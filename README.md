@@ -22,10 +22,7 @@ The Pokemon sprites are loaded from Bulbapedia.
 
 #### Kanav's User Feedback
 * Center-align the board-- lots of wasted space on a large monitor.
-* Show location name as tooltip on hover.
 * Display the game rules in the game.
-* Resize sprites to max size, right now they're always tiny.
-* Complete the income tax square.
 
 #### Interconnectivity
 * Embolden the rent that is in effect on the display card.
@@ -33,6 +30,7 @@ The Pokemon sprites are loaded from Bulbapedia.
 
 #### Digital Benefits
 * Compute net worths for landing page game tiles.
+* Watermark owned properties with the owning player's sprite image, like the simplified cropped sketches of the legendaries on the back of the Switch Lite.
 * Show logs of previous turns. Currently, a player's notifications are wiped as soon as it's their turn again.
 * Historical analytics such as net worth over time.
 
