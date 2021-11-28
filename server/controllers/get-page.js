@@ -6,6 +6,8 @@ const Lookup = require("../storage/lookup.js");
 
 
 function getLandingPage(req, res) {
+	const playerIcons = PlayerIcons.map(playerIcon => playerIcon.imageSrc);
+
 	if ("userId" in req.cookies) {
 		const {userId, secretKey, landingToast} = req.cookies;
 		if (!httpAuthenticatePlayer(res, userId, secretKey)) {
@@ -20,7 +22,6 @@ function getLandingPage(req, res) {
 		const completedGames = userGames.filter(game => game.hasCompleted).map(game => summarizeGame(game, userId));
 
 		const lobbies = user.lobbyIds.map(lobbyId => summarizeLobby(Lookup.fetchLobby(lobbyId)), userId);
-		const playerIcons = PlayerIcons.map(playerIcon => playerIcon.imageSrc);
 
 		res.clearCookie("landingToast");
 		res.render("pages/landing", {
