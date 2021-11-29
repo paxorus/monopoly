@@ -1,7 +1,7 @@
 // Capture chosen sprite on click.
 $(".player-icon").click(event => {
 	const imgNode = event.target;
-	$("#player-icon-hidden-field").val(imgNode.src.substring(window.location.origin.length + 1));
+	$("#player-icon-hidden-field").val(imgNode.src.substring(window.location.origin.length));
 	$(".player-icon").css("filter", "brightness(0.25)");
 	$(imgNode.parentNode).css("filter", "brightness(1.0)");
 });
