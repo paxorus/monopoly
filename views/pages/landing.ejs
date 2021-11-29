@@ -3,6 +3,7 @@
 <link href="/stylesheets/shared.css" rel="stylesheet" />
 <link href="/stylesheets/modal.css" rel="stylesheet" />
 <link href="stylesheets/landing.css" rel="stylesheet" />
+<link href="stylesheets/button-animations.css" rel="stylesheet" />
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css" integrity="sha512-/zs32ZEJh+/EO2N1b0PEdoA10JkdC3zJ8L5FTiQu82LR9S/rOQNfQN7U59U9BC12swNeRAz3HSzIL2vpp4fv3w==" crossorigin="anonymous" />
 </head>
@@ -12,7 +13,7 @@
 <h1>Welcome to Web Monopoly!</h1>
 
 <!-- Create New Game button -->
-<div id="open-new-game-modal" class="button" style="display: inline-block;">
+<div id="open-new-game-modal" class="button glow-on-hover" style="display: inline-block;">
 	+ Create a New Game
 </div>
 
@@ -38,7 +39,7 @@
 					<div style="font-size: 10px; color: #777">Created <%= game.timeSinceCreated %> by <%= game.creatorName === game.yourName ? "you" : game.creatorName %></div>
 				</div>
 				<canvas class="player-donut-chart" id="player-performance-<%= game.id %>"></canvas>
-				<div class="tile-overlay" style="display: none">
+				<div class="tile-overlay" style="opacity: 0">
 					Return to Game
 				</div>
 			</div>
@@ -49,10 +50,11 @@
 		<% const lobby = lobbies[i]; %>
 		<a href="/game/<%=lobby.id %>" class="link">
 			<!-- Display a tile, summarizing the lobby. -->
-			<div class="game-summary-tile" style="background-color: #d7e2f5">
-				<b style="color: #777"><%= lobby.name %></b>
+			<div class="game-summary-tile" style="background-color: #e6ffe6">
+				<b><%= lobby.name %></b>
 				<br />
-				<ul style="font-size: 14px; padding-left: 30px">
+				<h5 style="margin-bottom: 0">Players:</h5>
+				<ul style="font-size: 12px; padding-left: 30px">
 					<% for (let j = 0; j < lobby.playerNames.length; j ++) { %>
 						<% const playerName = lobby.playerNames[j]; %>
 						<li><%= playerName %></li>
@@ -63,7 +65,7 @@
 					<div style="font-size: 10px; color: #777">Created <%= lobby.timeSinceCreated %> by <%= lobby.adminId === yourId ? "you" : lobby.adminName %></div>
 					<div style="font-size: 12px">In Lobby</div>
 				</div>
-				<div class="tile-overlay" style="display: none">
+				<div class="tile-overlay" style="opacity: 0">
 					Open Lobby
 				</div>
 			</div>			
@@ -94,7 +96,7 @@
 </div>
 
 <!-- Overlay for modal -->
-<div id="full-page-overlay"></div>
+<div class="full-page-overlay"></div>
 
 <!-- Create New Game modal -->
 <div id="new-game-form-modal" class="form-modal">
@@ -121,7 +123,7 @@ startedGames.forEach(game => {
 	const myChart = new Chart(ctx, {
 		type: "doughnut",
 		data: {
-			labels: game.playerData.map(player => player.name),
+			labels: game.playerData.map(player => `${player.name} - $${player.netWorth}`),
 			datasets: [{
 				data: game.playerData.map(player => player.netWorth),
 				backgroundColor: [
@@ -136,14 +138,6 @@ startedGames.forEach(game => {
 			}]
 		},
 		options: {
-			tooltips: {
-				callbacks: {
-					label: function(tooltipItem, {datasets, labels}) {
-						const netWorth = datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-						return `$${netWorth}`;
-					}
-				}
-			},
 			legend: {
 				position: "left"
 			}
@@ -160,20 +154,51 @@ $(".game-summary-tile").on("animationstart", event => {
 // Display the text overlay while tile is in grown state.
 $(".game-summary-tile").on("animationend", event => {
 	if (event.originalEvent.animationName === "grow-summary-tile") {
-		$(event.target).children(".tile-overlay").css("display", "block");
+		$(event.target).children(".tile-overlay").css("opacity", 0.8);
 	}
 });
 $(".game-summary-tile").on("animationstart", event => {
 	if (event.originalEvent.animationName === "shrink-summary-tile") {
-		$(event.target).children(".tile-overlay").css("display", "none");
+		$(event.target).children(".tile-overlay").css("opacity", 0);
+		$(event.target).css("z-index", 0);
+	}
+	if (event.originalEvent.animationName === "grow-summary-tile") {
+		$(event.target).css("z-index", 5);
 	}
 });
 
-// $(".player-donut-chart").on("hover", event => {
-// 	event.stopPropagation();
-// 	// event.
-// 	return false;
-// })
+/**
+ * Background raindrops.
+ */
+const logos = [
+	"/images/chance-blue.svg",
+	"/images/community-chest.svg",
+	"/images/electric-company.svg",
+	"/images/free-parking.svg",
+	"/images/go.svg",
+	"/images/go-to-jail.svg",
+	"/images/house.svg",
+	"/images/hotel.svg",
+	"/images/in-jail.svg",
+	"/images/luxury-tax.svg",
+	"/images/mortgage.svg",
+	"/images/railroad.svg",
+	"/images/water-works.svg"
+];
+
+function addRaindrop() {
+	const raindrop = document.createElement("img");
+	raindrop.src = logos[Math.floor(Math.random() * logos.length)];
+	raindrop.style.left = `${Math.random() * window.innerWidth - 50}px`;
+	raindrop.style.top = `${Math.random() * window.innerHeight - 50}px`;
+	raindrop.className = "raindrop";
+
+	document.body.appendChild(raindrop);
+
+	setTimeout(() => document.body.removeChild(raindrop), 5000);
+}
+
+setInterval(addRaindrop, 1000);
 </script>
 
 <script src="/javascripts/landing/new-game-form.js"></script>
@@ -182,12 +207,13 @@ $(".game-summary-tile").on("animationstart", event => {
 
 	const modalElements = {
 		modal: $("#new-game-form-modal"),
-		overlay: $("#full-page-overlay"),
+		overlay: $(".full-page-overlay"),
 		container: $("#page-container")
 	};
 
 	$("#open-new-game-modal").click(event => openModal(modalElements));
 	$("#close-modal-x").click(event => closeModal(modalElements));
+	$(".full-page-overlay").click(event => closeModal(modalElements));
 
 	import {showToast} from "/javascripts/landing/toast.js";
 	if (landingToastData !== null) {

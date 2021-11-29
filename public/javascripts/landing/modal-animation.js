@@ -1,3 +1,5 @@
+let isModalOpen = false;
+
 function animate({steps, durationMs, styles, then}) {
 	function _animate(step) {
 		styles.forEach(({element, property, from, to, format}) => {
@@ -19,6 +21,10 @@ function animate({steps, durationMs, styles, then}) {
 }
 
 function openModal({modal, overlay, container}) {
+	if (isModalOpen) {
+		return;
+	}
+
 	overlay.css("z-index", 2);
 	modal.css("display", "block");
 
@@ -29,11 +35,18 @@ function openModal({modal, overlay, container}) {
 			{element: overlay, property: "opacity", from: 0, to: 0.8},
 			{element: container, property: "filter", from: 0, to: 10, format: num => `blur(${num}px)`},
 			{element: modal, property: "top", from: 100, to: 20, format: num => `${num}%`}
-		]
+		],
+		then: () => {
+			isModalOpen = true;
+		}
 	});
 }
 
 function closeModal({modal, overlay, container}) {
+	if (!isModalOpen) {
+		return;
+	}
+
 	animate({
 		steps: 10,
 		durationMs: 50,
@@ -45,6 +58,7 @@ function closeModal({modal, overlay, container}) {
 		then: () => {
 			overlay.css("z-index", -1);
 			modal.css("display", "none");
+			isModalOpen = false;
 		}
 	});
 }

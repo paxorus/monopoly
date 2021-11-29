@@ -90,7 +90,7 @@ const lobbies = {
 		createTime: 1598213805058,
 		memberMap: {
 			"heerffgylfgxuslpsujz": {
-				name: "boop-star",
+				name: "Prakhar",
 				sprite: "/images/sprites/025Pikachu-240x240.png"
 			}
 		}
@@ -102,7 +102,7 @@ const lobbies = {
 		createTime: 1598213805058,
 		memberMap: {
 			"heerffgylfgxuslpsujz": {
-				name: "boop-star",
+				name: "Prakhar",
 				sprite: "/images/sprites/025Pikachu-240x240.png"
 			}
 		}
