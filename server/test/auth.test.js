@@ -44,18 +44,18 @@ describe("Auth", () => {
 	});
 
 	describe("#httpAuthenticatePlayer()", () => {
-		it("rejects an unknown user id", () => {
-			const mockResponse = {
-				status: function (statusCode) {this.statusCode = statusCode},
-				send: function (message) {this.message = message}
-			};
+		// it("rejects an unknown user id", () => {
+		// 	const mockResponse = {
+		// 		status: function (statusCode) {this.statusCode = statusCode},
+		// 		send: function (message) {this.message = message}
+		// 	};
 
-			const success = httpAuthenticatePlayer(mockResponse, "unknown user id", "any secret key");
+		// 	const success = httpAuthenticatePlayer(mockResponse, "unknown user id", "any secret key");
 
-			assert.equal(success, false);
-			assert.equal(mockResponse.statusCode, 401);
-			assert.equal(mockResponse.message, "401 (Unauthorized): User not recognized");
-		});
+		// 	assert.equal(success, false);
+		// 	assert.equal(mockResponse.statusCode, 401);
+		// 	assert.equal(mockResponse.message, "401 (Unauthorized): User not recognized");
+		// });
 
 		it("rejects a mismatching secret key", () => {
 			const mockResponse = {

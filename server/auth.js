@@ -22,10 +22,18 @@ function httpAuthenticatePlayer(res, userId, secretKey) {
 	const user = Lookup.fetchUser(userId);
 
 	if (user === undefined) {
-		res.status(401);
-		res.send("401 (Unauthorized): User not recognized");
-		return false;
-	}
+		// res.status(401);
+		// res.send("401 (Unauthorized): User not recognized");
+		// return false;
+
+		// Hack until DB persistence: Accept any unknown users.
+		Lookup.createUser(userId, {
+			gameIds: [],
+			lobbyIds: [],
+			secretKey
+		});
+		return true;
+	}	
 
 	if (user.secretKey !== secretKey) {
 		res.status(401);
