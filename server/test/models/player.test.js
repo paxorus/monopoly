@@ -91,7 +91,6 @@ describe("Player", () => {
 		it("does not emit if the player goes offline", () => {
 			mockSocket.resetMock();
 
-			const mockGame = {};
 			const player = new Player(new PlayerRecord("my name", "my id", 0, "my image"), {});
 
 			player.configureEmitter(null, mockSocket);
@@ -102,6 +101,34 @@ describe("Player", () => {
 
 			assert.deepEqual(mockSocket.messages, [
 				["boop", {x: 10}]
+			]);
+		});
+
+		it("saves messages that impact the state of the message box", () => {
+			mockSocket.resetMock();
+
+			const player = new Player(new PlayerRecord("my name", "my id", 0, "my image"), {});
+
+			player.configureEmitter(null, mockSocket);
+			player.emit("allow-conclude-turn", {});
+			player.emit("offer-pay-out-of-jail", {});
+			player.emit("offer-unowned-property", {});
+			player.emit("dialog", {});
+			player.emit("notify", {});
+			player.emit("advance-turn", {nextPlayerId: 1});
+
+			assert.deepEqual(player.savedMessages, [
+				["allow-conclude-turn", {}],
+				["offer-pay-out-of-jail", {}],
+				["offer-unowned-property", {}],
+				["dialog", {}],
+				["notify", {}],
+				["advance-turn", {nextPlayerId: 1}]
+			]);
+
+			player.emit("advance-turn", {nextPlayerId: 0});
+			assert.deepEqual(player.savedMessages, [
+				["advance-turn", {nextPlayerId: 0}]
 			]);
 		});
 	});

@@ -42,7 +42,7 @@ function onGameplayConnection(gameplayIo, socket, userId) {
 
 		if (player === undefined) {
 			console.error(`User ${userId} does not have a player in game ${gameId}.`);
-			console.error(game.players.map(player => player.userId));
+			console.error(`Valid players: ${game.players.map(player => player.userId)}`);
 			return;
 		}
 
