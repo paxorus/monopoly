@@ -192,16 +192,16 @@ class Player {
 }
 
 const PlayerIcons = [
-	{imageSrc: "https://cdn2.bulbagarden.net/upload/thumb/0/0d/025Pikachu.png/240px-025Pikachu.png", borderColor: "#FAD61D"},
-	{imageSrc: "https://cdn2.bulbagarden.net/upload/archive/6/60/20091223220130%21258Mudkip.png", borderColor: "#42A5DE"},
-	{imageSrc: "https://cdn2.bulbagarden.net/upload/archive/2/2c/20091223215948%21252Treecko.png", borderColor: "#5A9C5A"},
-	{imageSrc: "https://cdn2.bulbagarden.net/upload/archive/9/91/20091223220041%21255Torchic.png", borderColor: "#FFC552"},
-	{imageSrc: "https://cdn2.bulbagarden.net/upload/archive/c/ca/20090820000257%21092Gastly.png", borderColor: "#94769D"},
-	{imageSrc: "https://cdn2.bulbagarden.net/upload/archive/d/d8/20100219173940%21386Deoxys-Attack.png", borderColor: "#794981"},
-	{imageSrc: "https://cdn2.bulbagarden.net/upload/thumb/f/f1/382Kyogre-Primal.png/240px-382Kyogre-Primal.png", borderColor: "#393580"},
-	{imageSrc: "https://cdn2.bulbagarden.net/upload/thumb/5/58/384Rayquaza-Mega.png/240px-384Rayquaza-Mega.png", borderColor: "#466856"},
-	{imageSrc: "https://cdn2.bulbagarden.net/upload/thumb/8/81/644Zekrom.png/240px-644Zekrom.png", borderColor: "#374b4e"},
-	{imageSrc: "https://cdn2.bulbagarden.net/upload/thumb/8/8a/483Dialga.png/240px-483Dialga.png", borderColor: "#466289"},
+	{imageSrc: "/images/sprites/025Pikachu-240x240.png", borderColor: "#FAD61D"},
+	{imageSrc: "/images/sprites/092Gastly-138x130.png", borderColor: "#94769D"},
+	{imageSrc: "/images/sprites/252Treecko-220x220.png", borderColor: "#5A9C5A"},
+	{imageSrc: "/images/sprites/255Torchic-140x230.png", borderColor: "#FFC552"},
+	{imageSrc: "/images/sprites/258Mudkip-205x215.png", borderColor: "#42A5DE"},
+	{imageSrc: "/images/sprites/382Kyogre-Primal-240x240.png", borderColor: "#393580"},
+	{imageSrc: "/images/sprites/384Rayquaza-Mega-240x240.png", borderColor: "#466856"},
+	{imageSrc: "/images/sprites/386Deoxys-Attack-103x135.png", borderColor: "#794981"},
+	{imageSrc: "/images/sprites/483Dialga-240x240.png", borderColor: "#466289"},
+	{imageSrc: "/images/sprites/644Zekrom-240x240.png", borderColor: "#374b4e"},
 ];
 
 module.exports = {

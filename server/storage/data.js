@@ -48,7 +48,7 @@ const games = {
 				name: "Prakhar",
 				userId: "heerffgylfgxuslpsujz",
 				num: 0,
-				spriteFileName: "https://cdn2.bulbagarden.net/upload/thumb/5/58/384Rayquaza-Mega.png/240px-384Rayquaza-Mega.png",
+				spriteFileName: "/images/sprites/384Rayquaza-Mega-240x240.png",
 				borderColor: "#466856",
 				latestRoll: null,
 				rollCount: null,
@@ -64,7 +64,7 @@ const games = {
 				name: "Willy",
 				userId: "nnkciawfaytxwwtxgxue",
 				num: 1,
-				spriteFileName: "https://cdn2.bulbagarden.net/upload/thumb/f/f1/382Kyogre-Primal.png/240px-382Kyogre-Primal.png",
+				spriteFileName: "/images/sprites/382Kyogre-Primal-240x240.png",
 				borderColor: "#393580",
 				latestRoll: null,
 				rollCount: null,
@@ -91,7 +91,7 @@ const lobbies = {
 		memberMap: {
 			"heerffgylfgxuslpsujz": {
 				name: "boop-star",
-				sprite: "https://cdn2.bulbagarden.net/upload/thumb/0/0d/025Pikachu.png/240px-025Pikachu.png"
+				sprite: "/images/sprites/025Pikachu-240x240.png"
 			}
 		}
 	},
@@ -103,7 +103,7 @@ const lobbies = {
 		memberMap: {
 			"heerffgylfgxuslpsujz": {
 				name: "boop-star",
-				sprite: "https://cdn2.bulbagarden.net/upload/thumb/0/0d/025Pikachu.png/240px-025Pikachu.png"
+				sprite: "/images/sprites/025Pikachu-240x240.png"
 			}
 		}
 	}

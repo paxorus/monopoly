@@ -17,6 +17,7 @@ Minor TODOs are left throughout the code as well.
 * Test coverage for obey-location.js and remainder of execute-turn.js.
 * Test coverage for React game and lobby.
 * Convert the landing page to React.
+* Bring sprite URLs and colors to frontend, and only keep the player sprite ID in the backend.
 
 #### Minor
 * Should Player ever use io.emit() (game SocketIO room) instead of emitToAll()?
