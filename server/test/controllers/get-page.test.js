@@ -1,7 +1,5 @@
 const assert = require("assert");
-// const TimeNow = require("../../fickle/time-now.js");
-const {Game, GameRecord, Lobby, LobbyRecord} = require("../../models/game.js");
-const {PlayerIcons, PlayerRecord} = require("../../models/player.js");
+const {PlayerIcons} = require("../../models/player.js");
 const Mock = require("../test-utils/mock.js");
 const proxyquire = require("proxyquire");
 
