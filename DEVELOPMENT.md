@@ -13,7 +13,6 @@ Minor TODOs are left throughout the code as well.
 * Implement a JS Option and replace all JS nulls
 
 #### Medium
-* Test coverage for GET and Lobby controllers
 * Test coverage for obey-location.js and remainder of execute-turn.js.
 * Test coverage for React game and lobby.
 * Convert the landing page to React.

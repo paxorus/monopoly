@@ -3,7 +3,7 @@ The backend uses Node.js and Socket.io.
 The frontend is built with React.js and a bit of Chart.js and `jQuery`.
 The backend and frontend tests use Mocha.js and Sinon.js. The backend end tests also use `proxyquire`.
 
-The Pokemon sprites are loaded from Bulbapedia.
+The Pokemon sprites are from Bulbapedia.
 
 ## House Rules
 * No 10% interest on mortgages: If a player mortgages a property for $50, they can unmortgage for $50.
