@@ -88,7 +88,7 @@ function getGameplayOrLobbyPage(req, res) {
 	}
 
 	res.render("pages/404", {
-		message: `Game ${gameId} not found.`
+		message: `Game "${gameId}" not found.`
 	});
 }
 

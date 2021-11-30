@@ -1,7 +1,12 @@
 const assert = require("assert");
-const {describeTimeSince} = require("../../friendliness/age-to-text-helper.js");
-const TimeNow = require("../../fickle/time-now.js");
+const proxyquire = require("proxyquire");
 
+const nowInMillis = 1.6e12;
+const {describeTimeSince} = proxyquire("../../friendliness/age-to-text-helper.js", {
+	"../fickle/time-now.js": {
+		getTimeNow: () => nowInMillis
+	}
+});
 
 describe("Age to Text Helper", () => {
 
@@ -15,16 +20,10 @@ describe("Age to Text Helper", () => {
 
 	describe("#describeTimeSince()", () => {
 		it("should describe times in the future as a few seconds ago", () => {
-			const nowInMillis = +new Date();
-			TimeNow._inject(nowInMillis);
-
 			assert.equal(describeTimeSince(nowInMillis + SECOND), "a few seconds ago");
 		});
 
 		it("should round down when describing the time", () => {
-			const nowInMillis = +new Date();
-			TimeNow._inject(nowInMillis);
-
 			assert.equal(describeTimeSince(nowInMillis - SECOND), "a few seconds ago");
 			assert.equal(describeTimeSince(nowInMillis - MINUTE + 1), "a few seconds ago");
 
