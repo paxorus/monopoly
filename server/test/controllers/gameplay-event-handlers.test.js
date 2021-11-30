@@ -1,6 +1,7 @@
 const assert = require("assert");
 const proxyquire = require("proxyquire");
 const {Game, GameRecord} = require("../../models/game.js");
+const {MockIo, MockSocket} = require("../test-utils/mock-socket.js");
 const {PlayerRecord} = require("../../models/player.js");
 
 
@@ -80,28 +81,10 @@ describe("Gameplay Event Handlers", () => {
 			}
 		];
 
-		const mockIo = {
-			to: function (roomName) {this.roomName = roomName; return this},
-			resetMock: function () {delete this.roomName}
-		};
-
-		const mockSocket = {
-			registeredCallbacks: {},
-			sentMessages: [],
-			on: function (eventName, callback) {this.registeredCallbacks[eventName] = callback},
-			join: function (roomName) {this.roomName = roomName},
-			emit: function (eventName, message) {this.sentMessages.push([eventName, message])},
-			resetMock: function () {
-				this.registeredCallbacks = [];
-				this.sentMessages = [];
-				delete this.roomName;
-			}
-		};
-
 		it("adds the socket to the room and locates the player and game on start-up, and removes the socket on disconnect", () => {
 			actualGameActionCalls = [];
-			mockIo.resetMock();
-			mockSocket.resetMock();
+			const mockIo = new MockIo();
+			const mockSocket = new MockSocket();
 
 			// Register the callbacks.
 			onGameplayConnection(mockIo, mockSocket, "my user id");
@@ -151,8 +134,8 @@ describe("Gameplay Event Handlers", () => {
 
 		it("registers a socket callback to the proper game logic function for each gameplay client event", () => {
 			actualGameActionCalls = [];
-			mockIo.resetMock();
-			mockSocket.resetMock();
+			const mockIo = new MockIo();
+			const mockSocket = new MockSocket();
 
 			// Register the callbacks.
 			onGameplayConnection(mockIo, mockSocket, "my user id");
@@ -198,8 +181,8 @@ describe("Gameplay Event Handlers", () => {
 
 		it("quits out on start-up if the user ID is not among the game's players", () => {
 			actualGameActionCalls = [];
-			mockIo.resetMock();
-			mockSocket.resetMock();
+			const mockIo = new MockIo();
+			const mockSocket = new MockSocket();
 
 			onGameplayConnection(mockIo, mockSocket, "unknown user id");
 			const actual = mockSocket.registeredCallbacks["start-up"]({gameId: "my game id"});
@@ -209,8 +192,8 @@ describe("Gameplay Event Handlers", () => {
 
 		it("quits out on start-up if the game is not found", () => {
 			actualGameActionCalls = [];
-			mockIo.resetMock();
-			mockSocket.resetMock();
+			const mockIo = new MockIo();
+			const mockSocket = new MockSocket();
 
 			onGameplayConnection(mockIo, mockSocket, "my user id");
 			const actual = mockSocket.registeredCallbacks["start-up"]({gameId: "unknown game id"});
@@ -220,8 +203,8 @@ describe("Gameplay Event Handlers", () => {
 
 		it("cancels game actions that occur before start-up", () => {
 			actualGameActionCalls = [];
-			mockIo.resetMock();
-			mockSocket.resetMock();
+			const mockIo = new MockIo();
+			const mockSocket = new MockSocket();
 
 			onGameplayConnection(mockIo, mockSocket, "my user id");
 
