@@ -1,38 +1,26 @@
 const assert = require("assert");
-const RandomInt = require("../../fickle/random-int.js");
-const TimeNow = require("../../fickle/time-now.js");
+// const TimeNow = require("../../fickle/time-now.js");
 const {Game, GameRecord, Lobby, LobbyRecord} = require("../../models/game.js");
-const {PlayerRecord} = require("../../models/player.js");
+const {PlayerIcons, PlayerRecord} = require("../../models/player.js");
+const Mock = require("../test-utils/mock.js");
 const proxyquire = require("proxyquire");
 
 
 describe("Get Page", () => {
 
 	// Set up mock data.
-	const playerIcons = [
-		"/images/sprites/025Pikachu-240x240.png",
-		"/images/sprites/092Gastly-138x130.png",
-		"/images/sprites/252Treecko-220x220.png",
-		"/images/sprites/255Torchic-140x230.png",
-		"/images/sprites/258Mudkip-205x215.png",
-		"/images/sprites/382Kyogre-Primal-240x240.png",
-		"/images/sprites/384Rayquaza-Mega-240x240.png",
-		"/images/sprites/386Deoxys-Attack-103x135.png",
-		"/images/sprites/483Dialga-240x240.png",
-		"/images/sprites/644Zekrom-240x240.png"
-	];
+	const playerIcons = PlayerIcons.map(playerIcon => playerIcon.imageSrc);
 
-	const playerRecords = [
-		new PlayerRecord("Mudkip", "user id 0", 0, "mudkip", "blue"),
-		new PlayerRecord("Treecko", "user id 1", 1, "treecko", "green")
-	];
-	RandomInt._inject(0, 1);// Starting player IDs
+	const playerRecords = Mock.playerRecords(["Mudkip", "Treecko"]);
 	const games = {
-		"game id 1": new Game(new GameRecord("game id 1", "game name 1", "user id 0", playerRecords, [
+		"my-game-1-xyz": Mock.game("My Game 1", 0, playerRecords, [
 			{placeIdx: 37, ownerNum: 0, houseCount: 0, isMortgaged: true},
 			{placeIdx: 39, ownerNum: 0, houseCount: 2, isMortgaged: false}
-		])),
-		"game id 2": new Game(new GameRecord("game id 2", "game name 2", "user id 0", playerRecords, []))
+		]),
+		"my-game-2-xyz": Mock.game("My Game 2", 1, playerRecords)
+	};
+	const lobbies = {
+		"my-lobby-0-xyz": Mock.lobby("Lobby 0", 1.55e12, playerRecords[0])
 	};
 
 	const {getLandingPage, getGameplayOrLobbyPage} = proxyquire("../../controllers/get-page.js", {
@@ -40,14 +28,11 @@ describe("Get Page", () => {
 			httpAuthenticatePlayer: () => true
 		},
 		"../storage/lookup.js": {
-			fetchUser: () => ({gameIds: ["game id 1", "game id 2"], lobbyIds: ["lobby id 0"]}),
+			fetchUser: () => ({gameIds: Object.keys(games), lobbyIds: Object.keys(lobbies)}),
 			fetchGame(gameId) {
 				return games[gameId];
 			},
 			fetchLobby(lobbyId) {
-				const lobbies = {
-					"lobby id 0": new Lobby(new LobbyRecord("lobby id 0", "lobby name 0", "user id 0", "Mudkip", "mudkip"))
-				};
 				return lobbies[lobbyId];
 			}
 		}
@@ -87,7 +72,7 @@ describe("Get Page", () => {
 		it("fetches all games and lobbies for a user", () => {
 
 			const mockRequest = {
-				cookies: {userId: "user id 1", landingToast: "Bruh, toast to you!"}
+				cookies: {userId: "mudkip-xyz-0", landingToast: "Bruh, toast to you!"}
 			};
 			const mockResponse = {
 				render(pageName, data) {this.data = {pageName, data}},
@@ -102,14 +87,14 @@ describe("Get Page", () => {
 				"data": {
 					"completedGames": [],
 					"landingToast": "Bruh, toast to you!",
-					"yourId": "user id 1",
+					"yourId": "mudkip-xyz-0",
 					"inProgressGames": [
 						{
-							"id": "game id 1",
-							"name": "game name 1",
+							"id": "my-game-1-xyz",
+							"name": "My Game 1",
 							"timeSinceCreated": "a few seconds ago",
 							"creatorName": "Mudkip",
-							"yourName": "Treecko",
+							"yourName": "Mudkip",
 							"timeSinceUpdated": "never",
 							"numTurns": 0,
 							"numOwnedProperties": 2,
@@ -126,11 +111,11 @@ describe("Get Page", () => {
 							"waitingOnName": "Mudkip"
 						},
 						{
-							"id": "game id 2",
-							"name": "game name 2",
+							"id": "my-game-2-xyz",
+							"name": "My Game 2",
 							"timeSinceCreated": "a few seconds ago",
 							"creatorName": "Mudkip",
-							"yourName": "Treecko",
+							"yourName": "Mudkip",
 							"timeSinceUpdated": "never",
 							"numTurns": 0,
 							"numOwnedProperties": 0,
@@ -149,11 +134,11 @@ describe("Get Page", () => {
 					],
 					"lobbies": [
 						{
-							"id": "lobby id 0",
-							"name": "lobby name 0",
-							"timeSinceCreated": "a few seconds ago",
+							"id": "lobby-0-xyz",
+							"name": "Lobby 0",
+							"timeSinceCreated": "2 years ago",
 							"adminName": "Mudkip",
-							"adminId": "user id 0",
+							"adminId": "mudkip-xyz-0",
 							"playerNames": [
 								"Mudkip"
 							]
@@ -169,8 +154,8 @@ describe("Get Page", () => {
 
 		it("renders the gameplay page", () => {
 			const mockRequest = {
-				params: {gameId: "game id 1"},
-				cookies: {userId: "user id 0"}
+				params: {gameId: "my-game-1-xyz"},
+				cookies: {userId: "mudkip-xyz-0"}
 			};
 			const mockResponse = {
 				render(pageName, data) {this.data = {pageName, data}}
@@ -181,22 +166,19 @@ describe("Get Page", () => {
 			assert.deepEqual(mockResponse.data, {
 				"pageName": "pages/gameplay",
 				"data": {
-					"gameId": "game id 1"
+					"gameId": "my-game-1-xyz"
 				}
 			});
 		});
 
 		it("renders the lobby page", () => {
 			const mockRequest = {
-				params: {gameId: "lobby id 0"},
-				cookies: {userId: "user id 0"}
+				params: {gameId: "my-lobby-0-xyz"},
+				cookies: {userId: "mudkip-xyz-0"}
 			};
 			const mockResponse = {
 				render(pageName, data) {this.data = {pageName, data}}
 			};
-
-			TimeNow._inject(1.6e12);
-			TimeNow._inject(1.55e12);
 
 			getGameplayOrLobbyPage(mockRequest, mockResponse);
 
@@ -204,19 +186,19 @@ describe("Get Page", () => {
 				"pageName": "pages/lobby",
 				"data": {
 					"parameters": {
-						"lobbyId": "lobby id 0",
-						"gameName": "lobby name 0",
-						"adminId": "user id 0",
-						"yourId": "user id 0",
+						"lobbyId": "lobby-0-xyz",
+						"gameName": "Lobby 0",
+						"adminId": "mudkip-xyz-0",
+						"yourId": "mudkip-xyz-0",
 						"hasJoinedGame": true,
 						"gameCreateTime": {
 							"friendly": "2 years ago",
 							"timestamp": 1.55e12
 						},
 						"joinedPlayers": {
-							"user id 0": {
+							"mudkip-xyz-0": {
 								"name": "Mudkip",
-								"sprite": "mudkip"
+								"sprite": "Mudkip.png"
 							},
 						},
 						"playerIcons": playerIcons
