@@ -10,8 +10,9 @@ describe("Lobby Event Handlers", () => {
 		let actualGameActionCalls = [];
 
 		const [mudkip, treecko] = Mock.playerRecords(["Mudkip", "Treecko"]);
+		const lobby = Mock.lobby("Lobby 0", 1.55e12, mudkip);
 		const lobbies = {
-			"lobby-0-xyz": Mock.lobby("Lobby 0", 1.55e12, mudkip)
+			"lobby-0-xyz": lobby
 		};
 		const users = {
 			[mudkip.userId]: {
@@ -44,10 +45,15 @@ describe("Lobby Event Handlers", () => {
 
 			to(roomName) {
 				this.roomName = roomName;
+				return this;
 			}
 
 			emit(eventName, message) {
 				this.sentMessages.push([eventName, message]);
+			}
+
+			clear() {
+				this.sentMessages = [];
 			}
 		}
 
@@ -69,20 +75,48 @@ describe("Lobby Event Handlers", () => {
 				this.sentMessages.push([eventName, message]);
 			}
 
-			call(eventName, ...args) {
+			receive(eventName, ...args) {
 				return this.registeredCallbacks[eventName](...args);
 			}
 		}
 
-		it("adds the socket to the room and locates the player and game on start-up, and removes the socket on disconnect", () => {
+		it("allows a user to open and view the lobby and subscribe to real-time updates", () => {
 			const mockIo = new MockIo();
 			const mockSocket = new MockSocket();
+			onLobbyConnection(mockIo, mockSocket, treecko.userId);
 
-			// Register the callbacks.
-			onLobbyConnection(MockIo, mockSocket, "my user id");
-
-			mockSocket.call("open-lobby", {lobbyId: "lobby-0-xyz"});
+			mockSocket.receive("open-lobby", {lobbyId: "lobby-0-xyz"});
 			assert.equal(mockSocket.roomName, "lobby-lobby-0-xyz");
+
+			mockSocket.receive("disconnect", {lobbyId: "lobby-0-xyz"});			
+		});
+
+		it("allows a user to join and leave the lobby", () => {
+			const mockIo = new MockIo();
+			const mockSocket = new MockSocket();
+			onLobbyConnection(mockIo, mockSocket, treecko.userId);
+
+			mockSocket.receive("open-lobby", {lobbyId: "lobby-0-xyz"});
+
+			mockSocket.receive("join-lobby", {name: treecko.name, sprite: treecko.spriteFileName});
+			assert.deepEqual(lobby.memberMap, {
+				[mudkip.userId]: {name: mudkip.name, sprite: mudkip.spriteFileName},
+				[treecko.userId]: {name: treecko.name, sprite: treecko.spriteFileName}
+			});
+			assert.deepEqual(mockIo.sentMessages, [["join-lobby", {
+				name: treecko.name,
+				sprite: treecko.spriteFileName,
+				userId: treecko.userId
+			}]]);
+			assert.deepEqual(users[treecko.userId].lobbyIds, ["lobby-0-xyz"]);
+			mockIo.clear();
+
+			mockSocket.receive("leave-lobby");
+			// assert.deepEqual(mockIo.sentMessages, [["leave-lobby", {userId: treecko.userId}]]);
+			assert.deepEqual(lobby.memberMap, {
+				[mudkip.userId]: {name: mudkip.name, sprite: mudkip.spriteFileName}
+			});
+			assert.deepEqual(users[treecko.userId].lobbyIds, []);
 		});
 	});
 });
