@@ -1,4 +1,5 @@
 const assert = require("assert");
+const {describeTimeSince} = require("../../friendliness/age-to-text-helper.js");
 const {PlayerIcons} = require("../../models/player.js");
 const Mock = require("../test-utils/mock.js");
 const proxyquire = require("proxyquire");
@@ -134,7 +135,7 @@ describe("Get Page", () => {
 						{
 							"id": "lobby-0-xyz",
 							"name": "Lobby 0",
-							"timeSinceCreated": "2 years ago",
+							"timeSinceCreated": describeTimeSince(1.55e12),
 							"adminName": "Mudkip",
 							"adminId": "mudkip-xyz-0",
 							"playerNames": [
@@ -190,7 +191,7 @@ describe("Get Page", () => {
 						"yourId": "mudkip-xyz-0",
 						"hasJoinedGame": true,
 						"gameCreateTime": {
-							"friendly": "2 years ago",
+							"friendly": describeTimeSince(1.55e12),
 							"timestamp": 1.55e12
 						},
 						"joinedPlayers": {
