@@ -1,6 +1,8 @@
 const assert = require("assert");
 const proxyquire = require("proxyquire");
 const {Game, GameRecord} = require("../../models/game.js");
+const Mock = require("../test-utils/mock.js");
+const {MockIo, MockSocket} = require("../test-utils/mock-socket.js");
 const {PlayerRecord} = require("../../models/player.js");
 
 
@@ -10,7 +12,7 @@ describe("Gameplay Event Handlers", () => {
 
 		let actualGameActionCalls = [];
 
-		const dummyPlayerRecords = [new PlayerRecord("my player name", "my user id", 0, "my player sprite", "my sprite color")];
+		const playerRecords = Mock.playerRecords(["Mudkip"]);
 
 		const {onGameplayConnection} = proxyquire("../../controllers/gameplay-event-handlers.js", {
 			// Stub the game logic functions.
@@ -30,11 +32,11 @@ describe("Gameplay Event Handlers", () => {
 			"../storage/lookup.js": {
 				fetchGame(gameId) {
 					const games = {
-						"my game id": new Game(new GameRecord("my game id", "my game name", "my admin id", dummyPlayerRecords, [
+						"my-game-1-xyz": Mock.game("My Game 1", 0, playerRecords, [
 							{placeIdx: 37, ownerNum: 0, houseCount: 0, isMortgaged: true},
 							{placeIdx: 39, ownerNum: 0, houseCount: 2, isMortgaged: false}
-						])),
-						"my game id 2": new Game(new GameRecord("my game id 2", "this copy is in Data", "my admin id", dummyPlayerRecords, []))
+						]),
+						"my-game-2-xyz": Mock.game("My Game 2", 1, playerRecords)
 					};
 					return games[gameId];
 				}
@@ -80,38 +82,20 @@ describe("Gameplay Event Handlers", () => {
 			}
 		];
 
-		const mockIo = {
-			to: function (roomName) {this.roomName = roomName; return this},
-			resetMock: function () {delete this.roomName}
-		};
-
-		const mockSocket = {
-			registeredCallbacks: {},
-			sentMessages: [],
-			on: function (eventName, callback) {this.registeredCallbacks[eventName] = callback},
-			join: function (roomName) {this.roomName = roomName},
-			emit: function (eventName, message) {this.sentMessages.push([eventName, message])},
-			resetMock: function () {
-				this.registeredCallbacks = [];
-				this.sentMessages = [];
-				delete this.roomName;
-			}
-		};
-
 		it("adds the socket to the room and locates the player and game on start-up, and removes the socket on disconnect", () => {
 			actualGameActionCalls = [];
-			mockIo.resetMock();
-			mockSocket.resetMock();
+			const mockIo = new MockIo();
+			const mockSocket = new MockSocket();
 
 			// Register the callbacks.
-			onGameplayConnection(mockIo, mockSocket, "my user id");
+			onGameplayConnection(mockIo, mockSocket, "mudkip-xyz-0");
 
 			// For start-up, the socket and broadcaster IO should join a room, and the player should have
 			// their first socket configured, and a "start-up" event sending the game.
-			const [player, game] = mockSocket.registeredCallbacks["start-up"]({gameId: "my game id"});
-			assert.equal(mockSocket.roomName, "my game id");
-			assert.equal(mockIo.roomName, "my game id");
-			assert.equal(game.id, "my game id");
+			const [player, game] = mockSocket.receive("start-up", {gameId: "my-game-1-xyz"});
+			assert.equal(mockSocket.roomName, "my-game-1-xyz");
+			assert.equal(mockIo.roomName, "my-game-1-xyz");
+			assert.equal(game.id, "my-game-1-xyz");
 			assert.deepEqual(player.sockets, [mockSocket]);
 
 			assert.equal(mockSocket.sentMessages[0][1].locationData.length, 28);
@@ -125,18 +109,18 @@ describe("Gameplay Event Handlers", () => {
 						"numTurns": 0,
 						"playerData": [
 							{
+								"num": 0,
+								"name": "Mudkip",
+								"spriteFileName": "Mudkip.png",
+								"borderColor": "rgb(Mudkip)",
+								"userId": "mudkip-xyz-0",
 								"balance": 1500,
 								"jailDays": 0,
 								"latestRoll": null,
-								"name": "my player name",
-								"num": 0,
 								"numJailCards": 0,
 								"placeIdx": 0,
 								"rollCount": 0,
-								"savedMessages": [],
-								"spriteFileName": "my player sprite",
-								"borderColor": "my sprite color",
-								"userId": "my user id"
+								"savedMessages": []
 							}
 						],
 						"tax": 0,
@@ -145,21 +129,21 @@ describe("Gameplay Event Handlers", () => {
 				]
 			]);
 
-			mockSocket.registeredCallbacks["disconnect"]();
+			mockSocket.receive("disconnect");
 			assert.deepEqual(player.sockets, []);
 		});
 
 		it("registers a socket callback to the proper game logic function for each gameplay client event", () => {
 			actualGameActionCalls = [];
-			mockIo.resetMock();
-			mockSocket.resetMock();
+			const mockIo = new MockIo();
+			const mockSocket = new MockSocket();
 
 			// Register the callbacks.
-			onGameplayConnection(mockIo, mockSocket, "my user id");
+			onGameplayConnection(mockIo, mockSocket, "mudkip-xyz-0");
 
 			// onGameplayConnection needs a "start-up" to find and cache the game and player objects in its closure,
 			// in order for subsequent callbacks to work.
-			const [player, game] = mockSocket.registeredCallbacks["start-up"]({gameId: "my game id"});
+			const [player, game] = mockSocket.receive("start-up", {gameId: "my-game-1-xyz"});
 
 			// Test each socket callback.
 			const expectedResults = {
@@ -175,7 +159,7 @@ describe("Gameplay Event Handlers", () => {
 			};
 
 			expectedSocketEvents.forEach(({clientEventName, clientArgs}) => {
-				mockSocket.registeredCallbacks[clientEventName](clientArgs);
+				mockSocket.receive(clientEventName, clientArgs);
 				const [actualEventName, actualGameActionArgs] = actualGameActionCalls.shift();
 
 				assert.equal(actualEventName, clientEventName);
@@ -185,7 +169,7 @@ describe("Gameplay Event Handlers", () => {
 			// Test there are no other calls to these callbacks.
 			assert.deepEqual(actualGameActionCalls, []);
 
-			mockSocket.registeredCallbacks["disconnect"]();
+			mockSocket.receive("disconnect");
 
 			// Test there are no other registered event handlers on the socket.
 			const actualRegisteredEventNames = new Set(Object.keys(mockSocket.registeredCallbacks));
@@ -198,37 +182,37 @@ describe("Gameplay Event Handlers", () => {
 
 		it("quits out on start-up if the user ID is not among the game's players", () => {
 			actualGameActionCalls = [];
-			mockIo.resetMock();
-			mockSocket.resetMock();
+			const mockIo = new MockIo();
+			const mockSocket = new MockSocket();
 
 			onGameplayConnection(mockIo, mockSocket, "unknown user id");
-			const actual = mockSocket.registeredCallbacks["start-up"]({gameId: "my game id"});
+			const actual = mockSocket.receive("start-up", {gameId: "my-game-1-xyz"});
 
 			assert.equal(actual, undefined);
 		});
 
 		it("quits out on start-up if the game is not found", () => {
 			actualGameActionCalls = [];
-			mockIo.resetMock();
-			mockSocket.resetMock();
+			const mockIo = new MockIo();
+			const mockSocket = new MockSocket();
 
-			onGameplayConnection(mockIo, mockSocket, "my user id");
-			const actual = mockSocket.registeredCallbacks["start-up"]({gameId: "unknown game id"});
+			onGameplayConnection(mockIo, mockSocket, "mudkip-xyz-0");
+			const actual = mockSocket.receive("start-up", {gameId: "unknown game id"});
 
 			assert.equal(actual, undefined);
 		});
 
 		it("cancels game actions that occur before start-up", () => {
 			actualGameActionCalls = [];
-			mockIo.resetMock();
-			mockSocket.resetMock();
+			const mockIo = new MockIo();
+			const mockSocket = new MockSocket();
 
-			onGameplayConnection(mockIo, mockSocket, "my user id");
+			onGameplayConnection(mockIo, mockSocket, "mudkip-xyz-0");
 
 			[
 				...expectedSocketEvents,
 				{"clientEventName": "disconnect", "clientArgs": {}}
-			].map(({clientEventName, clientArgs}) => mockSocket.registeredCallbacks[clientEventName](clientArgs));
+			].map(({clientEventName, clientArgs}) => mockSocket.receive(clientEventName, clientArgs));
 
 			assert.deepEqual(actualGameActionCalls, []);
 		});

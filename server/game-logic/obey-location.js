@@ -322,18 +322,6 @@ function addGetOutOfJailFreeCard(mover) {
 	mover.emitToEveryone("add-jail-card", {playerId: mover.num});
 }
 
-function useGetOutOfJailFreeCard(player) {
-	player.getOutOfJail();
-	player.numJailCards --;
-
-	if (player.numJailCards === 0) {
-		$("#jail-card" + player.num).text("");
-	} else {
-		// e.g. Get Out of Jail Free x3
-		$("#jail-card-quantity" + player.num).text(" x" + player.numJailCards);
-	}
-}
-
 module.exports = {
 	obeyLocation
 };

@@ -25,7 +25,7 @@ function onLobbyConnection(lobbyIo, socket, userId) {
 
 	socket.on("leave-lobby", () => {
 		const lobby = Lookup.fetchLobby(_lobbyId);
-		if (lobby === undefined || userId in lobby.memberMap) {
+		if (lobby === undefined || !(userId in lobby.memberMap)) {
 			return;
 		}
 
@@ -37,7 +37,7 @@ function onLobbyConnection(lobbyIo, socket, userId) {
 
 	socket.on("update-member", ({name, sprite}) => {
 		const lobby = Lookup.fetchLobby(_lobbyId);
-		if (lobby === undefined || userId in lobby.memberMap) {
+		if (lobby === undefined || !(userId in lobby.memberMap)) {
 			return;
 		}
 

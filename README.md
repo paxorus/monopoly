@@ -1,12 +1,13 @@
 # Monopoly Online
 The backend uses Node.js and Socket.io.
-The frontend is built with jQuery and a bit of Chart.js.
-The backend and frontend tests use Mocha.js. The backend end tests also use proxyquire.
+The frontend is built with React.js and a bit of Chart.js and `jQuery`.
+The backend and frontend tests use Mocha.js and Sinon.js. The backend end tests also use `proxyquire`.
 
-The Pokemon sprites are loaded from Bulbapedia.
+The Pokemon sprites are from Bulbapedia.
 
 ## House Rules
 * No 10% interest on mortgages: If a player mortgages a property for $50, they can unmortgage for $50.
+* Selling a house only returns 50% of the price.
 * Houses can be built unevenly: One property may have a hotel, while another of the same color has no houses.
 * Go: Landing on Go is just $200, not $400.
 * Chance and Community Chest are uniformly random without replacement. In a physical game, players go through the deck before shuffling. This game is more like shuffling every time.
