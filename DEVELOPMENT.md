@@ -10,10 +10,10 @@ Minor TODOs are left throughout the code as well.
 #### Major
 * DB persistence (currently all state is held in-memory)
 * Server error handling (currently a single bad request can send it down)
-* Implement a JS Option and replace all JS nulls
+* Implement a JS Option to replace all JS nulls
 
 #### Medium
-* Test coverage for obey-location.js and remainder of execute-turn.js.
+* Test coverage for obey-location.js.
 * Test coverage for React game and lobby.
 * Convert the landing page to React.
 * Bring sprite URLs and colors to frontend, and only keep the player sprite ID in the backend.

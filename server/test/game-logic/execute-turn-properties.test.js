@@ -125,6 +125,8 @@ describe("Execute Turn: Properties", () => {
 
 		it("does not add a house if property is mortgaged", () => {
 			const {game, player0, mockSocket0} = getFreshGame();
+			game.places[37].houseCount = 0;
+			game.places[37].isMortgaged = true;
 
 			buyHouse(player0, 37);
 

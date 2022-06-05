@@ -8,10 +8,7 @@ function getFreshGame() {
 		new PlayerRecord("player 0 name", "user id 0", 0, "player sprite 0"),
 		new PlayerRecord("player 1 name", "user id 1", 1, "player sprite 1"),
 		new PlayerRecord("player 2 name", "user id 2", 2, "player sprite 2")
-	], [
-		{placeIdx: 37, ownerNum: 0, houseCount: 0, isMortgaged: true},
-		{placeIdx: 39, ownerNum: 0, houseCount: 2, isMortgaged: false}
-	]));
+	], []));
 
 	game.currentPlayerId = 0;
 
