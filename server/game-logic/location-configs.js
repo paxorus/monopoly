@@ -128,5 +128,6 @@ module.exports = {
 	BLACK_TEXT_COLORS,
 	LocationInfo,
 	Locations,
-	MONOPOLIES
+	MONOPOLIES,
+	Utilities
 };

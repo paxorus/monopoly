@@ -191,10 +191,12 @@ function sellHouse(owner, placeIdx) {
 }
 
 function useGetOutOfJailFreeCard(player) {
+	// TODO: Check that it's this player's turn.
 	if (player.jailDays === 0 || player.numJailCards === 0) {
 		return;
 	}
 
+	player.numJailCards --;
 	player.getOutOfJail();
 	player.emitToEveryone("use-jail-card", {playerId: player.num})
 }
@@ -218,6 +220,7 @@ function unmortgageProperty(player, placeIdx) {
 module.exports = {
 	advanceTurn,
 	buyHouse,
+	concatenatePropertyNames,
 	concludeTurn,
 	executeTurn,
 	hasAchievedColoredMonopoly,

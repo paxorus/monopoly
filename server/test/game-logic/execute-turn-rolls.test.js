@@ -6,24 +6,14 @@ const {Game, GameRecord} = require("../../models/game.js");
 const {PlayerRecord} = require("../../models/player.js");
 
 
-describe("Execute Turn", () => {
+describe("Execute Turn: Rolls", () => {
 
 	let obeyLocationCalls = 0;
 	const {
 		rollDice,
 		concludeTurn,
 		advanceTurn,
-		executeTurn,
-		// payOutOfJail,
-		// respondToBuyOffer,
-		// purchaseProperty,
-		// hasAchievedColoredMonopoly,
-		// concatenatePropertyNames,
-		// buyHouse,
-		// sellHouse,
-		// useGetOutOfJailFreeCard,
-		// mortgageProperty,
-		// unmortgageProperty
+		executeTurn
 	} = proxyquire("../../game-logic/execute-turn.js", {
 		// Mock out obeyLocation, which is tested separately.
 		"./obey-location.js": { obeyLocation() { obeyLocationCalls ++; }}
