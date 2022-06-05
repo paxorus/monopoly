@@ -211,6 +211,7 @@ function mortgageProperty(player, placeIdx) {
 }
 
 function unmortgageProperty(player, placeIdx) {
+	// TODO: Validate that place is mortgaged, otherwise this is an infinite money hack.
 	const place = player.game.places[placeIdx];
 	place.isMortgaged = false;
 	player.updateBalance(- place.price / 2);
@@ -227,6 +228,7 @@ module.exports = {
 	hasAchievedColoredMonopoly,
 	mortgageProperty,
 	payOutOfJail,
+	purchaseProperty,
 	respondToBuyOffer,
 	rollDice,
 	sellHouse,

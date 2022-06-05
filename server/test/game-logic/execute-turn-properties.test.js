@@ -104,6 +104,37 @@ describe("Execute Turn: Properties", () => {
 		});
 	});
 
+	describe("#purchaseProperty()", () => {
+		it("buys a property", () => {
+			const {game, player0, mockSocket0} = getFreshGame();
+			game.places[37].ownerNum = -1;
+			game.places[39].ownerNum = -1;
+
+			purchaseProperty(player0, 39);
+
+			assert.equal(player0.balance, 1100);
+			assert.equal(game.places[39].ownerNum, 0);
+			assert.deepEqual(player0.savedMessages, [
+				["dialog", "Congratulations, player 0 name! You now own Boardwalk!"]
+			]);
+		});
+
+		it("recognizes a monopoly", () => {
+			const {game, player0, mockSocket0} = getFreshGame();
+			game.places[37].ownerNum = 0;
+			game.places[39].ownerNum = -1;
+
+			purchaseProperty(player0, 39);
+			assert.equal(player0.balance, 1100);
+			assert.equal(game.places[39].ownerNum, 0);
+			assert.deepEqual(player0.savedMessages, [
+				["dialog", "Congratulations, player 0 name! You now own Boardwalk!"],
+				["dialog",  "Monopoly! You may now build houses on Park Place and Boardwalk, and their rents have doubled."]
+			]);
+		});
+	});
+
+
 	describe("#buyHouse()", () => {
 		it("add a house to the property for the player", () => {
 			const {game, player0, mockSocket0} = getFreshGame();
@@ -147,6 +178,68 @@ describe("Execute Turn: Properties", () => {
 
 			assert.equal(player0.balance, 1500);
 			assert.equal(game.places[39].houseCount, 5);
+		});
+	});
+
+	describe("#sellHouse()", () => {
+		it("sells a house from the property", () => {
+			const {game, player0, mockSocket0} = getFreshGame();
+			game.places[39].houseCount = 3;
+
+			sellHouse(player0, 39);
+			assert.equal(player0.balance, 1600);
+			assert.equal(game.places[39].houseCount, 2);
+			assert.deepEqual(player0.savedMessages, [
+				["notify", "Removed a house from Boardwalk."]
+			]);
+		});
+
+		it("downgrades from a hotel", () => {
+			const {game, player0, mockSocket0} = getFreshGame();
+			game.places[39].houseCount = 5;
+
+			sellHouse(player0, 39);
+			assert.equal(player0.balance, 1600);
+			assert.equal(game.places[39].houseCount, 4);
+			assert.deepEqual(player0.savedMessages, [
+				["notify", "Downgraded from a hotel on Boardwalk."]
+			]);
+		});
+
+		it("does not sell if no houses", () => {
+			const {game, player0, mockSocket0} = getFreshGame();
+			game.places[39].houseCount = 0;
+
+			sellHouse(player0, 39);
+			assert.equal(player0.balance, 1500);
+			assert.equal(game.places[39].houseCount, 0);
+		});
+	});
+
+	describe("#mortgageProperty()", () => {
+		it("mortgages a property", () => {
+			const {game, player0, mockSocket0} = getFreshGame();
+
+			mortgageProperty(player0, 39);
+			assert.equal(player0.balance, 1700);
+			assert.equal(game.places[39].isMortgaged, true);
+			assert.deepEqual(player0.savedMessages, [
+				["notify", "Mortgaged Boardwalk for $200."]
+			]);
+		});
+	});
+
+	describe("#unmortgageProperty()", () => {
+		it("unmortgages a property", () => {
+			const {game, player0, mockSocket0} = getFreshGame();
+			game.places[39].isMortgaged = true;
+
+			unmortgageProperty(player0, 39);
+			assert.equal(player0.balance, 1300);
+			assert.equal(game.places[39].isMortgaged, false);
+			assert.deepEqual(player0.savedMessages, [
+				["notify", "Unmortgaged Boardwalk for $200."]
+			]);
 		});
 	});
 });
