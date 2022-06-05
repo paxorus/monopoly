@@ -106,6 +106,7 @@ function rollMove(mover) {
 }
 
 function respondToBuyOffer(mover, ifBuy) {
+	// TODO: Verify the player has a pending offer for their current place (place is unowned).
 	if (ifBuy) {
 		purchaseProperty(mover, mover.placeIdx);
 	} else {

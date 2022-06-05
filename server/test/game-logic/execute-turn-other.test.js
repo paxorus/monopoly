@@ -1,7 +1,5 @@
 const assert = require("assert");
 const proxyquire = require("proxyquire");
-const RandomInt = require("../../fickle/random-int.js");
-const TimeNow = require("../../fickle/time-now.js");
 const {Game, GameRecord} = require("../../models/game.js");
 const {PlayerRecord} = require("../../models/player.js");
 const {Utilities} = require("../../game-logic/location-configs.js");
