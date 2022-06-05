@@ -2,7 +2,8 @@ const assert = require("assert");
 const proxyquire = require("proxyquire");
 const RandomInt = require("../../fickle/random-int.js");
 const TimeNow = require("../../fickle/time-now.js");
-const {getFreshGame, MockSocket} = require("../test-utils/execute-turn-utils.js");
+const {getFreshGame} = require("../test-utils/execute-turn-utils.js");
+const {MockSocket} = require("../test-utils/mock-socket.js");
 
 
 describe("Execute Turn: Rolls", () => {
@@ -51,7 +52,7 @@ describe("Execute Turn: Rolls", () => {
 			assert.deepEqual(player0.savedMessages, [
 				["advance-turn", {nextPlayerId: 0}]
 			]);
-			assert.deepEqual(mockSocket0.messages, [
+			assert.deepEqual(mockSocket0.sentMessages, [
 				["advance-turn", {nextPlayerId: 0}]
 			]);
 
@@ -59,7 +60,7 @@ describe("Execute Turn: Rolls", () => {
 			assert.deepEqual(player1.savedMessages, [
 				["advance-turn", {nextPlayerId: 0}]
 			]);
-			assert.deepEqual(mockSocket1.messages, [
+			assert.deepEqual(mockSocket1.sentMessages, [
 				["advance-turn", {nextPlayerId: 0}]
 			]);
 		});
@@ -79,7 +80,7 @@ describe("Execute Turn: Rolls", () => {
 			assert.deepEqual(player0.placeIdx, 8);
 			assert.deepEqual(obeyLocationCalls, 1);
 
-			assert.deepEqual(mockSocket0.messages, [
+			assert.deepEqual(mockSocket0.sentMessages, [
 				["dialog", "You rolled a 2 and a 6."],
 				["dialog", "You landed on Vermont Avenue."],
 				["allow-conclude-turn", undefined]
@@ -99,7 +100,7 @@ describe("Execute Turn: Rolls", () => {
 			assert.deepEqual(player0.placeIdx, 17);
 			assert.deepEqual(obeyLocationCalls, 2);
 
-			assert.deepEqual(mockSocket0.messages, [
+			assert.deepEqual(mockSocket0.sentMessages, [
 				["dialog", "You rolled a 3 and a 3."],
 				["dialog", "You landed on Oriental Avenue."],
 				["dialog", "A double!"],
@@ -122,7 +123,7 @@ describe("Execute Turn: Rolls", () => {
 			assert.deepEqual(player0.placeIdx, 10);
 			assert.deepEqual(obeyLocationCalls, 3);
 
-			assert.deepEqual(mockSocket0.messages, [
+			assert.deepEqual(mockSocket0.sentMessages, [
 				["dialog", "You rolled a 3 and a 3."],
 				["dialog", "You landed on Oriental Avenue."],
 				["dialog", "A double!"],
@@ -152,7 +153,7 @@ describe("Execute Turn: Rolls", () => {
 			assert.deepEqual(player0.jailDays, 0);
 			assert.deepEqual(obeyLocationCalls, 0);
 
-			assert.deepEqual(mockSocket0.messages, [
+			assert.deepEqual(mockSocket0.sentMessages, [
 				["dialog", "You rolled a 3 and a 3."],
 				["dialog", "A double! You're free!"],
 				["dialog", "You are now out of jail!"],
@@ -175,7 +176,7 @@ describe("Execute Turn: Rolls", () => {
 			assert.deepEqual(player0.jailDays, 0);
 			assert.deepEqual(obeyLocationCalls, 0);
 
-			assert.deepEqual(mockSocket0.messages, [
+			assert.deepEqual(mockSocket0.sentMessages, [
 				["dialog", "You are now out of jail!"],
 				["dialog", "Your jail sentence is up. You're free to go!"],
 				["allow-conclude-turn", undefined]
@@ -196,7 +197,7 @@ describe("Execute Turn: Rolls", () => {
 			assert.deepEqual(player0.placeIdx, 10);
 			assert.deepEqual(obeyLocationCalls, 0);
 
-			assert.deepEqual(mockSocket0.messages, [
+			assert.deepEqual(mockSocket0.sentMessages, [
 				["dialog", "You rolled a 3 and a 4."],
 				["offer-pay-out-of-jail", undefined]
 			]);

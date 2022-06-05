@@ -1,22 +1,7 @@
 const {Game, GameRecord} = require("../../models/game.js");
 const {PlayerRecord} = require("../../models/player.js");
+const {MockSocket} = require("./mock-socket.js");
 
-/**
- * Consider replacing with mock-socket.js.
- */
-class MockSocket {
-	constructor() {
-		this.messages = [];
-	}
-
-	emit(message, data) {
-		this.messages.push([message, data]);
-	}
-
-	// resetMock() {
-	// 	this.messages = [];
-	// }
-}
 
 function getFreshGame() {
 	const game = new Game(new GameRecord("my game id", "my game name", "my admin id", [
@@ -42,6 +27,5 @@ function getFreshGame() {
 }
 
 module.exports = {
-	getFreshGame,
-	MockSocket
+	getFreshGame
 };
