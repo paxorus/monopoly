@@ -1,7 +1,9 @@
 const {Game, GameRecord} = require("../../models/game.js");
 const {PlayerRecord} = require("../../models/player.js");
 
-
+/**
+ * Consider replacing with mock-socket.js.
+ */
 class MockSocket {
 	constructor() {
 		this.messages = [];
@@ -11,9 +13,9 @@ class MockSocket {
 		this.messages.push([message, data]);
 	}
 
-	resetMock() {
-		this.messages = [];
-	}
+	// resetMock() {
+	// 	this.messages = [];
+	// }
 }
 
 function getFreshGame() {
