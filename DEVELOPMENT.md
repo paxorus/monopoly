@@ -3,6 +3,11 @@
 1. Install NPM dependencies: `npm install`
 1. Start the Babel daemon: `npm run babel`
 1. Start the Node server: `npm run server`
+1. Open: `localhost:5000`
+
+## Testing
+* Run server unit tests: `npm test`
+* Run browser unit tests: `npm run server` then open `localhost:5000/test`
 
 ## Code TODOs
 Minor TODOs are left throughout the code as well.
