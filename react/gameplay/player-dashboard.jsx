@@ -65,7 +65,8 @@ class PlayerDashboard extends React.Component {
 		const isUsageEnabled = (jailDays > 0 && numJailCards > 0) ? "" : "button-disabled";
 		return <div className="dashboard-jail-cards">
 			<br />Get Out of Jail Free x{numJailCards}
-			{this.props.isMe && <span className={`button use-jail-card ${isUsageEnabled}`}>Use Card</span>}
+			{this.props.isMe && <span onClick={this.props.onClickUseJailCard}
+				className={`button use-jail-card ${isUsageEnabled}`}>Use Card</span>}
 		</div>;
 	}
 
@@ -81,7 +82,8 @@ class PlayerDashboard extends React.Component {
 		const title = property.isMortgaged ? "Unmortgage the Property" : "Mortgage the Property";
 		const symbol = property.isMortgaged ? "$" : "!";
 		const enabledClass = property.houseCount === 0 ? "" : "button-disabled";
-		return <span className={`button ${enabledClass} house-button property-mortgager`} title={title}>
+		return <span onClick={event => {this.props.onClickMortgage(property.placeIdx, property.isMortgaged); event.stopPropagation();}}
+			className={`button ${enabledClass} house-button property-mortgager`} title={title}>
 			<img className="house-icon" src="/images/mortgage.svg" />
 			<sup className="mortgage-symbol">{symbol}</sup>
 		</span>;
@@ -89,7 +91,8 @@ class PlayerDashboard extends React.Component {
 
 	renderBuyHouseButton(property) {
 		const enabledClass = property.houseCount < 5 ? "" : "button-disabled";
-		return <span className={`button ${enabledClass} house-button house-adder`} title="Buy a House">
+		return <span onClick={event => {this.props.onClickBuyHouse(property.placeIdx); event.stopPropagation();}}
+			className={`button ${enabledClass} house-button house-adder`} title="Buy a House">
 			<img className="house-icon" src="/images/house.svg" />
 			<sup className="house-plus-sign">+</sup>
 		</span>;
@@ -97,7 +100,8 @@ class PlayerDashboard extends React.Component {
 
 	renderSellHouseButton(property) {
 		const enabledClass = property.houseCount > 0 ? "" : "button-disabled";
-		return <span className={`button ${enabledClass} house-button house-remover`} title="Sell a House">
+		return <span onClick={event => {this.props.onClickSellHouse(property.placeIdx); event.stopPropagation();}}
+			className={`button ${enabledClass} house-button house-remover`} title="Sell a House">
 			<img className="house-icon" src="/images/house.svg" />
 			<sup className="house-minus-sign">-</sup>
 		</span>;
@@ -146,7 +150,11 @@ PlayerDashboard.propTypes = {
 	myMonopolies: PropTypes.instanceOf(Set),
 	onClickHeader: PropTypes.func,
 	onClickProperty: PropTypes.func,
-	onMouseOverProperty: PropTypes.func
+	onMouseOverProperty: PropTypes.func,
+	onClickBuyHouse: PropTypes.func,
+	onClickSellHouse: PropTypes.func,
+	onClickMortgage: PropTypes.func,
+	onClickUseJailCard: PropTypes.func
 };
 
 export default PlayerDashboard;

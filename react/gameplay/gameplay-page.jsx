@@ -149,7 +149,6 @@ class GameplayPage extends React.Component {
 		this.setState({
 			players,
 			places,
-			me: players[yourPlayerId],
 			tax,
 			isDashboardOpen,
 			monopolies,
@@ -234,6 +233,30 @@ class GameplayPage extends React.Component {
 		});
 	}
 
+	handleBuyHouse(placeIdx) {
+		this.logMessage("waiting-on-server");
+		this.socket.emit("buy-house", {placeIdx});
+	}
+
+	handleSellHouse(placeIdx) {
+		this.logMessage("waiting-on-server");
+		this.socket.emit("sell-house", {placeIdx});
+	}
+
+	handleMortgageProperty(placeIdx, isMortgaged) {
+		this.logMessage("waiting-on-server");
+		if (isMortgaged) {
+			this.socket.emit("mortgage-property", {placeIdx});
+		} else {
+			this.socket.emit("unmortgage-property", {placeIdx});
+		}
+	}
+
+	handleUseJailCard() {
+		this.logMessage("waiting-on-server");
+		this.socket.emit("use-jail-card");
+	}
+
 	highlightProperties(playerNum, overOrOut) {
 		this.setState(state => {
 			if (!overOrOut || playerNum === -1) {
@@ -306,13 +329,17 @@ class GameplayPage extends React.Component {
 				{this.state.players.map(player => <PlayerDashboard
 					key={player.num}
 					isOpen={this.getIsDashboardOpen(player.num)}
-					isMe={player === this.state.me}
+					isMe={player.num === this.state.myPlayerId}
 					player={player}
 					myMonopolies={new Set(this.state.monopolies.flatMap(monopoly => monopoly))}
 					properties={this.getProperties(player.num)}
 					onClickHeader={this.openDashboard.bind(this)}
 					onClickProperty={this.handleClickLocation.bind(this)}
-					onMouseOverProperty={this.handleMouseOverProperty.bind(this)} />)}
+					onMouseOverProperty={this.handleMouseOverProperty.bind(this)}
+					onClickBuyHouse={this.handleBuyHouse.bind(this)}
+					onClickSellHouse={this.handleSellHouse.bind(this)}
+					onClickMortgage={this.handleMortgageProperty.bind(this)}
+					onClickUseJailCard={this.handleUseJailCard.bind(this)} />)}
 			</div>
 		</div>
 	}

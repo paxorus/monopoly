@@ -183,12 +183,13 @@ function obeyChanceSquare(mover) {
 			}
 
 			const game = mover.game;
-			if (game.places[mover.placeIdx].ownerNum === -1) {
+			const place = game.places[mover.placeIdx];
+			if (place.ownerNum === -1) {
 				return obeyLocation(mover);
-			} else if (game.places[mover.placeIdx].ownerNum != mover.num) {
-				const owner = game.players[game.places[mover.placeIdx].ownerNum];
+			} else if (place.ownerNum != mover.num) {
+				const owner = game.players[place.ownerNum];
 				const [roll1, roll2] = mover.latestRoll;
-				payRent(mover, owner, 10 * (roll1 + roll2));
+				payRent(mover, owner, 10 * (roll1 + roll2), place.name);
 			}
 			break;
 		}
@@ -214,7 +215,7 @@ function obeyChanceSquare(mover) {
 				// Control the rent properly.
 				const owner = game.players[railroad.ownerNum];
 				const rent = determineRent(mover, owner, railroad);
-				payRent(owner, 2 * rent);
+				payRent(mover, owner, 2 * rent, railroad.name);
 			}
 			break;
 		}

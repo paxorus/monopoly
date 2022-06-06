@@ -54,7 +54,7 @@ const games = {
 				rollCount: null,
 				balance: 1500,
 				placeIdx: 0,
-				jailDays: null,
+				jailDays: 0,
 				numJailCards: 1,
 				savedMessages: [
 					["advance-turn", {nextPlayerId: 0}]
@@ -70,7 +70,7 @@ const games = {
 				rollCount: null,
 				balance: 800,
 				placeIdx: 6,
-				jailDays: null,
+				jailDays: 0,
 				numJailCards: 0,
 				savedMessages: [
 					["advance-turn", {nextPlayerId: 1}],
