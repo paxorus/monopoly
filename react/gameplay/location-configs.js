@@ -129,5 +129,6 @@ export {
 	BLACK_TEXT_COLORS,
 	Locations,
 	MONOPOLIES,
-	Railroads
+	Railroads,
+	Utilities
 };

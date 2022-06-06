@@ -105,11 +105,16 @@ class PlayerDashboard extends React.Component {
 
 	render() {
 		const {num, spriteFileName, borderColor, name, placeIdx, balance, numJailCards, jailDays} = this.props.player;
+		const placeName = (placeIdx === 10) ? (jailDays === 0 ? "Just Visiting" : "In Jail") : PlaceConfigs[placeIdx].name;
+
 		return <div key={num}>
 			{/* Header: name, location, and balance. */}
 			<div className="player-display-head" onClick={() => this.props.onClickHeader(num)}>
 				<img className="display-sprite" style={{borderColor}} src={spriteFileName} />
-				<div className="inline display-name-place">{`${name}: ${PlaceConfigs[placeIdx].name}`}</div>
+				<div className="inline display-name-place">
+					<div className="display-name">{name}</div>
+					<div className="display-place">{placeName}</div>
+				</div>
 				<div className="display-balance">{"$" + balance}</div>
 			</div>
 

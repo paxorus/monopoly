@@ -1,5 +1,5 @@
 import CollapsedSprite from "/javascripts/common/collapsed-sprite.js";
-import {BLACK_TEXT_COLORS, Locations, PlaceConfigs, Railroads} from "/javascripts/gameplay/location-configs.js";
+import {BLACK_TEXT_COLORS, Locations, PlaceConfigs, Railroads, Utilities} from "/javascripts/gameplay/location-configs.js";
 import PlayerSprite from "/javascripts/common/player-sprite.js";
 import Player from "/javascripts/common/models/player.js";
 import SpritePositionUtil from "/javascripts/common/sprite-position-util.js";
@@ -182,7 +182,7 @@ class GameBoardSquare extends React.Component {
 		}
 
 		if (players.length === 1) {
-			return this.renderMiniPlayerSprite(players[0], false);
+			return this.renderPlayerSprite([players[0], false], "center", "center", false);
 		}
 
 		return this.renderCollapsedSprite(players, "center", "center");
@@ -236,7 +236,7 @@ class GameBoardSquare extends React.Component {
 	}
 
 	render() {
-		const {placeIdx, rowName, playersWithAfterImages, chemTrailSize} = this.props;
+		const {placeIdx, rowName, playersWithAfterImages, chemTrailSize, isHighlighted} = this.props;
 		const place = PlaceConfigs[placeIdx];
 
 		const squareStyle = {
@@ -253,10 +253,13 @@ class GameBoardSquare extends React.Component {
 			marginTop: `-${chemTrailSize/2}px`
 		};
 
+		const nonResidentialHighlightedClass = (isHighlighted && (Railroads.includes(placeIdx) || Utilities.includes(placeIdx)))
+			? "location-highlighted" : "";
+
 		return <div key={placeIdx}
 			dataset-no={placeIdx}
 			style={squareStyle}
-			className={`location ${rowName}`}
+			className={`location ${rowName} ${nonResidentialHighlightedClass}`}
 			onClick={() => this.props.onClickLocation(placeIdx)}
 			{...additionalProps}>
 				{this.renderSquareType(place, placeIdx, rowName)}
