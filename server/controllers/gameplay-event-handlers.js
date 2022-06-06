@@ -14,7 +14,7 @@ const {LocationInfo, MONOPOLIES} = require("../game-logic/location-configs.js");
 const Lookup = require("../storage/lookup.js");
 
 
-function onGameplayConnection(gameplayIo, socket, userId) {
+function onGameplayConnection(socket, userId) {
 
 	let game = undefined;
 	let player = undefined;
@@ -22,7 +22,7 @@ function onGameplayConnection(gameplayIo, socket, userId) {
 	socket.on("disconnect", () => {
 		console.log(`${userId} closed game ${game ? game.id : ""}`);
 		if (player !== undefined) {
-			player.removeEmitter(socket);
+			player.removeSocket(socket);
 		}
 	});
 
@@ -50,7 +50,7 @@ function onGameplayConnection(gameplayIo, socket, userId) {
 
 		socket.join(gameId);
 
-		player.configureEmitter(gameplayIo.to(gameId), socket);
+		player.addSocket(socket);
 
 		const monopolies = MONOPOLIES.filter(monopoly => hasAchievedColoredMonopoly(monopoly, player));
 

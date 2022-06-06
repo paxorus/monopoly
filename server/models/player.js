@@ -46,7 +46,6 @@ class Player {
 
 		this.game = game;
 		this.sockets = [];
-		this.io = null;
 	}
 
 	collectGoMoney() {
@@ -57,9 +56,7 @@ class Player {
 	decrementJailDays(jailDays) {
 		this.jailDays --;
 
-		if (this.io !== null) {
-			this.io.emit("update-jail-days", {playerId: this.num, jailDays: this.jailDays});
-		}
+		this.emitToEveryone("update-jail-days", {playerId: this.num, jailDays: this.jailDays});
 	}
 
 	goToJail() {
@@ -67,44 +64,34 @@ class Player {
 		this.updateLocation(Locations.Jail);
 		this.jailDays = 3;
 
-		if (this.io !== null) {
-			this.io.emit("go-to-jail", {playerId: this.num});
-		}
+		this.emitToEveryone("go-to-jail", {playerId: this.num});
 	}
 
 	getOutOfJail() {
 		this.log("You are now out of jail!");
 		this.jailDays = 0;
 
-		if (this.io !== null) {
-			this.io.emit("get-out-of-jail", {playerId: this.num});
-		}
+		this.emitToEveryone("get-out-of-jail", {playerId: this.num});
 	}
 
 	updateBalance(income) {
 		this.balance += income;
 
-		if (this.io !== null) {
-			this.io.emit("update-balance", {playerId: this.num, balance: this.balance});
-		}
+		this.emitToEveryone("update-balance", {playerId: this.num, balance: this.balance});
 	}
 
 	updateLocation(newLocation) {
 		this.placeIdx = newLocation;
 
-		// TODO: Consider switching to emitToEveryone() here. More readable and will step through _saveMessage.
-		if (this.io !== null) {
-			this.io.emit("update-location", {playerId: this.num, placeIdx: this.placeIdx});
-		}
+		this.emitToEveryone("update-location", {playerId: this.num, placeIdx: this.placeIdx});
 	}
 
-	configureEmitter(io, socket) {
+	addSocket(socket) {
 		this.sockets.push(socket);
-		this.io = io;
 		// console.log(`add socket for player ${this.num}: ${this.sockets.length} total`);
 	}
 
-	removeEmitter(socket) {
+	removeSocket(socket) {
 		this.sockets.remove(socket);
 		// console.log(`remove socket for player ${this.num}: ${this.sockets.length} total`);
 	}
@@ -116,10 +103,12 @@ class Player {
 	}
 
 	emitToEveryone(eventName, message) {
+		// We don't use SocketIO's io.of+in.emit() here, in order to save certain events to replay on page reload.
 		this.game.players.forEach(player => player.emit(eventName, message));
 	}
 
 	emitToEveryoneElse(eventName, message) {
+		// We don't use SocketIO's socket.broadcast.emit() here, in order to save certain events to replay on page reload.
 		this.game.players
 			.filter(player => player !== this)
 			.forEach(player => player.emit(eventName, message));

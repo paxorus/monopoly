@@ -51,7 +51,7 @@ io.of("/gameplay").on("connection", socket => {
 		return;
 	}
 
-	onGameplayConnection(io.of("/gameplay"), socket, userId);
+	onGameplayConnection(socket, userId);
 });
 
 // Page for running client-side tests in browser.

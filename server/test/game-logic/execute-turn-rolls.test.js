@@ -39,7 +39,7 @@ describe("Execute Turn: Rolls", () => {
 
 			const player1 = game.players[1];
 			const mockSocket1 = new MockSocket();
-			player1.configureEmitter(null, mockSocket1);
+			player1.addSocket(mockSocket1);
 
 			TimeNow._inject(1.6e12);
 			advanceTurn(player0, game);
@@ -82,6 +82,7 @@ describe("Execute Turn: Rolls", () => {
 
 			assert.deepEqual(mockSocket0.sentMessages, [
 				["dialog", "You rolled a 2 and a 6."],
+				["update-location", {placeIdx: 8, playerId: 0}],
 				["dialog", "You landed on Vermont Avenue."],
 				["allow-conclude-turn", undefined]
 			]);
@@ -102,9 +103,11 @@ describe("Execute Turn: Rolls", () => {
 
 			assert.deepEqual(mockSocket0.sentMessages, [
 				["dialog", "You rolled a 3 and a 3."],
+				["update-location", {placeIdx: 6, playerId: 0}],
 				["dialog", "You landed on Oriental Avenue."],
 				["dialog", "A double!"],
 				["dialog", "You rolled a 5 and a 6."],
+				["update-location", {placeIdx: 17, playerId: 0}],
 				["dialog", "You landed on Community Chest."],
 				["allow-conclude-turn", undefined]
 			]);
@@ -125,15 +128,20 @@ describe("Execute Turn: Rolls", () => {
 
 			assert.deepEqual(mockSocket0.sentMessages, [
 				["dialog", "You rolled a 3 and a 3."],
+				["update-location", {placeIdx: 6, playerId: 0}],
 				["dialog", "You landed on Oriental Avenue."],
 				["dialog", "A double!"],
 				["dialog", "You rolled a 5 and a 5."],
+				["update-location", {placeIdx: 16, playerId: 0}],
 				["dialog", "You landed on St. James Place."],
 				["dialog", "A double!"],
 				["dialog", "You rolled a 2 and a 2."],
+				["update-location", {placeIdx: 20, playerId: 0}],
 				["dialog", "You landed on Free Parking."],
 				["dialog", "A 3rd double! Troll alert! You're going to jail."],
 				["dialog", "You will be in jail for 3 turns!"],
+				["update-location", {placeIdx: 10, playerId: 0}],
+				["go-to-jail", {playerId: 0}],
 				["allow-conclude-turn", undefined]
 			]);
 		});
@@ -154,14 +162,16 @@ describe("Execute Turn: Rolls", () => {
 			assert.deepEqual(obeyLocationCalls, 0);
 
 			assert.deepEqual(mockSocket0.sentMessages, [
+				["update-jail-days", {jailDays: 1, playerId: 0}],
 				["dialog", "You rolled a 3 and a 3."],
 				["dialog", "A double! You're free!"],
 				["dialog", "You are now out of jail!"],
+				["get-out-of-jail", {playerId: 0}],
 				["allow-conclude-turn", undefined]
 			]);
 		});
 
-		it("lets a jailed player leave if they serve their sentence", () => {
+		it("lets a jailed player leave if they complete their sentence", () => {
 			const {game, player0, mockSocket0} = getFreshGame();
 			player0.jailDays = 1;
 			player0.placeIdx = 10;
@@ -177,7 +187,9 @@ describe("Execute Turn: Rolls", () => {
 			assert.deepEqual(obeyLocationCalls, 0);
 
 			assert.deepEqual(mockSocket0.sentMessages, [
+				["update-jail-days", {jailDays: 0, playerId: 0}],
 				["dialog", "You are now out of jail!"],
+				["get-out-of-jail", {playerId: 0}],
 				["dialog", "Your jail sentence is up. You're free to go!"],
 				["allow-conclude-turn", undefined]
 			]);
@@ -198,6 +210,7 @@ describe("Execute Turn: Rolls", () => {
 			assert.deepEqual(obeyLocationCalls, 0);
 
 			assert.deepEqual(mockSocket0.sentMessages, [
+				["update-jail-days", {jailDays: 1, playerId: 0}],
 				["dialog", "You rolled a 3 and a 4."],
 				["offer-pay-out-of-jail", undefined]
 			]);

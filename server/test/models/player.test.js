@@ -1,6 +1,6 @@
 const assert = require("assert");
 const {PlayerRecord, Player} = require("../../models/player.js");
-const {MockIo, MockSocket} = require("../test-utils/mock-socket.js");
+const {MockSocket} = require("../test-utils/mock-socket.js");
 
 
 describe("PlayerRecord", () => {
@@ -28,8 +28,7 @@ describe("PlayerRecord", () => {
 
 describe("Player", () => {
 
-
-	describe("#configureEmitter(), removeEmitter()", () => {
+	describe("#addSocket(), removeSocket()", () => {
 		it("accepts multiple sockets for a player", () => {
 			const mockSocket = new MockSocket();
 			const mockSocket2 = new MockSocket();
@@ -37,16 +36,16 @@ describe("Player", () => {
 			const player = new Player(new PlayerRecord("my name", "my id", 0, "my image"), {});
 			assert.deepEqual(player.sockets, []);
 
-			player.configureEmitter(null, mockSocket);
+			player.addSocket(mockSocket);
 			assert.deepEqual(player.sockets, [mockSocket]);
 
-			player.configureEmitter(null, mockSocket2);
+			player.addSocket(mockSocket2);
 			assert.deepEqual(player.sockets, [mockSocket, mockSocket2]);
 
-			player.removeEmitter(mockSocket2);
+			player.removeSocket(mockSocket2);
 			assert.deepEqual(player.sockets, [mockSocket]);
 
-			player.removeEmitter(mockSocket);
+			player.removeSocket(mockSocket);
 			assert.deepEqual(player.sockets, []);
 		});
 	});
@@ -58,8 +57,8 @@ describe("Player", () => {
 
 			const player = new Player(new PlayerRecord("my name", "my id", 0, "my image"), {});
 
-			player.configureEmitter(null, mockSocket);
-			player.configureEmitter(null, mockSocket2);
+			player.addSocket(mockSocket);
+			player.addSocket(mockSocket2);
 			player.emit("boop", {x: 10});
 
 			assert.deepEqual(mockSocket.sentMessages, [
@@ -75,10 +74,10 @@ describe("Player", () => {
 
 			const player = new Player(new PlayerRecord("my name", "my id", 0, "my image"), {});
 
-			player.configureEmitter(null, mockSocket);
+			player.addSocket(mockSocket);
 			player.emit("boop", {x: 10});
 
-			player.removeEmitter(mockSocket);
+			player.removeSocket(mockSocket);
 			player.emit("offline-event", {z: 15});
 
 			assert.deepEqual(mockSocket.sentMessages, [
@@ -91,7 +90,7 @@ describe("Player", () => {
 
 			const player = new Player(new PlayerRecord("my name", "my id", 0, "my image"), {});
 
-			player.configureEmitter(null, mockSocket);
+			player.addSocket(mockSocket);
 			player.emit("allow-conclude-turn", {});
 			player.emit("offer-pay-out-of-jail", {});
 			player.emit("offer-unowned-property", {});
@@ -125,8 +124,8 @@ describe("Player", () => {
 			const player2 = new Player(new PlayerRecord("their name", "their id", 1, "their image"), mockGame);
 			mockGame.players = [player, player2];
 
-			player.configureEmitter(null, mockSocket);
-			player2.configureEmitter(null, mockSocket2);
+			player.addSocket(mockSocket);
+			player2.addSocket(mockSocket2);
 
 			player.emit("boop", {x: 10});
 			player.emitToEveryone("troop", {y: 20});
@@ -144,18 +143,25 @@ describe("Player", () => {
 
 	describe("#goToJail(), decrementJailDays(), getOutOfJail()", () => {
 		it("performs jail time for a user", () => {
-			const mockIo = new MockIo();
 			const mockSocket = new MockSocket();
 
-			const player = new Player(new PlayerRecord("my name", "my id", 0, "my image"), {});
-			player.configureEmitter(mockIo, mockSocket);
+			const mockGame = {};
+			const player = new Player(new PlayerRecord("my name", "my id", 0, "my image"), mockGame);
+			mockGame.players = [player];
+			player.addSocket(mockSocket);
 
 			player.savedMessages = [];
 			player.goToJail();
 			assert.equal(player.jailDays, 3);
 			assert.equal(player.placeIdx, 10);
 			assert.deepEqual(player.savedMessages, [["dialog", "You will be in jail for 3 turns!"]]);
+			assert.deepEqual(mockSocket.sentMessages, [
+				["dialog", "You will be in jail for 3 turns!"],
+				["update-location", {placeIdx: 10, playerId: 0}],
+				["go-to-jail", {playerId: 0}]
+			]);
 
+			mockSocket.clear();
 			player.savedMessages = [];
 			player.decrementJailDays();
 			assert.equal(player.jailDays, 2);
@@ -165,17 +171,10 @@ describe("Player", () => {
 			player.getOutOfJail();
 			assert.equal(player.jailDays, 0);
 			assert.deepEqual(player.savedMessages, [["dialog", "You are now out of jail!"]]);
-
-			assert.deepEqual(mockIo.sentMessages, [
-				["update-location", {placeIdx: 10, playerId: 0}],
-				["go-to-jail", {playerId: 0}],
-				["update-jail-days", {jailDays: 2, playerId: 0}],
-				["get-out-of-jail", {playerId: 0}]
-			]);
-
 			assert.deepEqual(mockSocket.sentMessages, [
-				["dialog", "You will be in jail for 3 turns!"],
-				["dialog", "You are now out of jail!"]
+				["update-jail-days", {jailDays: 2, playerId: 0}],
+				["dialog", "You are now out of jail!"],
+				["get-out-of-jail", {playerId: 0}]
 			]);
 		});
 	});
@@ -183,15 +182,15 @@ describe("Player", () => {
 	describe("#updateBalance()", () => {
 		it("increments the balance for all users", () => {
 			const mockSocket = new MockSocket();
-			const mockIo = new MockIo();
 
-			const player = new Player(new PlayerRecord("my name", "my id", 0, "my image"), {});
-			player.configureEmitter(mockIo, mockSocket);
+			const mockGame = {};
+			const player = new Player(new PlayerRecord("my name", "my id", 0, "my image"), mockGame);
+			mockGame.players = [player];
+			player.addSocket(mockSocket);
 
 			player.updateBalance(3);
 			assert.equal(player.balance, 1503);
-			assert.deepEqual(mockSocket.sentMessages, []);
-			assert.deepEqual(mockIo.sentMessages, [
+			assert.deepEqual(mockSocket.sentMessages, [
 				["update-balance", {balance: 1503, playerId: 0}]
 			]);
 		});
@@ -200,15 +199,15 @@ describe("Player", () => {
 	describe("#updateLocation()", () => {
 		it("updates the location for all users", () => {
 			const mockSocket = new MockSocket();
-			const mockIo = new MockIo();
 
-			const player = new Player(new PlayerRecord("my name", "my id", 0, "my image"), {});
-			player.configureEmitter(mockIo, mockSocket);
+			const mockGame = {};
+			const player = new Player(new PlayerRecord("my name", "my id", 0, "my image"), mockGame);
+			mockGame.players = [player];
+			player.addSocket(mockSocket);
 
 			player.updateLocation(50);
 			assert.equal(player.placeIdx, 50);
-			assert.deepEqual(mockSocket.sentMessages, []);
-			assert.deepEqual(mockIo.sentMessages, [
+			assert.deepEqual(mockSocket.sentMessages, [
 				["update-location", {placeIdx: 50, playerId: 0}]
 			]);
 		});
@@ -219,7 +218,7 @@ describe("Player", () => {
 			const playerRecord = new PlayerRecord("my name", "my id", 0, "my image")
 			// The mock game and socket should get removed.
 			const player = new Player(playerRecord, {});
-			player.configureEmitter(new MockIo(), new MockSocket());
+			player.addSocket(new MockSocket());
 
 			const actual = player.serialize();
 			assert.deepEqual(playerRecord, actual);

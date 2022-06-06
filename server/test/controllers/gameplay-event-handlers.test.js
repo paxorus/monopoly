@@ -2,7 +2,7 @@ const assert = require("assert");
 const proxyquire = require("proxyquire");
 const {Game, GameRecord} = require("../../models/game.js");
 const Mock = require("../test-utils/mock.js");
-const {MockIo, MockSocket} = require("../test-utils/mock-socket.js");
+const {MockSocket} = require("../test-utils/mock-socket.js");
 const {PlayerRecord} = require("../../models/player.js");
 
 
@@ -84,17 +84,15 @@ describe("Gameplay Event Handlers", () => {
 
 		it("adds the socket to the room and locates the player and game on start-up, and removes the socket on disconnect", () => {
 			actualGameActionCalls = [];
-			const mockIo = new MockIo();
 			const mockSocket = new MockSocket();
 
 			// Register the callbacks.
-			onGameplayConnection(mockIo, mockSocket, "mudkip-xyz-0");
+			onGameplayConnection(mockSocket, "mudkip-xyz-0");
 
-			// For start-up, the socket and broadcaster IO should join a room, and the player should have
+			// For start-up, the socket should join a room, and the player should have
 			// their first socket configured, and a "start-up" event sending the game.
 			const [player, game] = mockSocket.receive("start-up", {gameId: "my-game-1-xyz"});
 			assert.equal(mockSocket.roomName, "my-game-1-xyz");
-			assert.equal(mockIo.roomName, "my-game-1-xyz");
 			assert.equal(game.id, "my-game-1-xyz");
 			assert.deepEqual(player.sockets, [mockSocket]);
 
@@ -135,11 +133,10 @@ describe("Gameplay Event Handlers", () => {
 
 		it("registers a socket callback to the proper game logic function for each gameplay client event", () => {
 			actualGameActionCalls = [];
-			const mockIo = new MockIo();
 			const mockSocket = new MockSocket();
 
 			// Register the callbacks.
-			onGameplayConnection(mockIo, mockSocket, "mudkip-xyz-0");
+			onGameplayConnection(mockSocket, "mudkip-xyz-0");
 
 			// onGameplayConnection needs a "start-up" to find and cache the game and player objects in its closure,
 			// in order for subsequent callbacks to work.
@@ -182,10 +179,9 @@ describe("Gameplay Event Handlers", () => {
 
 		it("quits out on start-up if the user ID is not among the game's players", () => {
 			actualGameActionCalls = [];
-			const mockIo = new MockIo();
 			const mockSocket = new MockSocket();
 
-			onGameplayConnection(mockIo, mockSocket, "unknown user id");
+			onGameplayConnection(mockSocket, "unknown user id");
 			const actual = mockSocket.receive("start-up", {gameId: "my-game-1-xyz"});
 
 			assert.equal(actual, undefined);
@@ -193,10 +189,9 @@ describe("Gameplay Event Handlers", () => {
 
 		it("quits out on start-up if the game is not found", () => {
 			actualGameActionCalls = [];
-			const mockIo = new MockIo();
 			const mockSocket = new MockSocket();
 
-			onGameplayConnection(mockIo, mockSocket, "mudkip-xyz-0");
+			onGameplayConnection(mockSocket, "mudkip-xyz-0");
 			const actual = mockSocket.receive("start-up", {gameId: "unknown game id"});
 
 			assert.equal(actual, undefined);
@@ -204,10 +199,9 @@ describe("Gameplay Event Handlers", () => {
 
 		it("cancels game actions that occur before start-up", () => {
 			actualGameActionCalls = [];
-			const mockIo = new MockIo();
 			const mockSocket = new MockSocket();
 
-			onGameplayConnection(mockIo, mockSocket, "mudkip-xyz-0");
+			onGameplayConnection(mockSocket, "mudkip-xyz-0");
 
 			[
 				...expectedSocketEvents,

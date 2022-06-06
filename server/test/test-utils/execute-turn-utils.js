@@ -14,7 +14,7 @@ function getFreshGame() {
 
 	const player0 = game.players[0];
 	const mockSocket0 = new MockSocket();
-	player0.configureEmitter(null, mockSocket0);
+	player0.addSocket(mockSocket0);
 
 	return {
 		game,
