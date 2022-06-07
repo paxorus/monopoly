@@ -16,6 +16,9 @@ class GameBoardSquare extends React.Component {
 		this.squareWidth = 68;
 		this.squareHeight = 66;
 		this.borders = 2;
+
+		// Dashboard (400) + messages (300 + 8) - left game border (2) = 706
+		this.boardOrigin = {x: 706, y: 42};
 	}
 
 	handleClickPlayer(event, playerNum) {
@@ -26,13 +29,25 @@ class GameBoardSquare extends React.Component {
 	getSquarePosition(rowName, placeIdx) {
 		switch (rowName) {
 			case "bottom":
-				return {left: (this.borders + this.squareWidth) * (10 - placeIdx) + "px"};
+				return {
+					left: (this.borders + this.squareWidth) * (10 - placeIdx) + this.boardOrigin.x + "px",
+					top: (this.borders + this.squareHeight) * 10 + this.boardOrigin.y + "px"
+				};
 			case "left":
-				return {top: (this.borders + this.squareHeight) * (10 - placeIdx) + "px"};
+				return {
+					left: this.boardOrigin.x + "px",
+					top: (this.borders + this.squareHeight) * (10 - placeIdx) + this.boardOrigin.y + "px"
+				};
 			case "top":
-				return {left: (this.borders + this.squareWidth) * placeIdx + "px"};
+				return {
+					left: (this.borders + this.squareWidth) * placeIdx + this.boardOrigin.x + "px",
+					top: this.boardOrigin.y + "px"
+				};
 			case "right":
-				return {top: (this.borders + this.squareHeight) * placeIdx + "px"};
+				return {
+					left: (this.borders + this.squareWidth) * 10 + this.boardOrigin.x + "px",
+					top: (this.borders + this.squareHeight) * placeIdx + this.boardOrigin.y + "px"
+				};
 		}
 	}
 

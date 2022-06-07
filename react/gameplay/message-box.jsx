@@ -55,7 +55,7 @@ class MessageBox extends React.Component {
 			case "advance-turn":
 				// Display whose turn it is.
 				if (finalMessage.nextPlayerId === this.props.myPlayerId) {
-					return <div className="button" onClick={this.props.executeTurn} id="execute-turn">Take Your Turn</div>;
+					return <div className="button" onClick={this.props.executeTurn}>Take Your Turn</div>;
 				} else {
 					return <div>{`It's ${this.props.players[finalMessage.nextPlayerId].name}'s turn.`}</div>
 				}
@@ -65,7 +65,7 @@ class MessageBox extends React.Component {
 	render() {
 	 	if (this.props.myPlayerId !== this.props.currentPlayerId) {
 			// "It's _'s turn."
-			return <div id="waiting-on-player" className="interactive">
+			return <div className="interactive">
 				It's <span id="current-player-name">{this.props.players[this.props.currentPlayerId].name}</span>'s turn.
 			</div>;
 		}
@@ -73,16 +73,19 @@ class MessageBox extends React.Component {
 		if (this.props.messages.length === 0) {
 	 		if (this.props.numTurns === 0) {
 				// "Start Game"
-				return <div id="initial-interactive" className="interactive">
+				return <div className="interactive">
 					You will go first.
 					<div className="button" onClick={this.props.executeTurn}>Start Game</div>
 				</div>;
 			} else {
-				return <div className="button" onClick={this.props.executeTurn} id="execute-turn">Take Your Turn</div>;
+				return <div className="interactive">
+					You will go first.
+					<div className="button" onClick={this.props.executeTurn}>Take Your Turn</div>
+				</div>;
 			}
 		}
 
-		return <div id="message-box" className="interactive">
+		return <div className="interactive">
 			{this.renderMessages()}
 			{this.renderCtaButton()}
 		</div>;

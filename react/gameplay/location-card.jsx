@@ -20,7 +20,7 @@ class LocationCard extends React.Component {
 		};
 
 		return <div id="location-card">
-			<div className="head" style={headerStyle}>{place.name}</div>
+			<div id="location-card-header" style={headerStyle}>{place.name}</div>
 			<center style={{backgroundColor: "rgb(213,232,212)"}}>
 				<div id="tax-info">{this.getTaxInfo(placeIdx)}</div>
 

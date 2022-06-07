@@ -9,6 +9,27 @@ body {
 /* Remove weird, uninspectable whitespace at the top of the page. */
 h1 { margin-top: 0; }
 
+#page-header {
+	background-color: black;
+	color: #DDD;
+	padding: 10px;
+	height: 22px;
+}
+#home-link {
+	text-decoration: none;
+	color: #08F;
+	font-size: 18px;
+	margin-right: 50px;
+	user-select: none;
+}
+#game-name {
+	border: 2px solid #DDD;
+	border-radius: 5px;
+	display: inline-block;
+	font-size: 14px;
+	padding: 5px 10px 0 10px;
+}
+
 .left-margin {
 	margin-left: 5px;
 }

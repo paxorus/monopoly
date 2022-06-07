@@ -68,7 +68,7 @@
 }
 
 /* Location card */
-.head {
+#location-card-header {
 	font-size: 20px;
 	padding: 5px;
 	background-color: #BBB;
@@ -81,7 +81,7 @@
 #location-card {
 	position: absolute;
 	top: 200px;
-	left: 540px;
+	left: 1100px;
 
 	width: 225px;
 	margin-left: -112px;
@@ -100,11 +100,7 @@
 }
 
 /* Player displays */
-#heads {
-	position: absolute;
-	left: 772px;
-	margin-left: 10px;
-	top: 0;
+#player-dashboard-container {
 	width: 400px;
 }
 .dashboard {
@@ -175,17 +171,26 @@
 	padding-left: 10px;
 }
 
-/* Interactive message box */
-.interactive {
+/* Action center */
+#action-center {
 	position: absolute;
-	top: 250px;
-	left: 240px;
+	left: 400px;
 
-	width: 250px;
-	margin-left: -125px;
+	width: 300px;
+	height: 100%;
+
+	border: 4px black;
+	border-style: none solid;
+
+	background-color: #CCC;
+	overflow-y: auto;/* Vertical scrollbar */
+}
+.has-underbar {
+	border: 4px black;
+	border-style: none none solid none;
 }
 
-#message-box {
-	overflow-y: auto;
-	max-height: 400px;
+/* Interactive message box */
+.interactive {
+	padding: 10px;
 }

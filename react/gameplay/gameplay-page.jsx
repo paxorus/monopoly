@@ -100,6 +100,7 @@ class GameplayPage extends React.Component {
 
 		this.state = {
 			// Initialized by server
+			gameName: "(loading)",
 			players: [],
 			places: [],
 			me: null,
@@ -130,7 +131,7 @@ class GameplayPage extends React.Component {
 		});
 	}
 
-	startUp({playerData, locationData, monopolies, yourPlayerId, currentPlayerId, tax, numTurns}) {
+	startUp({gameName, playerData, locationData, monopolies, yourPlayerId, currentPlayerId, tax, numTurns}) {
 		const players = playerData.map(({name, num, spriteFileName, borderColor, balance, placeIdx, jailDays, numJailCards}) => {
 			// TODO: Move to player.js.
 			const player = new Player(name, num, spriteFileName, borderColor);
@@ -147,6 +148,7 @@ class GameplayPage extends React.Component {
 		isDashboardOpen[yourPlayerId] = true;
 
 		this.setState({
+			gameName,
 			players,
 			places,
 			tax,
@@ -296,6 +298,11 @@ class GameplayPage extends React.Component {
 	render() {
 		return <div>
 
+			<div id="page-header">
+				<a href="/" id="home-link">Web Monopoly</a>
+				<div id="game-name">{this.state.gameName}</div>
+			</div>
+
 			<GameBoard
 				players={this.state.players}
 				places={this.state.places}
@@ -312,20 +319,25 @@ class GameplayPage extends React.Component {
 				onMouseOverOwner={overOrOut => this.highlightProperties(this.getSelectedPlaceOwnerNum(), overOrOut)} />
 
 			{(this.state.currentPlayerId !== undefined) &&
-				<MessageBox messages={this.state.messages}
-					numTurns={this.state.numTurns}
-					currentPlayerId={this.state.currentPlayerId}
-					myPlayerId={this.state.myPlayerId}
-					players={this.state.players}
-					waitingForServer={this.state.waitingForServer}
-					executeTurn={this.executeTurn.bind(this)}
-					concludeTurn={this.concludeTurn.bind(this)}
-					respondToBuyOffer={this.respondToBuyOffer.bind(this)}
-					respondPayOutOfJail={this.respondPayOutOfJail.bind(this)}
-					clearMessages={this.clearMessages.bind(this)} />}
+				<div id="action-center">
+					<div className="has-underbar">
+						<div className="button">View Trades</div>
+					</div>
+					<MessageBox messages={this.state.messages}
+						numTurns={this.state.numTurns}
+						currentPlayerId={this.state.currentPlayerId}
+						myPlayerId={this.state.myPlayerId}
+						players={this.state.players}
+						waitingForServer={this.state.waitingForServer}
+						executeTurn={this.executeTurn.bind(this)}
+						concludeTurn={this.concludeTurn.bind(this)}
+						respondToBuyOffer={this.respondToBuyOffer.bind(this)}
+						respondPayOutOfJail={this.respondPayOutOfJail.bind(this)}
+						clearMessages={this.clearMessages.bind(this)} />
+				</div>}
 
 			{/* Player Dashboards */}
-			<div id="heads">
+			<div id="player-dashboard-container">
 				{this.state.players.map(player => <PlayerDashboard
 					key={player.num}
 					isOpen={this.getIsDashboardOpen(player.num)}

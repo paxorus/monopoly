@@ -19,13 +19,7 @@
 .location-highlighted {
 	background-color: rgb(142, 193, 139);
 }
-.right {
-	left: calc(10 * (var(--square-width) + 2px));
-}
-.top {}
-.bottom {
-	top: calc(10 * (var(--square-height) + 2px));
-}
+
 /* Walkways */
 .vertical {
 	position: absolute;

@@ -57,6 +57,7 @@ function onGameplayConnection(socket, userId) {
 		const gameRecord = game.serialize();
 
 		player.emit("start-up", {
+			gameName: game.name,
 			monopolies,
 			yourPlayerId: player.num,
 			playerData: gameRecord.playerData,
