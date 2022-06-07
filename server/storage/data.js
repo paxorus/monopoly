@@ -122,8 +122,11 @@ const users = {
 	}
 };
 
+const tradeOffers = {};
+
 module.exports = {
 	games,
 	lobbies,
-	users
+	users,
+	tradeOffers
 };

@@ -1,13 +1,14 @@
-const Lookup = require("./lookup.js");
+const Lookup = require("../storage/lookup.js");
 
 
 function sendTradeOffer(fromPlayer, trade) {
-	// TODO: Make a TradeRecord and handle validation in there.
-	if (!isValid(fromPlayer, trade)) {
+	// TODO: Make a TradeRecord and handle validation and authorization in there.
+	if (!isTradeValid(fromPlayer, trade)) {
 		return;
 	}
 
 	trade = {
+		id: "abc",
 		name: "Offer 3",
 		message: "Kindly accept my offer, you worthless dishrag.",
 		createTime: 1.55e12,
@@ -29,9 +30,13 @@ function sendTradeOffer(fromPlayer, trade) {
 function acceptTradeOffer(toPlayer, tradeId) {
 	// Check it's still valid.
 	const trade = Lookup.fetchTradeOffer(tradeId);
-	if (isValid(toPlayer, trade)) {
+	if (isTradeValid(toPlayer, trade)) {
 		executeTradeOffer(toPlayer, trade);
-		toPlayer.emitToAll("execute-trade-offer", {trade});
+		toPlayer.emitToEveryone("accept-trade-offer", {
+			tradeId,
+			fromPlayerId: trade.fromPlayerId,
+			toPlayerId: trade.toPlayerId
+		});
 	} else {
 		toPlayer.log(`Offer ${trade.name} is no longer valid.`);
 	}
@@ -45,16 +50,16 @@ function rejectTradeOffer(toPlayer, tradeId) {
 		return;
 	}
 
-	toPlayer.emitToAll("reject-trade-offer", {
+	toPlayer.emitToEveryone("reject-trade-offer", {
 		tradeId,
-		trade.fromPlayerId,
-		trade.toPlayerId
+		fromPlayerId: trade.fromPlayerId,
+		toPlayerId: trade.toPlayerId
 	});
 
 	Lookup.deleteTradeOffer(tradeId);
 }
 
-function executeTradeOffer(trade, toPlayer) {
+function executeTradeOffer(toPlayer, trade) {
 	const fromPlayer = toPlayer.game.players[trade.fromPlayerId];
 
 	// For each transfer, a unit test that we notify all players, _and_ update in-memory.
