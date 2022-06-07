@@ -102,6 +102,32 @@ function createUser(userId, user) {
 	MemStore.users[userId] = user;
 }
 
+/**
+ * Trade offers don't have a use case for mutations or hydrated links. Thus, they don't need an in-memory representation,
+ * and models can use the record objects directly.
+ */
+function fetchTradeOffer(tradeId) {
+	return Data.tradeOffers[tradeId];
+}
+
+function fetchTradeOffersFrom(fromPlayerId) {
+	return Object.values(Data.tradeOffers)
+		.filter(trade => trade.fromPlayerId === fromPlayerId);
+}
+
+function fetchTradeOffersTo(toPlayerId) {
+	return Object.values(Data.tradeOffers)
+		.filter(trade => trade.toPlayerId === toPlayerId);
+}
+
+function createTradeOffer(tradeOffer) {
+	Data.tradeOffers[tradeOffer.id] = tradeOffer;
+}
+
+function deleteTradeOffer(tradeId) {
+	delete Data.tradeOffers[tradeId];
+}
+
 module.exports = {
 	fetchGame,
 	fetchLobby,
@@ -109,5 +135,10 @@ module.exports = {
 	convertLobbyToGame,
 	deleteLobby,
 	fetchUser,
-	createUser
+	createUser,
+	fetchTradeOffer,
+	fetchTradeOffersFrom,
+	fetchTradeOffersTo,
+	createTradeOffer,
+	deleteTradeOffer
 };

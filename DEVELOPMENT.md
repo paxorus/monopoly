@@ -9,9 +9,6 @@
 * Run server unit tests: `npm test`
 * Run browser unit tests: `npm run server` then open `localhost:5000/test`
 
-## Code TODOs
-Minor TODOs are left throughout the code as well.
-
 #### Major
 * DB persistence (currently all state is held in-memory)
 * Server error handling (currently a single bad request can send it down)
@@ -19,9 +16,10 @@ Minor TODOs are left throughout the code as well.
 
 #### Medium
 * Test coverage for obey-location.js.
-* Test coverage for React game and lobby.
+* React test coverage for game and lobby.
 * Convert the landing page to React.
 * Bring sprite URLs and colors to frontend, and only keep the player sprite ID in the backend.
 
 #### Minor
-* Should Player ever use io.emit() (game SocketIO room) instead of emitToAll()?
+* Replace `player.emitToAll()` with `player.game.emitToAll()`. emitToAll() should belong to Game, so the OOP reads better.
+* Minor TODOs are left throughout the code as well.

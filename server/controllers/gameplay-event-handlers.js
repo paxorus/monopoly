@@ -10,6 +10,11 @@ const {
 	unmortgageProperty,
 	useGetOutOfJailFreeCard
 } = require("../game-logic/execute-turn.js");
+const {
+	sendTradeOffer,
+	acceptTradeOffer,
+	rejectTradeOffer
+} = require("../game-logic/trade.js");
 const {LocationInfo, MONOPOLIES} = require("../game-logic/location-configs.js");
 const Lookup = require("../storage/lookup.js");
 
@@ -125,6 +130,24 @@ function onGameplayConnection(socket, userId) {
 	socket.on("unmortgage-property", ({placeIdx}) => {
 		if (player !== undefined) {
 			unmortgageProperty(player, placeIdx);
+		}
+	});
+
+	socket.on("send-trade-offer", ({trade}) => {
+		if (player !== undefined) {
+			sendTradeOffer(player, trade);
+		}
+	});
+
+	socket.on("accept-trade-offer", ({tradeId}) => {
+		if (player !== undefined) {
+			acceptTradeOffer(player, tradeId);
+		}
+	});
+
+	socket.on("reject-trade-offer", ({tradeId}) => {
+		if (player !== undefined) {
+			rejectTradeOffer(player, tradeId);
 		}
 	});
 };
