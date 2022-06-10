@@ -62,7 +62,7 @@ function rejectTradeOffer(toPlayer, tradeId) {
 function executeTradeOffer(toPlayer, trade) {
 	const fromPlayer = toPlayer.game.players[trade.fromPlayerId];
 
-	// For each transfer, a unit test that we notify all players, _and_ update in-memory.
+	// For each type of transfer, a unit test that we notify all players, _and_ update in-memory.
 
 	// Transfer cash.
 	fromPlayer.updateBalance(-trade.cash);
@@ -71,9 +71,13 @@ function executeTradeOffer(toPlayer, trade) {
 	// Transfer properties.
 	trade.fromProperties.forEach(placeIdx => {
 		toPlayer.emitToEveryone("update-property-owner", {playerId: toPlayer.num, placeIdx});
+		toPlayer.notifyEveryoneElse(`${toPlayer.name} now owns ${places[placeIdx].name}.`);
+		toPlayer.notify(`You now own ${places[placeIdx].name}!`);
 	});
 	trade.toProperties.forEach(placeIdx => {
 		fromPlayer.emitToEveryone("update-property-owner", {playerId: fromPlayer.num, placeIdx});
+		fromPlayer.notifyEveryoneElse(`${toPlayer.name} now owns ${places[placeIdx].name}.`);
+		fromPlayer.notify(`You now own ${places[placeIdx].name}!`);
 	});
 
 	// Transfer jail cards.

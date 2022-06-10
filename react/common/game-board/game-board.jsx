@@ -1,4 +1,4 @@
-import GameBoardSquare from "/javascripts/common/game-board-square.js";
+import GameBoardSquare from "/javascripts/common/game-board/game-board-square.js";
 import {Place} from "/javascripts/common/models/place.js";
 import Player from "/javascripts/common/models/player.js";
 import validate from "/javascripts/validate-props.js";

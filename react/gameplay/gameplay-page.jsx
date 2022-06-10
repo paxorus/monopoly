@@ -1,10 +1,12 @@
 import {PlaceConfigs, propertyComparator, Locations} from "/javascripts/gameplay/location-configs.js";
 import LocationCard from "/javascripts/gameplay/location-card.js";
-import GameBoard from "/javascripts/common/game-board.js";
+import GameBoard from "/javascripts/common/game-board/game-board.js";
 import {hydratePlaces} from "/javascripts/common/models/place.js";
 import MessageBox from "/javascripts/gameplay/message-box.js";
 import Player from "/javascripts/common/models/player.js";
 import PlayerDashboard from "/javascripts/gameplay/player-dashboard.js";
+import Modal from "/javascripts/lobby/modal.js";
+import ModalPage from "/javascripts/lobby/modal-page.js";
 import validate from "/javascripts/validate-props.js";
 
 class GameplayPage extends React.Component {
@@ -45,6 +47,10 @@ class GameplayPage extends React.Component {
 		});
 
 		socket.on("purchase-property", ({playerId, placeIdx}) => {
+			this.updatePlace(placeIdx, {ownerNum: playerId});
+		});
+
+		socket.on("update-property-owner", ({playerId, placeIdx}) => {
 			this.updatePlace(placeIdx, {ownerNum: playerId});
 		});
 
@@ -111,7 +117,8 @@ class GameplayPage extends React.Component {
 
 			// React-related
 			selectedPlaceIdx: -1,
-			highlightedProperties: new Set()
+			highlightedProperties: new Set(),
+			isTradeEditorOpen: false
 		};
 	}
 
@@ -259,6 +266,18 @@ class GameplayPage extends React.Component {
 		this.socket.emit("use-jail-card");
 	}
 
+	handleClickTrade() {
+		this.setState({
+			isTradeEditorOpen: true
+		});
+	}
+
+	handleCloseTrade() {
+		this.setState({
+			isTradeEditorOpen: false
+		});
+	}
+
 	highlightProperties(playerNum, overOrOut) {
 		this.setState(state => {
 			if (!overOrOut || playerNum === -1) {
@@ -295,8 +314,22 @@ class GameplayPage extends React.Component {
 			.sort((place1, place2) => propertyComparator(place1.placeIdx, place2.placeIdx));
 	}
 
+	renderTradeModal(handleModalSlide) {
+		return <Modal title="bruh"
+			key="trade"
+			isOpen={this.state.isTradeEditorOpen}
+			onModalSlide={handleModalSlide}
+			onClickCloseModal={this.handleCloseTrade.bind(this)}>
+			Bruh!
+		</Modal>
+	}
+
 	render() {
-		return <div>
+		return <ModalPage modals={[{
+			isOpen: this.state.isTradeEditorOpen,
+			onClose: this.handleCloseTrade.bind(this),
+			build: this.renderTradeModal.bind(this)
+		}]}>
 
 			<div id="page-header">
 				<a href="/" id="home-link">Web Monopoly</a>
@@ -321,7 +354,7 @@ class GameplayPage extends React.Component {
 			{(this.state.currentPlayerId !== undefined) &&
 				<div id="action-center">
 					<div className="has-underbar">
-						<div className="button">View Trades</div>
+						<div className="button" onClick={this.handleClickTrade.bind(this)}>Trade</div>
 					</div>
 					<MessageBox messages={this.state.messages}
 						numTurns={this.state.numTurns}
@@ -353,7 +386,7 @@ class GameplayPage extends React.Component {
 					onClickMortgage={this.handleMortgageProperty.bind(this)}
 					onClickUseJailCard={this.handleUseJailCard.bind(this)} />)}
 			</div>
-		</div>
+		</ModalPage>
 	}
 }
 

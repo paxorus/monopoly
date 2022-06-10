@@ -1,5 +1,5 @@
 import validate from "/javascripts/validate-props.js";
-import SpritePositionUtil from "/javascripts/common/sprite-position-util.js";
+import SpritePositionUtil from "/javascripts/common/game-board/sprite-position-util.js";
 
 
 class CollapsedSprite extends React.Component {

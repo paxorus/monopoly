@@ -1,6 +1,6 @@
 import ImagePicker from "/javascripts/lobby/image-picker.js";
-import Modal from "/javascripts/lobby/modal.js";
-import TextInput from "/javascripts/lobby/text-input.js";
+import Modal from "/javascripts/common/modal/modal.js";
+import TextInput from "/javascripts/common/text-input.js";
 import validate from "/javascripts/validate-props.js";
 
 

@@ -1,8 +1,8 @@
 import EditPlayerModal from "/javascripts/lobby/edit-player-modal.js";
 import InviteLink from "/javascripts/lobby/invite-link.js";
-import GameBoard from "/javascripts/common/game-board.js";
-import Modal from "/javascripts/lobby/modal.js";
-import ModalPage from "/javascripts/lobby/modal-page.js";
+import GameBoard from "/javascripts/common/game-board/game-board.js";
+import Modal from "/javascripts/common/modal/modal.js";
+import ModalPage from "/javascripts/common/modal/modal-page.js";
 import PlayerList from "/javascripts/lobby/player-list.js";
 import validate from "/javascripts/validate-props.js";
 

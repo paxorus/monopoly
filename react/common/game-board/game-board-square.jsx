@@ -1,8 +1,8 @@
-import CollapsedSprite from "/javascripts/common/collapsed-sprite.js";
+import CollapsedSprite from "/javascripts/common/game-board/collapsed-sprite.js";
 import {BLACK_TEXT_COLORS, Locations, PlaceConfigs, Railroads, Utilities} from "/javascripts/gameplay/location-configs.js";
-import PlayerSprite from "/javascripts/common/player-sprite.js";
+import PlayerSprite from "/javascripts/common/game-board/player-sprite.js";
 import Player from "/javascripts/common/models/player.js";
-import SpritePositionUtil from "/javascripts/common/sprite-position-util.js";
+import SpritePositionUtil from "/javascripts/common/game-board/sprite-position-util.js";
 import validate from "/javascripts/validate-props.js";
 
 const JAIL_VERTICAL_WALKWAY_CAPACITY = 3;
