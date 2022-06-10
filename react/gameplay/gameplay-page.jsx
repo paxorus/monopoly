@@ -113,7 +113,6 @@ class GameplayPage extends React.Component {
 		socket.emit("start-up", {gameId: props.gameId});
 		this.socket = socket;
 
-
 		this.state = {
 			// Initialized by server
 			gameName: "(loading)",
@@ -332,13 +331,31 @@ class GameplayPage extends React.Component {
 	}
 
 	renderTradeModal(handleModalSlide) {
-		return <Modal title="bruh"
+		// const offeringPlayerNums = [...new Set(this.state.tradeOffers.map(tradeOffer => tradeOffer.fromPlayerId))].sort((a, b) => a - b);
+		// const offeringPlayerNames = offeringPlayerNums.map(playerNum => );
+
+		return <Modal title=""
 			key="trade"
 			isOpen={this.state.isTradeEditorOpen}
 			onModalSlide={handleModalSlide}
 			onClickCloseModal={this.handleCloseTrade.bind(this)}>
-			{this.state.tradeOffers.map(tradeOffer => <div>{JSON.stringify(tradeOffer)}</div>)}
-			<div className="button" onClick={this.handleClickSendOffer.bind(this)}>Send Offer</div>
+			<div className="inline" id="trade-offer-picker">
+				<div className="button" onClick={()=>{}}>+ Create Offer</div>
+				<div>
+				{this.state.players.map(player => {
+					const offersFromPlayer = this.state.tradeOffers.filter(offer => offer.fromPlayerId === player.num);
+					if (offersFromPlayer.length === 0) {
+						return null;
+					}
+
+					return <div key={player.num}>
+						<div className="trade-offer-player-name">{player.name}</div>
+						{offersFromPlayer.map(offer => <div className="trade-offer-name" key={offer.id}>{offer.name}</div>)}
+					</div>;
+				})}
+				</div>
+			</div>
+			<div className="button inline" onClick={this.handleClickSendOffer.bind(this)}>Send Offer</div>
 		</Modal>
 	}
 
