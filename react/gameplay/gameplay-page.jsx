@@ -5,8 +5,8 @@ import {hydratePlaces} from "/javascripts/common/models/place.js";
 import MessageBox from "/javascripts/gameplay/message-box.js";
 import Player from "/javascripts/common/models/player.js";
 import PlayerDashboard from "/javascripts/gameplay/player-dashboard.js";
-import Modal from "/javascripts/lobby/modal.js";
-import ModalPage from "/javascripts/lobby/modal-page.js";
+import TradeEditorModal from "/javascripts/gameplay/trade-editor-modal.js";
+import ModalPage from "/javascripts/common/modal/modal-page.js";
 import validate from "/javascripts/validate-props.js";
 
 class GameplayPage extends React.Component {
@@ -331,32 +331,14 @@ class GameplayPage extends React.Component {
 	}
 
 	renderTradeModal(handleModalSlide) {
-		// const offeringPlayerNums = [...new Set(this.state.tradeOffers.map(tradeOffer => tradeOffer.fromPlayerId))].sort((a, b) => a - b);
-		// const offeringPlayerNames = offeringPlayerNums.map(playerNum => );
-
-		return <Modal title=""
+		return <TradeEditorModal
 			key="trade"
 			isOpen={this.state.isTradeEditorOpen}
+			onCloseTrade={this.handleCloseTrade.bind(this)}
 			onModalSlide={handleModalSlide}
-			onClickCloseModal={this.handleCloseTrade.bind(this)}>
-			<div className="inline" id="trade-offer-picker">
-				<div className="button" onClick={()=>{}}>+ Create Offer</div>
-				<div>
-				{this.state.players.map(player => {
-					const offersFromPlayer = this.state.tradeOffers.filter(offer => offer.fromPlayerId === player.num);
-					if (offersFromPlayer.length === 0) {
-						return null;
-					}
-
-					return <div key={player.num}>
-						<div className="trade-offer-player-name">{player.name}</div>
-						{offersFromPlayer.map(offer => <div className="trade-offer-name" key={offer.id}>{offer.name}</div>)}
-					</div>;
-				})}
-				</div>
-			</div>
-			<div className="button inline" onClick={this.handleClickSendOffer.bind(this)}>Send Offer</div>
-		</Modal>
+			players={this.state.players}
+			tradeOffers={this.state.tradeOffers}
+			onClickSendOffer={this.handleClickSendOffer.bind(this)} />
 	}
 
 	render() {
