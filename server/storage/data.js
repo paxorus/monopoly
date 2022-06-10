@@ -122,7 +122,47 @@ const users = {
 	}
 };
 
-const tradeOffers = {};
+const tradeOffers = {
+	"abc": {
+		id: "abc",
+		name: "Offer 1",
+		message: "Kindly accept my offer, you worthless dishrag.",
+		createTime: 1.54e12,
+		gameId: "oiwftflpzyhsxjgarpla",
+		fromPlayerId: 1,
+		toPlayerId: 0,
+		fromProperties: [37, 39],
+		toProperties: [1],
+		cash: 100,
+		numJailCards: -1
+	},
+	"def": {
+		id: "def",
+		name: "Offer 2",
+		message: "Kindly accept my offer, you worthless dishrag.",
+		createTime: 1.55e12,
+		gameId: "oiwftflpzyhsxjgarpla",
+		fromPlayerId: 0,
+		toPlayerId: 0,
+		fromProperties: [37, 39],
+		toProperties: [1],
+		cash: 100,
+		numJailCards: -1
+	},
+	"ghi": {
+		id: "ghi",
+		name: "Offer 3",
+		message: "Kindly accept my offer, you worthless dishrag.",
+		createTime: 1.56e12,
+		gameId: "oiwftflpzyhsxjgarpla",
+		fromPlayerId: 1,
+		toPlayerId: 0,
+		fromProperties: [37, 39],
+		toProperties: [1],
+		cash: 100,
+		numJailCards: -1
+	}
+};
 
 module.exports = {
 	games,

@@ -101,8 +101,18 @@ class GameplayPage extends React.Component {
 			this.updatePlayer(placeIdx, {isMortgaged: false});
 		});
 
+		// Trade actions
+		socket.on("send-trade-offer", tradeOffer => {
+			this.setState({tradeOffers: [
+				...this.state.tradeOffers,
+				tradeOffer
+			]});
+		});
+
+		// Start up!
 		socket.emit("start-up", {gameId: props.gameId});
 		this.socket = socket;
+
 
 		this.state = {
 			// Initialized by server
@@ -114,6 +124,7 @@ class GameplayPage extends React.Component {
 			messages: [],
 			myPlayerId: -1,
 			isDashboardOpen: {},
+			tradeOffers: [],
 
 			// React-related
 			selectedPlaceIdx: -1,
@@ -138,7 +149,7 @@ class GameplayPage extends React.Component {
 		});
 	}
 
-	startUp({gameName, playerData, locationData, monopolies, yourPlayerId, currentPlayerId, tax, numTurns}) {
+	startUp({gameName, playerData, locationData, monopolies, yourPlayerId, currentPlayerId, tax, numTurns, tradeOffers}) {
 		const players = playerData.map(({name, num, spriteFileName, borderColor, balance, placeIdx, jailDays, numJailCards}) => {
 			// TODO: Move to player.js.
 			const player = new Player(name, num, spriteFileName, borderColor);
@@ -162,6 +173,7 @@ class GameplayPage extends React.Component {
 			isDashboardOpen,
 			monopolies,
 			numTurns,
+			tradeOffers,
 			currentPlayerId,
 			myPlayerId: yourPlayerId,
 			messages: playerData[yourPlayerId].savedMessages
@@ -266,6 +278,11 @@ class GameplayPage extends React.Component {
 		this.socket.emit("use-jail-card");
 	}
 
+	handleClickSendOffer() {
+		this.logMessage("waiting-on-server");
+		this.socket.emit("send-trade-offer", {});
+	}
+
 	handleClickTrade() {
 		this.setState({
 			isTradeEditorOpen: true
@@ -320,7 +337,8 @@ class GameplayPage extends React.Component {
 			isOpen={this.state.isTradeEditorOpen}
 			onModalSlide={handleModalSlide}
 			onClickCloseModal={this.handleCloseTrade.bind(this)}>
-			Bruh!
+			{this.state.tradeOffers.map(tradeOffer => <div>{JSON.stringify(tradeOffer)}</div>)}
+			<div className="button" onClick={this.handleClickSendOffer.bind(this)}>Send Offer</div>
 		</Modal>
 	}
 

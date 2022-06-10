@@ -12,6 +12,7 @@ function sendTradeOffer(fromPlayer, trade) {
 		name: "Offer 3",
 		message: "Kindly accept my offer, you worthless dishrag.",
 		createTime: 1.55e12,
+		gameId: "oiwftflpzyhsxjgarpla",
 		fromPlayerId: 1,
 		toPlayerId: 0,
 		fromProperties: [37, 39],

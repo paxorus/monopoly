@@ -58,6 +58,7 @@ function onGameplayConnection(socket, userId) {
 		player.addSocket(socket);
 
 		const monopolies = MONOPOLIES.filter(monopoly => hasAchievedColoredMonopoly(monopoly, player));
+		const tradeOffers = Lookup.fetchTradeOffersTo(player.num, gameId);
 
 		const gameRecord = game.serialize();
 
@@ -69,7 +70,8 @@ function onGameplayConnection(socket, userId) {
 			locationData: gameRecord.placeRecords,
 			currentPlayerId: gameRecord.currentPlayerId,
 			tax: gameRecord.tax,
-			numTurns: gameRecord.numTurns
+			numTurns: gameRecord.numTurns,
+			tradeOffers
 		});
 
 		return [player, game];

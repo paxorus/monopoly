@@ -110,14 +110,14 @@ function fetchTradeOffer(tradeId) {
 	return Data.tradeOffers[tradeId];
 }
 
-function fetchTradeOffersFrom(fromPlayerId) {
+function fetchTradeOffersFrom(fromPlayerId, gameId) {
 	return Object.values(Data.tradeOffers)
-		.filter(trade => trade.fromPlayerId === fromPlayerId);
+		.filter(trade => trade.fromPlayerId === fromPlayerId && trade.gameId === gameId);
 }
 
-function fetchTradeOffersTo(toPlayerId) {
+function fetchTradeOffersTo(toPlayerId, gameId) {
 	return Object.values(Data.tradeOffers)
-		.filter(trade => trade.toPlayerId === toPlayerId);
+		.filter(trade => trade.toPlayerId === toPlayerId && trade.gameId === gameId);
 }
 
 function createTradeOffer(tradeOffer) {
