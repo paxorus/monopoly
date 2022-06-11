@@ -1,5 +1,4 @@
 const assert = require("assert");
-const {describeTimeSince} = require("../../friendliness/age-to-text-helper.js");
 const {PlayerIcons} = require("../../models/player.js");
 const Mock = require("../test-utils/mock.js");
 const TimeNow = require("../../fickle/time-now.js");

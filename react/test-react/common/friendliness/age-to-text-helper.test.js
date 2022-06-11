@@ -1,12 +1,13 @@
-const assert = require("assert");
-const proxyquire = require("proxyquire");
+import assert from "/javascripts/test-react/assert.js";
+import TimeNow from "/javascripts/common/friendliness/time-now.js";
+import AgeToTextHelper from "/javascripts/common/friendliness/age-to-text-helper.js";
 
 const nowInMillis = 1.6e12;
-const {describeTimeSince} = proxyquire("../../friendliness/age-to-text-helper.js", {
-	"../fickle/time-now.js": {
-		getTimeNow: () => nowInMillis
-	}
-});
+
+function describeTimeSince(testInput) {
+	TimeNow._inject(nowInMillis);
+	return AgeToTextHelper.describeTimeSince(testInput);
+}
 
 describe("Age to Text Helper", () => {
 

@@ -1,4 +1,4 @@
-const {getTimeNow} = require("../fickle/time-now.js");
+import TimeNow from "/javascripts/common/friendliness/time-now.js";
 
 
 function describeTimeSince(then) {
@@ -9,7 +9,7 @@ function describeTimeSince(then) {
 	const MONTH = 30 * DAY;
 	const YEAR = 365 * DAY;
 
-	const now = getTimeNow();
+	const now = TimeNow.getTimeNow();
 	const ageInSeconds = (now - then) / 1000;
 
 	if (ageInSeconds < MINUTE) {
@@ -69,6 +69,6 @@ function describeTimeSince(then) {
 	return `${ageInYears} years ago`;
 }
 
-module.exports = {
+export default {
 	describeTimeSince
 };
