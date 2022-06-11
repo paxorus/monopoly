@@ -53,7 +53,7 @@ class Modal extends React.Component {
 		const from = 100;
 		return {
 			top: `${(to - from) * percentOpen / 100 + from}%`,
-			display: (percentOpen <= 0) ? "none" : "block"
+			display: (percentOpen <= 0) ? "none" : this.props.displayStyle
 		};
 	}
 
@@ -75,7 +75,12 @@ Modal.propTypes = {
 	isOpen: PropTypes.bool,
 	onModalSlide: PropTypes.func,
 	onClickCloseModal: PropTypes.func,
-	children: PropTypes.node
+	children: PropTypes.node,
+	displayStyle: PropTypes.oneOf(["block", "grid"])
+};
+
+Modal.defaultProps = {
+	displayStyle: "block"
 };
 
 export default Modal;

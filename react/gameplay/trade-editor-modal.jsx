@@ -1,5 +1,7 @@
 import Modal from "/javascripts/common/modal/modal.js";
 import Player from "/javascripts/common/models/player.js";
+import AgeToTextHelper from "/javascripts/common/friendliness/age-to-text-helper.js";
+import {PlaceConfigs} from "/javascripts/gameplay/location-configs.js";
 import validate from "/javascripts/validate-props.js";
 
 // <div className="button inline" onClick={this.props.onClickSendOffer}>Send Offer</div>
@@ -23,23 +25,42 @@ class TradeEditorModal extends React.Component {
 			return null;
 		}
 
-		return <div className="inline" style={{width: "500px"}}>
-			<div>From: {this.props.players[tradeOffer.fromPlayerId].name}</div>
-			<div>Received: {tradeOffer.createTime}</div>
-			<div>Message: {tradeOffer.message}</div>
-
-			<div>To do: {JSON.stringify([tradeOffer.fromProperties, tradeOffer.toProperties, tradeOffer.cash, tradeOffer.numJailCards])}</div>
-
-			<div className="button inline" onClick={() => this.props.onClickAcceptOffer(tradeOffer.id)}>Accept Offer</div>
-			<div className="button-secondary inline" onClick={() => this.props.onClickDeclineOffer(tradeOffer.id)}>Decline Offer</div>
-		</div>
+		return [
+			<div style={{gridRow: 1}}>
+				<div>
+					<div className="label">From</div>
+					{this.props.players[tradeOffer.fromPlayerId].name}
+				</div>
+				<div title={new Date(tradeOffer.createTime).toLocaleString()}>
+					<div className="label">Received</div>
+					{AgeToTextHelper.describeTimeSince(tradeOffer.createTime)}
+				</div>
+				<div>
+					<div className="label">Message</div>
+					{tradeOffer.message}
+				</div>
+				<div className="button inline" onClick={() => this.props.onClickAcceptOffer(tradeOffer.id)}>Accept Offer</div>
+				<div className="button-secondary inline" onClick={() => this.props.onClickDeclineOffer(tradeOffer.id)}>Decline Offer</div>
+			</div>,
+			<div style={{gridRow: 2}}>
+				<div>You: {tradeOffer.toProperties.map(placeIdx =>
+					<div key={placeIdx}>{PlaceConfigs[placeIdx].name}</div>
+				)}</div>
+				<div>{this.props.players[tradeOffer.fromPlayerId].name}: {tradeOffer.fromProperties.map(placeIdx =>
+					<div key={placeIdx}>{PlaceConfigs[placeIdx].name}</div>
+				)}</div>
+				<div>Cash: {tradeOffer.cash}</div>
+				<div>Jail cards: {tradeOffer.numJailCards}</div>
+			</div>
+		];
 	}
 
 	render() {
 		return <Modal title=""
 			isOpen={this.props.isOpen}
 			onModalSlide={this.props.onModalSlide}
-			onClickCloseModal={this.props.onCloseTrade}>
+			onClickCloseModal={this.props.onCloseTrade}
+			displayStyle="grid">
 			<div className="inline" id="trade-offer-picker">
 				<div className="button" onClick={()=>{}}>+ Create Offer</div>
 				<div>
