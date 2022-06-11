@@ -1,5 +1,4 @@
 const {PlayerIcons} = require("../models/player.js");
-const {describeTimeSince} = require("../friendliness/age-to-text-helper.js");
 const {summarizeGame, summarizeLobby} = require("../friendliness/summarize-game.js");
 const {setNewPlayerAndCookies, httpAuthenticatePlayer} = require("../auth.js");
 const Lookup = require("../storage/lookup.js");
@@ -74,10 +73,7 @@ function getGameplayOrLobbyPage(req, res) {
 				lobbyId: lobby.id,
 				adminId: lobby.adminId,
 				gameName: lobby.name,
-				gameCreateTime: {
-					friendly: describeTimeSince(lobby.createTime),
-					timestamp: lobby.createTime
-				},
+				gameCreateTime: lobby.createTime,
 				yourId: userId,
 				joinedPlayers: lobby.memberMap,
 				hasJoinedGame: userId in lobby.memberMap,

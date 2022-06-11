@@ -8,15 +8,9 @@ const RandomInt = require("../../fickle/random-int.js");
 
 describe("Summarize Game", () => {
 
-	const SECOND = 1000;
-	const MINUTE = 60 * SECOND;
-	const HOUR = 60 * MINUTE;
-	const DAY = 24 * HOUR;
-
 	describe("#summarizeGame()", () => {
 		it("should summarize an in-progress game", () => {
-			const nowInMillis = +new Date();
-			TimeNow._inject(nowInMillis - 5 * DAY);// Game create time
+			TimeNow._inject(1.55e12);// Game create time
 			RandomInt._inject(1);
 
 			const myPlayerId = "my id";
@@ -45,24 +39,21 @@ describe("Summarize Game", () => {
 						"netWorth": 1500,
 					}
 				],
-				"timeSinceCreated": "5 days ago",
-				"timeSinceUpdated": "never",
+				"gameCreateTime": 1.55e12,
+				"gameLastUpdateTime": null,
 				"waitingOnName": "admin name",
 				"yourName": "my name"
 			};
 
-			TimeNow._inject(nowInMillis);// Inject for age-to-text helper
 			assert.deepEqual(summarizeGame(gameRecord, myPlayerId), expectedGameSummary);
 		});
 
 		it("should summarize a lobby", () => {
-			const nowInMillis = +new Date();
-			TimeNow._inject(nowInMillis - 7 * HOUR);
+			TimeNow._inject(1.56e12);
 
 			const lobby = new Lobby(new LobbyRecord("my lobby id", "my lobby name", "admin id", "admin name", null));
 			lobby.addMember("my player id", "my player name", null);
 
-			TimeNow._inject(nowInMillis);
 			assert.deepEqual(summarizeLobby(lobby, "my player id"), {
 				"adminId": "admin id",
 				"adminName": "admin name",
@@ -72,7 +63,7 @@ describe("Summarize Game", () => {
 					"admin name",
 					"my player name",
 				],
-				"timeSinceCreated": "7 hours ago"
+				"gameCreateTime": 1.56e12
 			});
 		});
 	});

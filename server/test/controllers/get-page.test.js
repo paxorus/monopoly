@@ -2,6 +2,7 @@ const assert = require("assert");
 const {describeTimeSince} = require("../../friendliness/age-to-text-helper.js");
 const {PlayerIcons} = require("../../models/player.js");
 const Mock = require("../test-utils/mock.js");
+const TimeNow = require("../../fickle/time-now.js");
 const proxyquire = require("proxyquire");
 
 
@@ -11,6 +12,7 @@ describe("Get Page", () => {
 	const playerIcons = PlayerIcons.map(playerIcon => playerIcon.imageSrc);
 
 	const playerRecords = Mock.playerRecords(["Mudkip", "Treecko"]);
+	TimeNow._inject(1.51e12, 1.52e12);
 	const games = {
 		"my-game-1-xyz": Mock.game("My Game 1", 0, playerRecords, [
 			{placeIdx: 37, ownerNum: 0, houseCount: 0, isMortgaged: true},
@@ -91,10 +93,10 @@ describe("Get Page", () => {
 						{
 							"id": "my-game-1-xyz",
 							"name": "My Game 1",
-							"timeSinceCreated": "a few seconds ago",
 							"creatorName": "Mudkip",
 							"yourName": "Mudkip",
-							"timeSinceUpdated": "never",
+							"gameCreateTime": 1.51e12,
+							"gameLastUpdateTime": null,
 							"numTurns": 0,
 							"numOwnedProperties": 2,
 							"playerData": [
@@ -112,10 +114,10 @@ describe("Get Page", () => {
 						{
 							"id": "my-game-2-xyz",
 							"name": "My Game 2",
-							"timeSinceCreated": "a few seconds ago",
 							"creatorName": "Mudkip",
 							"yourName": "Mudkip",
-							"timeSinceUpdated": "never",
+							"gameCreateTime": 1.52e12,
+							"gameLastUpdateTime": null,
 							"numTurns": 0,
 							"numOwnedProperties": 0,
 							"playerData": [
@@ -135,7 +137,7 @@ describe("Get Page", () => {
 						{
 							"id": "lobby-0-xyz",
 							"name": "Lobby 0",
-							"timeSinceCreated": describeTimeSince(1.55e12),
+							"gameCreateTime": 1.55e12,
 							"adminName": "Mudkip",
 							"adminId": "mudkip-xyz-0",
 							"playerNames": [
@@ -190,10 +192,7 @@ describe("Get Page", () => {
 						"adminId": "mudkip-xyz-0",
 						"yourId": "mudkip-xyz-0",
 						"hasJoinedGame": true,
-						"gameCreateTime": {
-							"friendly": describeTimeSince(1.55e12),
-							"timestamp": 1.55e12
-						},
+						"gameCreateTime": 1.55e12,
 						"joinedPlayers": {
 							"mudkip-xyz-0": {
 								"name": "Mudkip",

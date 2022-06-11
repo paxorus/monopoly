@@ -1,10 +1,4 @@
-const {describeTimeSince} = require("./age-to-text-helper.js");
-
-
 function summarizeGame(game, yourId) {
-	const timeSinceCreated = describeTimeSince(game.createTime);
-	const timeSinceUpdated = game.lastUpdateTime ? describeTimeSince(game.lastUpdateTime) : "never";
-
 	const numOwnedProperties = game.places.filter(place => place.ownerNum !== undefined).length;
 
 	const creatorName = game.players.find(player => player.userId === game.adminId).name;
@@ -21,26 +15,25 @@ function summarizeGame(game, yourId) {
 	return {
 		id: game.id,
 		name: game.name,
-		timeSinceCreated,
-		creatorName,
-		yourName,
-		timeSinceUpdated,
+		gameCreateTime: game.createTime,
+		gameLastUpdateTime: game.lastUpdateTime,
 		numTurns: game.numTurns,
 		numOwnedProperties,
 		playerData,
+		creatorName,
+		yourName,
 		waitingOnName
 	};
 }
 
 function summarizeLobby(lobby, yourId) {
-	const timeSinceCreated = describeTimeSince(lobby.createTime);
 	const playerNames = Object.values(lobby.memberMap).map(lobbyMember => lobbyMember.name);
 	const adminName = lobby.memberMap[lobby.adminId].name;
 
 	return {
 		id: lobby.id,
 		name: lobby.name,
-		timeSinceCreated,
+		gameCreateTime: lobby.createTime,
 		adminName,
 		adminId: lobby.adminId,
 		playerNames

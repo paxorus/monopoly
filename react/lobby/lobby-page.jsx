@@ -175,7 +175,7 @@ class LobbyPage extends React.Component {
 			{/* Container that excludes the game board layer. */}
 			<div id="lobby-foreground">
 				<h1 style={{marginBottom: "5px"}}>{this.state.gameName}</h1>
-				<span title={new Date(this.props.gameCreateTime.timestamp).toLocaleString()}>Created {this.props.gameCreateTime.friendly}</span>
+				<span title={new Date(this.props.gameCreateTime).toLocaleString()}>Created {describeTimeSince(this.props.gameCreateTime)}</span>
 
 				{/* Player list */}
 				<h2>Current Players</h2>

@@ -102,6 +102,7 @@ describe("Gameplay Event Handlers", () => {
 				[
 					"start-up",
 					{
+						"gameName": "My Game 1",
 						"currentPlayerId": 0,
 						"monopolies": [[37, 39]],
 						"numTurns": 0,
@@ -122,6 +123,7 @@ describe("Gameplay Event Handlers", () => {
 							}
 						],
 						"tax": 0,
+						"tradeOffers": [],
 						"yourPlayerId": 0
 					}
 				]
@@ -152,7 +154,10 @@ describe("Gameplay Event Handlers", () => {
 				"use-jail-card": [player],
 				"pay-out-of-jail": [player],
 				"mortgage-property": [player, 15],
-				"unmortgage-property": [player, 20]
+				"unmortgage-property": [player, 20],
+				"send-trade-offer": [player],
+				"accept-trade-offer": [player],
+				"decline-trade-offer": [player]
 			};
 
 			expectedSocketEvents.forEach(({clientEventName, clientArgs}) => {
