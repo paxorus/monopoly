@@ -22,7 +22,7 @@ The Pokemon sprites are from Bulbapedia.
 * Losing and exiting the game.
 
 #### Kanav's User Feedback
-* Center-align the board-- lots of wasted space on a large monitor.
+* Responsive web design-- lots of wasted space on a large monitor.
 * Display the game rules in the game.
 
 #### Interconnectivity

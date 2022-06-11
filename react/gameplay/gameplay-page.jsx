@@ -109,6 +109,14 @@ class GameplayPage extends React.Component {
 			]});
 		});
 
+		socket.on("accept-trade-offer", ({tradeId}) => {
+			this.setState({tradeOffers: this.state.tradeOffers.filter(tradeOffer => tradeOffer.id !== tradeId)});
+		});
+
+		socket.on("decline-trade-offer", ({tradeId}) => {
+			this.setState({tradeOffers: this.state.tradeOffers.filter(tradeOffer => tradeOffer.id !== tradeId)});
+		});
+
 		// Start up!
 		socket.emit("start-up", {gameId: props.gameId});
 		this.socket = socket;
@@ -282,6 +290,14 @@ class GameplayPage extends React.Component {
 		this.socket.emit("send-trade-offer", {});
 	}
 
+	handleClickAcceptOffer(tradeId) {
+		this.socket.emit("accept-trade-offer", {tradeId});
+	}
+
+	handleClickDeclineOffer(tradeId) {
+		this.socket.emit("decline-trade-offer", {tradeId});
+	}
+
 	handleClickTrade() {
 		this.setState({
 			isTradeEditorOpen: true
@@ -338,6 +354,8 @@ class GameplayPage extends React.Component {
 			onModalSlide={handleModalSlide}
 			players={this.state.players}
 			tradeOffers={this.state.tradeOffers}
+			onClickAcceptOffer={this.handleClickAcceptOffer.bind(this)}
+			onClickDeclineOffer={this.handleClickDeclineOffer.bind(this)}
 			onClickSendOffer={this.handleClickSendOffer.bind(this)} />
 	}
 

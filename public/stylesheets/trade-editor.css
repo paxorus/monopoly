@@ -6,7 +6,7 @@
 }
 
 #trade-offer-picker {
-	background-color: #CCC;
+	background-color: #D6D6D6;
 	width: 150px;
 	padding: 10px;
 }
@@ -17,4 +17,12 @@
 
 .trade-offer-name {
 	padding-left: 20px;
+	color: #AAA;
+}
+.trade-offer-name:hover{
+	color: black;
+	cursor: pointer;
+}
+.trade-offer-name.selected {
+	color: black;
 }

@@ -13,7 +13,7 @@ const {
 const {
 	sendTradeOffer,
 	acceptTradeOffer,
-	rejectTradeOffer
+	declineTradeOffer
 } = require("../game-logic/trade.js");
 const {LocationInfo, MONOPOLIES} = require("../game-logic/location-configs.js");
 const Lookup = require("../storage/lookup.js");
@@ -147,9 +147,9 @@ function onGameplayConnection(socket, userId) {
 		}
 	});
 
-	socket.on("reject-trade-offer", ({tradeId}) => {
+	socket.on("decline-trade-offer", ({tradeId}) => {
 		if (player !== undefined) {
-			rejectTradeOffer(player, tradeId);
+			declineTradeOffer(player, tradeId);
 		}
 	});
 };

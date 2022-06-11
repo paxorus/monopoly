@@ -1,3 +1,4 @@
+const {LocationInfo} = require("./location-configs.js");
 const Lookup = require("../storage/lookup.js");
 
 
@@ -45,13 +46,13 @@ function acceptTradeOffer(toPlayer, tradeId) {
 	Lookup.deleteTradeOffer(tradeId);
 }
 
-function rejectTradeOffer(toPlayer, tradeId) {
+function declineTradeOffer(toPlayer, tradeId) {
 	const trade = Lookup.fetchTradeOffer(tradeId);
-	if (toPlayer.num !== trade.toPlayerId) {
+	if (trade === undefined || toPlayer.num !== trade.toPlayerId) {
 		return;
 	}
 
-	toPlayer.emitToEveryone("reject-trade-offer", {
+	toPlayer.emitToEveryone("decline-trade-offer", {
 		tradeId,
 		fromPlayerId: trade.fromPlayerId,
 		toPlayerId: trade.toPlayerId
@@ -72,13 +73,13 @@ function executeTradeOffer(toPlayer, trade) {
 	// Transfer properties.
 	trade.fromProperties.forEach(placeIdx => {
 		toPlayer.emitToEveryone("update-property-owner", {playerId: toPlayer.num, placeIdx});
-		toPlayer.notifyEveryoneElse(`${toPlayer.name} now owns ${places[placeIdx].name}.`);
-		toPlayer.notify(`You now own ${places[placeIdx].name}!`);
+		toPlayer.notifyEveryoneElse(`${toPlayer.name} now owns ${LocationInfo[placeIdx].name}.`);
+		toPlayer.notify(`You now own ${LocationInfo[placeIdx].name}!`);
 	});
 	trade.toProperties.forEach(placeIdx => {
 		fromPlayer.emitToEveryone("update-property-owner", {playerId: fromPlayer.num, placeIdx});
-		fromPlayer.notifyEveryoneElse(`${toPlayer.name} now owns ${places[placeIdx].name}.`);
-		fromPlayer.notify(`You now own ${places[placeIdx].name}!`);
+		fromPlayer.notifyEveryoneElse(`${toPlayer.name} now owns ${LocationInfo[placeIdx].name}.`);
+		fromPlayer.notify(`You now own ${LocationInfo[placeIdx].name}!`);
 	});
 
 	// Transfer jail cards.
@@ -92,11 +93,11 @@ function executeTradeOffer(toPlayer, trade) {
 }
 
 function isTradeValid(fromPlayer, trade) {
-	return true;
+	return !!trade;
 }
 
 module.exports = {
 	sendTradeOffer,
 	acceptTradeOffer,
-	rejectTradeOffer
+	declineTradeOffer
 };
