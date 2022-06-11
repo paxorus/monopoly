@@ -6,9 +6,12 @@
 
 	display: grid;
 	grid-template-columns: 20% auto 24px;
+	grid-template-rows: 24px 20% auto;
 }
 .modal-header {
 	margin-bottom: 0;
+	grid-row: 1;
+	grid-column: 3;
 }
 
 #trade-offer-picker {
@@ -16,7 +19,7 @@
 	width: 150px;
 	padding: 10px;
 
-	grid-row: 1 / span 2;
+	grid-row: 1 / span 3;
 }
 
 .trade-offer-player-name {
@@ -37,4 +40,10 @@
 
 .label {
 	color: #AAA;
+}
+
+.vertical-align {
+	position: relative;
+	top: 50%;
+	transform: translateY(-50%);
 }

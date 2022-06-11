@@ -26,23 +26,28 @@ class TradeEditorModal extends React.Component {
 		}
 
 		return [
-			<div style={{gridRow: 1}}>
+			<div style={{gridRow: 2, display: "grid"}} key="details">
 				<div>
 					<div className="label">From</div>
 					{this.props.players[tradeOffer.fromPlayerId].name}
 				</div>
-				<div title={new Date(tradeOffer.createTime).toLocaleString()}>
+				<div title={new Date(tradeOffer.createTime).toLocaleString()} style={{gridColumn: 1}}>
 					<div className="label">Received</div>
 					{AgeToTextHelper.describeTimeSince(tradeOffer.createTime)}
 				</div>
-				<div>
+				<div style={{gridRow: "1 / span 2", gridColumn: 2}}>
 					<div className="label">Message</div>
 					{tradeOffer.message}
 				</div>
-				<div className="button inline" onClick={() => this.props.onClickAcceptOffer(tradeOffer.id)}>Accept Offer</div>
-				<div className="button-secondary inline" onClick={() => this.props.onClickDeclineOffer(tradeOffer.id)}>Decline Offer</div>
+				<div style={{gridRow: "1 / span 2", gridColumn: 3}}>
+					<div className="vertical-align">
+						<div className="button" onClick={() => this.props.onClickAcceptOffer(tradeOffer.id)}>Accept Offer</div>
+						<div style={{height: "10px"}}></div>
+						<div className="button-secondary" onClick={() => this.props.onClickDeclineOffer(tradeOffer.id)}>Decline Offer</div>
+					</div>
+				</div>
 			</div>,
-			<div style={{gridRow: 2}}>
+			<div style={{gridRow: 3}} key="properties">
 				<div>You: {tradeOffer.toProperties.map(placeIdx =>
 					<div key={placeIdx}>{PlaceConfigs[placeIdx].name}</div>
 				)}</div>

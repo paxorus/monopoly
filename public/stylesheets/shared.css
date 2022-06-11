@@ -48,6 +48,7 @@ div.inline {
 	padding: 5px;
 	color: white;
 	cursor: pointer;
+	text-align: center;
 }
 
 .button {
@@ -68,6 +69,7 @@ div.inline {
 	padding: 3px;
 	color: #08C;
 	cursor: pointer;
+	text-align: center;
 }
 
 .button-negative {
