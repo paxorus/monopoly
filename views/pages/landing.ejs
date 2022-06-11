@@ -32,11 +32,11 @@
 
 					<% if (game.numTurns > 0) { %>
 					<div style="font-size: 10px; color: #777">
-						Last move <%= game.timeSinceUpdated %>.
+						Last move <span class="unix-timestamp"><%= game.lastUpdateTime %></span>.
 					</div>
 					<% } %>
 					<div style="font-size: 12px"><%= game.numTurns %> turns &bull; <%= game.numOwnedProperties %> <%= game.numOwnedProperties === 1 ? "property" : "properties" %> sold</div>
-					<div style="font-size: 10px; color: #777">Created <%= game.timeSinceCreated %> by <%= game.creatorName === game.yourName ? "you" : game.creatorName %></div>
+					<div style="font-size: 10px; color: #777">Created <span class="unix-timestamp"><%= game.createTime %></span> by <%= game.creatorName === game.yourName ? "you" : game.creatorName %></div>
 				</div>
 				<canvas class="player-donut-chart" id="player-performance-<%= game.id %>"></canvas>
 				<div class="tile-overlay" style="opacity: 0">
@@ -62,7 +62,7 @@
 				</ul>
 				<br />
 				<div style="position: absolute; bottom: 15px">
-					<div style="font-size: 10px; color: #777">Created <%= lobby.timeSinceCreated %> by <%= lobby.adminId === yourId ? "you" : lobby.adminName %></div>
+					<div style="font-size: 10px; color: #777">Created <span class="unix-timestamp"><%= lobby.createTime %></span> by <%= lobby.adminId === yourId ? "you" : lobby.adminName %></div>
 					<div style="font-size: 12px">In Lobby</div>
 				</div>
 				<div class="tile-overlay" style="opacity: 0">
@@ -220,6 +220,11 @@ setInterval(addRaindrop, 1000);
 		// There's a toast to show.
 		showToast(landingToastData);
 	}
+</script>
+
+<script type="module">
+	import AgeToTextHelper from "/javascripts/common/friendliness/age-to-text-helper.js";
+	[...$(".unix-timestamp")].forEach(x => $(x).text(AgeToTextHelper.describeTimeSince(x.textContent)));
 </script>
 
 </body></html>

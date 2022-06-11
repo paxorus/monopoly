@@ -4,6 +4,7 @@ import GameBoard from "/javascripts/common/game-board/game-board.js";
 import Modal from "/javascripts/common/modal/modal.js";
 import ModalPage from "/javascripts/common/modal/modal-page.js";
 import PlayerList from "/javascripts/lobby/player-list.js";
+import AgeToTextHelper from "/javascripts/common/friendliness/age-to-text-helper.js";
 import validate from "/javascripts/validate-props.js";
 
 
@@ -175,7 +176,7 @@ class LobbyPage extends React.Component {
 			{/* Container that excludes the game board layer. */}
 			<div id="lobby-foreground">
 				<h1 style={{marginBottom: "5px"}}>{this.state.gameName}</h1>
-				<span title={new Date(this.props.gameCreateTime).toLocaleString()}>Created {describeTimeSince(this.props.gameCreateTime)}</span>
+				<span title={new Date(this.props.lobbyCreateTime).toLocaleString()}>Created {AgeToTextHelper.describeTimeSince(this.props.lobbyCreateTime)}</span>
 
 				{/* Player list */}
 				<h2>Current Players</h2>
@@ -224,10 +225,7 @@ LobbyPage.propTypes = {
 	yourId: PropTypes.string,
 	hasJoinedGame: PropTypes.bool,
 	playerIcons: PropTypes.arrayOf(PropTypes.string),
-	gameCreateTime: PropTypes.exact({
-		friendly: PropTypes.string,
-		timestamp: PropTypes.number
-	}),
+	lobbyCreateTime: PropTypes.number,
 	joinedPlayers: PropTypes.objectOf(PropTypes.exact({
 		name: PropTypes.string,
 		sprite: PropTypes.string

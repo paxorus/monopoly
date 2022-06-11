@@ -39,8 +39,8 @@ describe("Summarize Game", () => {
 						"netWorth": 1500,
 					}
 				],
-				"gameCreateTime": 1.55e12,
-				"gameLastUpdateTime": null,
+				"createTime": 1.55e12,
+				"lastUpdateTime": null,
 				"waitingOnName": "admin name",
 				"yourName": "my name"
 			};
@@ -63,7 +63,7 @@ describe("Summarize Game", () => {
 					"admin name",
 					"my player name",
 				],
-				"gameCreateTime": 1.56e12
+				"createTime": 1.56e12
 			});
 		});
 	});

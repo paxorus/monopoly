@@ -94,8 +94,8 @@ describe("Get Page", () => {
 							"name": "My Game 1",
 							"creatorName": "Mudkip",
 							"yourName": "Mudkip",
-							"gameCreateTime": 1.51e12,
-							"gameLastUpdateTime": null,
+							"createTime": 1.51e12,
+							"lastUpdateTime": null,
 							"numTurns": 0,
 							"numOwnedProperties": 2,
 							"playerData": [
@@ -115,8 +115,8 @@ describe("Get Page", () => {
 							"name": "My Game 2",
 							"creatorName": "Mudkip",
 							"yourName": "Mudkip",
-							"gameCreateTime": 1.52e12,
-							"gameLastUpdateTime": null,
+							"createTime": 1.52e12,
+							"lastUpdateTime": null,
 							"numTurns": 0,
 							"numOwnedProperties": 0,
 							"playerData": [
@@ -136,7 +136,7 @@ describe("Get Page", () => {
 						{
 							"id": "lobby-0-xyz",
 							"name": "Lobby 0",
-							"gameCreateTime": 1.55e12,
+							"createTime": 1.55e12,
 							"adminName": "Mudkip",
 							"adminId": "mudkip-xyz-0",
 							"playerNames": [
@@ -191,7 +191,7 @@ describe("Get Page", () => {
 						"adminId": "mudkip-xyz-0",
 						"yourId": "mudkip-xyz-0",
 						"hasJoinedGame": true,
-						"gameCreateTime": 1.55e12,
+						"lobbyCreateTime": 1.55e12,
 						"joinedPlayers": {
 							"mudkip-xyz-0": {
 								"name": "Mudkip",

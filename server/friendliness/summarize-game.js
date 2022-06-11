@@ -15,8 +15,8 @@ function summarizeGame(game, yourId) {
 	return {
 		id: game.id,
 		name: game.name,
-		gameCreateTime: game.createTime,
-		gameLastUpdateTime: game.lastUpdateTime,
+		createTime: game.createTime,
+		lastUpdateTime: game.lastUpdateTime,
 		numTurns: game.numTurns,
 		numOwnedProperties,
 		playerData,
@@ -33,7 +33,7 @@ function summarizeLobby(lobby, yourId) {
 	return {
 		id: lobby.id,
 		name: lobby.name,
-		gameCreateTime: lobby.createTime,
+		createTime: lobby.createTime,
 		adminName,
 		adminId: lobby.adminId,
 		playerNames

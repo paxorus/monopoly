@@ -73,7 +73,7 @@ function getGameplayOrLobbyPage(req, res) {
 				lobbyId: lobby.id,
 				adminId: lobby.adminId,
 				gameName: lobby.name,
-				gameCreateTime: lobby.createTime,
+				lobbyCreateTime: lobby.createTime,
 				yourId: userId,
 				joinedPlayers: lobby.memberMap,
 				hasJoinedGame: userId in lobby.memberMap,
