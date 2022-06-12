@@ -26,7 +26,7 @@ class TradeEditorModal extends React.Component {
 		}
 
 		return [
-			<div style={{gridRow: 2, display: "grid"}} key="details">
+			<div style={{gridRow: 2, display: "grid", marginLeft: "20px"}} key="details">
 				<div>
 					<div className="label">From</div>
 					{this.props.players[tradeOffer.fromPlayerId].name}
@@ -48,24 +48,24 @@ class TradeEditorModal extends React.Component {
 				</div>
 			</div>,
 			<div style={{gridRow: 3}} id="property-list-container" key="properties">
-				<div>
-					<div className="property-list-header">You</div>
-					<div className="property-list-underbar"></div>
-					<div className="property-list">
-						{tradeOffer.toProperties.map(placeIdx =>
-							<div className="offer-property" key={placeIdx}>{PlaceConfigs[placeIdx].name}</div>
-						)}
-					</div>
+				<div className="property-list-header">You</div>
+				<div className="property-list-underbar"></div>
+				<div className="property-list">
+					{tradeOffer.toProperties.map(placeIdx =>
+						<div className="offer-property" key={placeIdx}>{PlaceConfigs[placeIdx].name}</div>
+					)}
+					{tradeOffer.cash < 0 && <div className="offer-property">Cash: ${tradeOffer.cash}</div>}
+					{tradeOffer.numJailCards < 0 && <div className="offer-property">Get Out of Jail Free cards: {-tradeOffer.numJailCards}</div>}
 				</div>
-				<div>
-					<div className="property-list-header">{this.props.players[tradeOffer.fromPlayerId].name}</div>
-					<div className="property-list-underbar"></div>
-					<div className="property-list">
-						{tradeOffer.fromProperties.map(placeIdx =>
-							<div className="offer-property" key={placeIdx}>{PlaceConfigs[placeIdx].name}</div>
-						)}
-						<div className="offer-property">Cash: {tradeOffer.cash}</div>
-						<div className="offer-property">Jail cards: {tradeOffer.numJailCards}</div>
+				<div className="property-list-header">{this.props.players[tradeOffer.fromPlayerId].name}</div>
+				<div className="property-list-underbar"></div>
+				<div className="property-list">
+					<div>
+					{tradeOffer.fromProperties.map(placeIdx =>
+						<div className="offer-property" key={placeIdx}>{PlaceConfigs[placeIdx].name}</div>
+					)}
+					{tradeOffer.cash > 0 && <div className="offer-property">Cash: ${tradeOffer.cash}</div>}
+					{tradeOffer.numJailCards > 0 && <div className="offer-property">Get Out of Jail Free cards: {tradeOffer.numJailCards}</div>}
 					</div>
 				</div>
 			</div>
@@ -78,7 +78,7 @@ class TradeEditorModal extends React.Component {
 			onModalSlide={this.props.onModalSlide}
 			onClickCloseModal={this.props.onCloseTrade}
 			displayStyle="grid">
-			<div className="inline" id="trade-offer-picker">
+			<div id="trade-offer-picker">
 				<div className="button" onClick={()=>{}}>+ Create Offer</div>
 				<div>
 				{this.props.players.map(player => {

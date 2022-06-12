@@ -51,20 +51,27 @@
 #property-list-container {
 	display: grid;
 	grid-template-columns: 45% 45%;
+	grid-template-rows: 28px 4px auto;
 	justify-content: space-evenly;
+	/* Prevents long property lists from vertically overflowing the grid.
+	See: https://css-tricks.com/preventing-a-grid-blowout/ */
+	min-height: 0;
 }
 .property-list-header {
 	background-color: black;
 	color: white;
 	padding: 5px 0;
 	text-align: center;
+	grid-row: 1;
 }
 .property-list-underbar {
 	background-color: #08F;
-	height: 4px;
+	grid-row: 2;
 }
 .property-list {
 	background-color: #D6D6D6;
+	grid-row: 3;
+	overflow-y: auto;
 }
 .offer-property {
 	padding: 5px;
