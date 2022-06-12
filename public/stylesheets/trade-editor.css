@@ -47,3 +47,25 @@
 	top: 50%;
 	transform: translateY(-50%);
 }
+
+#property-list-container {
+	display: grid;
+	grid-template-columns: 45% 45%;
+	justify-content: space-evenly;
+}
+.property-list-header {
+	background-color: black;
+	color: white;
+	padding: 5px 0;
+	text-align: center;
+}
+.property-list-underbar {
+	background-color: #08F;
+	height: 4px;
+}
+.property-list {
+	background-color: #D6D6D6;
+}
+.offer-property {
+	padding: 5px;
+}

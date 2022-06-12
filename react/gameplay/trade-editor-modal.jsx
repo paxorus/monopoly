@@ -47,15 +47,27 @@ class TradeEditorModal extends React.Component {
 					</div>
 				</div>
 			</div>,
-			<div style={{gridRow: 3}} key="properties">
-				<div>You: {tradeOffer.toProperties.map(placeIdx =>
-					<div key={placeIdx}>{PlaceConfigs[placeIdx].name}</div>
-				)}</div>
-				<div>{this.props.players[tradeOffer.fromPlayerId].name}: {tradeOffer.fromProperties.map(placeIdx =>
-					<div key={placeIdx}>{PlaceConfigs[placeIdx].name}</div>
-				)}</div>
-				<div>Cash: {tradeOffer.cash}</div>
-				<div>Jail cards: {tradeOffer.numJailCards}</div>
+			<div style={{gridRow: 3}} id="property-list-container" key="properties">
+				<div>
+					<div className="property-list-header">You</div>
+					<div className="property-list-underbar"></div>
+					<div className="property-list">
+						{tradeOffer.toProperties.map(placeIdx =>
+							<div className="offer-property" key={placeIdx}>{PlaceConfigs[placeIdx].name}</div>
+						)}
+					</div>
+				</div>
+				<div>
+					<div className="property-list-header">{this.props.players[tradeOffer.fromPlayerId].name}</div>
+					<div className="property-list-underbar"></div>
+					<div className="property-list">
+						{tradeOffer.fromProperties.map(placeIdx =>
+							<div className="offer-property" key={placeIdx}>{PlaceConfigs[placeIdx].name}</div>
+						)}
+						<div className="offer-property">Cash: {tradeOffer.cash}</div>
+						<div className="offer-property">Jail cards: {tradeOffer.numJailCards}</div>
+					</div>
+				</div>
 			</div>
 		];
 	}
