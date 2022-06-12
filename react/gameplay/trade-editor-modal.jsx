@@ -1,7 +1,7 @@
-import AgeToTextHelper from "/javascripts/common/friendliness/age-to-text-helper.js";
 import Modal from "/javascripts/common/modal/modal.js";
 import Player from "/javascripts/common/models/player.js";
 import {Place} from "/javascripts/common/models/place.js";
+import TradeDetails from "/javascripts/gameplay/trade-details.js";
 import TradePropertyList from "/javascripts/gameplay/trade-property-list.js";
 import validate from "/javascripts/validate-props.js";
 
@@ -20,54 +20,9 @@ class TradeEditorModal extends React.Component {
 		this.setState({selectedOfferId});
 	}
 
-	renderDetails() {
-		const tradeOffer = this.props.tradeOffers.find(offer => offer.id === this.state.selectedOfferId);
-		if (tradeOffer === undefined) {
-			return null;
-		}
-
-		return [
-			<div style={{gridRow: 2, display: "grid", marginLeft: "20px"}} key="details">
-				<div>
-					<div className="label">From</div>
-					{this.props.players[tradeOffer.fromPlayerId].name}
-				</div>
-				<div title={new Date(tradeOffer.createTime).toLocaleString()} style={{gridColumn: 1}}>
-					<div className="label">Received</div>
-					{AgeToTextHelper.describeTimeSince(tradeOffer.createTime)}
-				</div>
-				<div style={{gridRow: "1 / span 2", gridColumn: 2}}>
-					<div className="label">Message</div>
-					{tradeOffer.message}
-				</div>
-				<div style={{gridRow: "1 / span 2", gridColumn: 3}}>
-					<div className="vertical-align">
-						<div className="button" onClick={() => this.props.onClickAcceptOffer(tradeOffer.id)}>Accept Offer</div>
-						<div style={{height: "10px"}}></div>
-						<div className="button-secondary" onClick={() => this.props.onClickDeclineOffer(tradeOffer.id)}>Decline Offer</div>
-					</div>
-				</div>
-			</div>,
-			<div style={{gridRow: 3}} id="property-list-container" key="properties">
-				<div className="property-list-header">You</div>
-				<div className="property-list-underbar"></div>
-				<TradePropertyList
-					cash={-tradeOffer.cash}
-					numJailCards={-tradeOffer.numJailCards}
-					properties={tradeOffer.toProperties}
-					places={this.props.places} />
-				<div className="property-list-header">{this.props.players[tradeOffer.fromPlayerId].name}</div>
-				<div className="property-list-underbar"></div>
-				<TradePropertyList
-					cash={tradeOffer.cash}
-					numJailCards={tradeOffer.numJailCards}
-					properties={tradeOffer.fromProperties}
-					places={this.props.places} />
-			</div>
-		];
-	}
-
 	render() {
+		const tradeOffer = this.props.tradeOffers.find(offer => offer.id === this.state.selectedOfferId);
+
 		return <Modal title=""
 			isOpen={this.props.isOpen}
 			onModalSlide={this.props.onModalSlide}
@@ -96,7 +51,30 @@ class TradeEditorModal extends React.Component {
 				})}
 				</div>
 			</div>
-			{this.renderDetails()}
+			{tradeOffer !== undefined && <TradeDetails
+				fromPlayerName={this.props.players[tradeOffer.fromPlayerId].name}
+				offerMessage={tradeOffer.message}
+				offerCreateTime={tradeOffer.createTime}
+				onClickAcceptOffer={() => this.props.onClickAcceptOffer(tradeOffer.id)}
+				onClickDeclineOffer={() => this.props.onClickDeclineOffer(tradeOffer.id)}
+				/>}
+			{tradeOffer !== undefined && <div style={{gridRow: 3}} id="property-list-container">
+				<div className="property-list-header">You</div>
+				<div className="property-list-underbar"></div>
+				<TradePropertyList
+					cash={-tradeOffer.cash}
+					numJailCards={-tradeOffer.numJailCards}
+					properties={tradeOffer.toProperties}
+					places={this.props.places} />
+				<div className="property-list-header">{this.props.players[tradeOffer.fromPlayerId].name}</div>
+				<div className="property-list-underbar"></div>
+				<TradePropertyList
+					cash={tradeOffer.cash}
+					numJailCards={tradeOffer.numJailCards}
+					properties={tradeOffer.fromProperties}
+					places={this.props.places} />
+			</div>}
+
 		</Modal>
 	}
 }

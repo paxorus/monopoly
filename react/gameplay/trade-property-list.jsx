@@ -8,10 +8,6 @@ class TradePropertyList extends React.Component {
 		validate(super(props));
 	}
 
-	handleClickOfferName(selectedOfferId) {
-		this.setState({selectedOfferId});
-	}
-
 	render() {
 		return <div className="property-list">
 			{this.props.cash > 0 && <div className="offer-property">Cash: ${this.props.cash}</div>}
