@@ -90,7 +90,7 @@ class PlayerDashboard extends React.Component {
 	}
 
 	renderBuyHouseButton(property) {
-		const enabledClass = property.houseCount < 5 ? "" : "button-disabled";
+		const enabledClass = (property.houseCount < 5 && !property.isMortgaged) ? "" : "button-disabled";
 		return <span onClick={event => {this.props.onClickBuyHouse(property.placeIdx); event.stopPropagation();}}
 			className={`button ${enabledClass} house-button house-adder`} title="Buy a House">
 			<img className="house-icon" src="/images/house.svg" />

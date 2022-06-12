@@ -70,9 +70,30 @@
 }
 .property-list {
 	background-color: #D6D6D6;
+	padding: 5px;
 	grid-row: 3;
-	overflow-y: auto;
+	overflow-y: auto;/* Scrollbar */
 }
 .offer-property {
 	padding: 5px;
+}
+.offer-property-color {
+	width: 25px;
+	height: 15px;
+	margin-right: 5px;
+	margin-bottom: -1px;/* Bring down a bit to better align with neighboring text */
+}
+.trade-mortgage-status {
+	float: right;
+	margin-top: 3px;
+
+	color: #9E0000;/* Deep red */
+	font-size: 10px;
+	font-weight: bold;
+}
+.trade-house-count {
+	float: right;
+}
+.trade-house-count > .placed-house {
+	margin-bottom: -2px;
 }

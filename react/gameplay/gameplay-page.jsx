@@ -94,11 +94,11 @@ class GameplayPage extends React.Component {
 
 		// Mortgage actions
 		socket.on("mortgage-property", ({playerId, placeIdx}) => {
-			this.updatePlayer(placeIdx, {isMortgaged: true});
+			this.updatePlace(placeIdx, {isMortgaged: true});
 		});
 
 		socket.on("unmortgage-property", ({playerId, placeIdx}) => {
-			this.updatePlayer(placeIdx, {isMortgaged: false});
+			this.updatePlace(placeIdx, {isMortgaged: false});
 		});
 
 		// Trade actions
@@ -274,9 +274,9 @@ class GameplayPage extends React.Component {
 	handleMortgageProperty(placeIdx, isMortgaged) {
 		this.logMessage("waiting-on-server");
 		if (isMortgaged) {
-			this.socket.emit("mortgage-property", {placeIdx});
-		} else {
 			this.socket.emit("unmortgage-property", {placeIdx});
+		} else {
+			this.socket.emit("mortgage-property", {placeIdx});
 		}
 	}
 
@@ -352,6 +352,7 @@ class GameplayPage extends React.Component {
 			isOpen={this.state.isTradeEditorOpen}
 			onCloseTrade={this.handleCloseTrade.bind(this)}
 			onModalSlide={handleModalSlide}
+			places={this.state.places}
 			players={this.state.players}
 			tradeOffers={this.state.tradeOffers}
 			onClickAcceptOffer={this.handleClickAcceptOffer.bind(this)}

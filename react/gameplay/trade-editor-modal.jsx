@@ -1,6 +1,7 @@
+import AgeToTextHelper from "/javascripts/common/friendliness/age-to-text-helper.js";
 import Modal from "/javascripts/common/modal/modal.js";
 import Player from "/javascripts/common/models/player.js";
-import AgeToTextHelper from "/javascripts/common/friendliness/age-to-text-helper.js";
+import {Place} from "/javascripts/common/models/place.js";
 import {PlaceConfigs} from "/javascripts/gameplay/location-configs.js";
 import validate from "/javascripts/validate-props.js";
 
@@ -51,21 +52,41 @@ class TradeEditorModal extends React.Component {
 				<div className="property-list-header">You</div>
 				<div className="property-list-underbar"></div>
 				<div className="property-list">
-					{tradeOffer.toProperties.map(placeIdx =>
-						<div className="offer-property" key={placeIdx}>{PlaceConfigs[placeIdx].name}</div>
-					)}
 					{tradeOffer.cash < 0 && <div className="offer-property">Cash: ${tradeOffer.cash}</div>}
-					{tradeOffer.numJailCards < 0 && <div className="offer-property">Get Out of Jail Free cards: {-tradeOffer.numJailCards}</div>}
+					{tradeOffer.numJailCards < 0 && <div className="offer-property">Get Out of Jail Free cards: x{-tradeOffer.numJailCards}</div>}
+					{tradeOffer.toProperties.map(placeIdx =>
+						<div className="offer-property" key={placeIdx}>
+							<div className="offer-property-color inline" style={{backgroundColor: PlaceConfigs[placeIdx].color}}></div>
+							<div className="inline">{PlaceConfigs[placeIdx].name}</div>
+							{this.props.places[placeIdx].isMortgaged
+								? <div className="trade-mortgage-status inline">Mortgaged</div>
+								: <div className="trade-house-count inline">
+									<img src="/images/house.svg" className="placed-house" />
+									{this.props.places[placeIdx].houseCount}
+								</div>
+							}
+						</div>
+					)}
 				</div>
 				<div className="property-list-header">{this.props.players[tradeOffer.fromPlayerId].name}</div>
 				<div className="property-list-underbar"></div>
 				<div className="property-list">
 					<div>
-					{tradeOffer.fromProperties.map(placeIdx =>
-						<div className="offer-property" key={placeIdx}>{PlaceConfigs[placeIdx].name}</div>
-					)}
 					{tradeOffer.cash > 0 && <div className="offer-property">Cash: ${tradeOffer.cash}</div>}
 					{tradeOffer.numJailCards > 0 && <div className="offer-property">Get Out of Jail Free cards: {tradeOffer.numJailCards}</div>}
+					{tradeOffer.fromProperties.map(placeIdx =>
+						<div className="offer-property" key={placeIdx}>
+							<div className="offer-property-color inline" style={{backgroundColor: PlaceConfigs[placeIdx].color}}></div>
+							<div className="inline">{PlaceConfigs[placeIdx].name}</div>
+							{this.props.places[placeIdx].isMortgaged
+								? <div className="trade-mortgage-status inline">Mortgaged</div>
+								: <div className="trade-house-count inline">
+									<img src="/images/house.svg" className="placed-house" />
+									{this.props.places[placeIdx].houseCount}
+								</div>
+							}
+						</div>
+					)}
 					</div>
 				</div>
 			</div>
@@ -111,6 +132,7 @@ TradeEditorModal.propTypes = {
 	onModalSlide: PropTypes.func,
 	onCloseTrade: PropTypes.func,
 	players: PropTypes.arrayOf(PropTypes.instanceOf(Player)),
+	places: PropTypes.arrayOf(PropTypes.instanceOf(Place)),
 	tradeOffers: PropTypes.arrayOf(PropTypes.shape({
 		// TODO: Finish
 		id: PropTypes.string
