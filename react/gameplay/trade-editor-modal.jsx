@@ -2,7 +2,7 @@ import AgeToTextHelper from "/javascripts/common/friendliness/age-to-text-helper
 import Modal from "/javascripts/common/modal/modal.js";
 import Player from "/javascripts/common/models/player.js";
 import {Place} from "/javascripts/common/models/place.js";
-import {PlaceConfigs} from "/javascripts/gameplay/location-configs.js";
+import TradePropertyList from "/javascripts/gameplay/trade-property-list.js";
 import validate from "/javascripts/validate-props.js";
 
 // <div className="button inline" onClick={this.props.onClickSendOffer}>Send Offer</div>
@@ -51,44 +51,18 @@ class TradeEditorModal extends React.Component {
 			<div style={{gridRow: 3}} id="property-list-container" key="properties">
 				<div className="property-list-header">You</div>
 				<div className="property-list-underbar"></div>
-				<div className="property-list">
-					{tradeOffer.cash < 0 && <div className="offer-property">Cash: ${tradeOffer.cash}</div>}
-					{tradeOffer.numJailCards < 0 && <div className="offer-property">Get Out of Jail Free cards: x{-tradeOffer.numJailCards}</div>}
-					{tradeOffer.toProperties.map(placeIdx =>
-						<div className="offer-property" key={placeIdx}>
-							<div className="offer-property-color inline" style={{backgroundColor: PlaceConfigs[placeIdx].color}}></div>
-							<div className="inline">{PlaceConfigs[placeIdx].name}</div>
-							{this.props.places[placeIdx].isMortgaged
-								? <div className="trade-mortgage-status inline">Mortgaged</div>
-								: <div className="trade-house-count inline">
-									<img src="/images/house.svg" className="placed-house" />
-									{this.props.places[placeIdx].houseCount}
-								</div>
-							}
-						</div>
-					)}
-				</div>
+				<TradePropertyList
+					cash={-tradeOffer.cash}
+					numJailCards={-tradeOffer.numJailCards}
+					properties={tradeOffer.toProperties}
+					places={this.props.places} />
 				<div className="property-list-header">{this.props.players[tradeOffer.fromPlayerId].name}</div>
 				<div className="property-list-underbar"></div>
-				<div className="property-list">
-					<div>
-					{tradeOffer.cash > 0 && <div className="offer-property">Cash: ${tradeOffer.cash}</div>}
-					{tradeOffer.numJailCards > 0 && <div className="offer-property">Get Out of Jail Free cards: {tradeOffer.numJailCards}</div>}
-					{tradeOffer.fromProperties.map(placeIdx =>
-						<div className="offer-property" key={placeIdx}>
-							<div className="offer-property-color inline" style={{backgroundColor: PlaceConfigs[placeIdx].color}}></div>
-							<div className="inline">{PlaceConfigs[placeIdx].name}</div>
-							{this.props.places[placeIdx].isMortgaged
-								? <div className="trade-mortgage-status inline">Mortgaged</div>
-								: <div className="trade-house-count inline">
-									<img src="/images/house.svg" className="placed-house" />
-									{this.props.places[placeIdx].houseCount}
-								</div>
-							}
-						</div>
-					)}
-					</div>
-				</div>
+				<TradePropertyList
+					cash={tradeOffer.cash}
+					numJailCards={tradeOffer.numJailCards}
+					properties={tradeOffer.fromProperties}
+					places={this.props.places} />
 			</div>
 		];
 	}
