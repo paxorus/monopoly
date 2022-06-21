@@ -1,5 +1,7 @@
 const {LocationInfo} = require("./location-configs.js");
 const Lookup = require("../storage/lookup.js");
+const {getTimeNow} = require("../fickle/time-now.js");
+const {randomId} = require("../auth.js");
 
 
 function sendTradeOffer(fromPlayer, trade) {
@@ -9,17 +11,11 @@ function sendTradeOffer(fromPlayer, trade) {
 	}
 
 	trade = {
-		id: "abc",
-		name: "Offer 3",
-		message: "Kindly accept my offer, you worthless dishrag.",
-		createTime: 1.55e12,
-		gameId: "oiwftflpzyhsxjgarpla",
-		fromPlayerId: 1,
-		toPlayerId: 0,
-		fromProperties: [37, 39],
-		toProperties: [1],
-		cash: 100,
-		numJailCards: -1
+		...trade,
+		id: randomId(),
+		createTime: getTimeNow(),
+		gameId: fromPlayer.game.id,
+		fromPlayerId: fromPlayer.num
 	};
 
 	Lookup.createTradeOffer(trade);

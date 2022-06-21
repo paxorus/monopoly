@@ -102,11 +102,11 @@ class GameplayPage extends React.Component {
 		});
 
 		// Trade actions
-		socket.on("send-trade-offer", tradeOffer => {
-			this.setState({tradeOffers: [
-				...this.state.tradeOffers,
-				tradeOffer
-			]});
+		socket.on("send-trade-offer", ({trade}) => {
+			this.setState(state => ({tradeOffers: [
+				...state.tradeOffers,
+				trade
+			]}));
 		});
 
 		socket.on("accept-trade-offer", ({tradeId}) => {
@@ -285,9 +285,9 @@ class GameplayPage extends React.Component {
 		this.socket.emit("use-jail-card");
 	}
 
-	handleClickSendOffer() {
+	handleClickSendOffer(tradeOfferData) {
 		this.logMessage("waiting-on-server");
-		this.socket.emit("send-trade-offer", {});
+		this.socket.emit("send-trade-offer", {trade: tradeOfferData});
 	}
 
 	handleClickAcceptOffer(tradeId) {
@@ -355,6 +355,7 @@ class GameplayPage extends React.Component {
 			places={this.state.places}
 			players={this.state.players}
 			tradeOffers={this.state.tradeOffers}
+			myPlayerId={this.state.myPlayerId}
 			onClickAcceptOffer={this.handleClickAcceptOffer.bind(this)}
 			onClickDeclineOffer={this.handleClickDeclineOffer.bind(this)}
 			onClickSendOffer={this.handleClickSendOffer.bind(this)} />

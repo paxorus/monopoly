@@ -5,19 +5,77 @@ import TradeDetails from "/javascripts/gameplay/trade-details.js";
 import TradePropertyList from "/javascripts/gameplay/trade-property-list.js";
 import validate from "/javascripts/validate-props.js";
 
-// <div className="button inline" onClick={this.props.onClickSendOffer}>Send Offer</div>
 
 class TradeEditorModal extends React.Component {
 	constructor(props) {
 		validate(super(props));
 
 		this.state = {
-			selectedOfferId: ""
+			selectedOfferId: "",
+			toPlayerId: undefined,
+			offerName: undefined,
+			message: "",
+			cash: 0,
+			numJailCards: 0,
+			fromProperties: [37, 39],
+			toProperties: [1]
 		};
 	}
 
 	handleClickOfferName(selectedOfferId) {
 		this.setState({selectedOfferId});
+	}
+
+	componentDidUpdate(prevProps, prevState, snapshot) {
+		// When offers appear: auto-select the first one.
+		if (prevProps.tradeOffers.length === 0 && this.props.tradeOffers.length > 0 && prevState.selectedOfferId === undefined) {
+			const firstTradeOffer = this.props.tradeOffers
+				.sort((offerA, offerB) => (offerA.fromPlayerId === offerB.fromPlayerId) ? (offerA.createTime - offerB.createTime) : (offerA.fromPlayerId - offerB.fromPlayerId))[0];
+			this.setState({selectedOfferId: firstTradeOffer.id});
+		}
+		// TODO: If offer gone, auto-select the new first one.
+
+		// On load: initialize dropdown value to first player that's not you.
+		if (prevProps.players.length === 0 && this.props.players.length > 1 && prevState.toPlayerId === undefined) {
+			const firstOtherPlayer = this.props.players.filter(player => player.num !== this.props.myPlayerId)[0].num;
+			this.setState({toPlayerId: firstOtherPlayer});
+		}
+	}
+
+	handleChangeToPlayer(event) {
+		this.setState({toPlayerId: +event.target.value});
+	}
+
+	handleChangeOfferName(event) {
+		this.setState({offerName: event.target.value});
+	}
+
+	handleChangeMessage(event) {
+		this.setState({message: event.target.value});
+	}
+
+	handleChangeCash(event) {
+		this.setState({cash: +event.target.value});
+	}
+
+	handleChangeJailCards(event) {
+		this.setState({numJailCards: +event.target.value});
+	}
+
+	handleClickSendOffer() {
+		const {toPlayerId, offerName, message, cash, numJailCards, fromProperties, toProperties} = this.state;
+		// TODO: Add fromProperties and toProperties
+		if (toPlayerId !== undefined && offerName !== undefined) {
+			this.props.onClickSendOffer({
+				toPlayerId,
+				name: offerName,
+				message,
+				cash,
+				numJailCards,
+				fromProperties,
+				toProperties
+			});
+		}
 	}
 
 	render() {
@@ -29,7 +87,7 @@ class TradeEditorModal extends React.Component {
 			onClickCloseModal={this.props.onCloseTrade}
 			displayStyle="grid">
 			<div id="trade-offer-picker">
-				<div className="button" onClick={()=>{}}>+ Create Offer</div>
+				<div className="button" onClick={() => this.handleClickOfferName("")}>+ Create Offer</div>
 				<div>
 				{this.props.players.map(player => {
 					const offersFromPlayer = this.props.tradeOffers.filter(offer => offer.fromPlayerId === player.num);
@@ -51,6 +109,25 @@ class TradeEditorModal extends React.Component {
 				})}
 				</div>
 			</div>
+
+			{/* Serve offer editor */}
+			{tradeOffer === undefined && <div>
+				To: <select onChange={this.handleChangeToPlayer.bind(this)}>{this.props.players
+					.filter(player => player.num !== this.props.myPlayerId)
+					.map(player => <option value={player.num} key={player.num}>{player.name}</option>)}</select>
+				<br />
+				Offer name: <input type="text" onChange={this.handleChangeOfferName.bind(this)} />
+				<br />
+				Message: <textarea onChange={this.handleChangeMessage.bind(this)} />
+				<br />
+				Cash: <input type="number" onChange={this.handleChangeCash.bind(this)} />
+				<br />
+				Jail cards: <input type="number" onChange={this.handleChangeJailCards.bind(this)} />
+				<br />
+				<div className="button inline" onClick={this.handleClickSendOffer.bind(this)}>Send Offer</div>
+			</div>}
+
+			{/* Display selected offer's details */}
 			{tradeOffer !== undefined && <TradeDetails
 				fromPlayerName={this.props.players[tradeOffer.fromPlayerId].name}
 				offerMessage={tradeOffer.message}
@@ -89,6 +166,7 @@ TradeEditorModal.propTypes = {
 		// TODO: Finish
 		id: PropTypes.string
 	})),
+	myPlayerId: PropTypes.number,
 	onClickAcceptOffer: PropTypes.func,
 	onClickDeclineOffer: PropTypes.func,
 	onClickSendOffer: PropTypes.func
