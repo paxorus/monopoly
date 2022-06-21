@@ -13,7 +13,7 @@ class TradeEditorModal extends React.Component {
 		this.state = {
 			selectedOfferId: "",
 			toPlayerId: undefined,
-			offerName: undefined,
+			offerName: "",
 			message: "",
 			cash: 0,
 			numJailCards: 0,
@@ -37,9 +37,12 @@ class TradeEditorModal extends React.Component {
 
 		// On load: initialize dropdown value to first player that's not you.
 		if (prevProps.players.length === 0 && this.props.players.length > 1 && prevState.toPlayerId === undefined) {
-			const firstOtherPlayer = this.props.players.filter(player => player.num !== this.props.myPlayerId)[0].num;
-			this.setState({toPlayerId: firstOtherPlayer});
+			this.setState({toPlayerId: this.getFirstOtherPlayer().num});
 		}
+	}
+
+	getFirstOtherPlayer() {
+		return this.props.players.filter(player => player.num !== this.props.myPlayerId)[0];
 	}
 
 	handleChangeToPlayer(event) {
@@ -65,7 +68,7 @@ class TradeEditorModal extends React.Component {
 	handleClickSendOffer() {
 		const {toPlayerId, offerName, message, cash, numJailCards, fromProperties, toProperties} = this.state;
 		// TODO: Add fromProperties and toProperties
-		if (toPlayerId !== undefined && offerName !== undefined) {
+		if (toPlayerId !== undefined && offerName !== "") {
 			this.props.onClickSendOffer({
 				toPlayerId,
 				name: offerName,
@@ -76,6 +79,17 @@ class TradeEditorModal extends React.Component {
 				toProperties
 			});
 		}
+
+		// Reset fields
+		this.setState({
+			toPlayerId: this.getFirstOtherPlayer().num,
+			offerName: "",
+			message: "",
+			cash: 0,
+			numJailCards: 0,
+			fromProperties: [],
+			toProperties: []
+		});
 	}
 
 	render() {
@@ -112,17 +126,18 @@ class TradeEditorModal extends React.Component {
 
 			{/* Serve offer editor */}
 			{tradeOffer === undefined && <div>
-				To: <select onChange={this.handleChangeToPlayer.bind(this)}>{this.props.players
-					.filter(player => player.num !== this.props.myPlayerId)
-					.map(player => <option value={player.num} key={player.num}>{player.name}</option>)}</select>
+				To: <select onChange={this.handleChangeToPlayer.bind(this)} value={this.state.toPlayerId}>
+					{this.props.players
+						.filter(player => player.num !== this.props.myPlayerId)
+						.map(player => <option value={player.num} key={player.num}>{player.name}</option>)}</select>
 				<br />
-				Offer name: <input type="text" onChange={this.handleChangeOfferName.bind(this)} />
+				Offer name: <input type="text" onChange={this.handleChangeOfferName.bind(this)} value={this.state.offerName} />
 				<br />
-				Message: <textarea onChange={this.handleChangeMessage.bind(this)} />
+				Message: <textarea onChange={this.handleChangeMessage.bind(this)} value={this.state.message} />
 				<br />
-				Cash: <input type="number" onChange={this.handleChangeCash.bind(this)} />
+				Cash to send: <input type="number" onChange={this.handleChangeCash.bind(this)} value={this.state.cash} />
 				<br />
-				Jail cards: <input type="number" onChange={this.handleChangeJailCards.bind(this)} />
+				# of jail cards to send: <input type="number" onChange={this.handleChangeJailCards.bind(this)} value={this.state.numJailCards} />
 				<br />
 				<div className="button inline" onClick={this.handleClickSendOffer.bind(this)}>Send Offer</div>
 			</div>}
