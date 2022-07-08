@@ -16,11 +16,10 @@ class MessageBox extends React.Component {
 			.map(([eventName, message], i) => <div key={i}>{message}</div>);
 	}
 
-	renderCtaButton() {
+	renderCtaButton(interactions) {
 		// If the last message was a call-to-action, repeat it. There is at least
 		// one saved message if a player has clicked "Start Game", which is the
 		// initial "advance-turn" message indicating the previous player has gone.
-		const interactions = this.props.messages.filter(([eventName, message]) => eventName !== "notify");
 
 		if (interactions.length === 0) {
 			return null;
@@ -66,28 +65,26 @@ class MessageBox extends React.Component {
 	 	if (this.props.myPlayerId !== this.props.currentPlayerId) {
 			// "It's _'s turn."
 			return <div className="interactive">
+				{this.renderMessages()}
 				It's <span id="current-player-name">{this.props.players[this.props.currentPlayerId].name}</span>'s turn.
 			</div>;
 		}
 
-		if (this.props.messages.length === 0) {
-	 		if (this.props.numTurns === 0) {
-				// "Start Game"
-				return <div className="interactive">
-					You will go first.
-					<div className="button" onClick={this.props.executeTurn}>Start Game</div>
-				</div>;
-			} else {
-				return <div className="interactive">
-					You will go first.
-					<div className="button" onClick={this.props.executeTurn}>Take Your Turn</div>
-				</div>;
-			}
+		const interactions = this.props.messages.filter(([eventName, message]) => eventName !== "notify" && eventName !== "waiting-on-server");
+
+		// It's your turn.
+		// TODO: Will we ever hit the "Take Your Turn" case here?
+		if (interactions.length === 0) {
+			return <div className="interactive">
+				{this.renderMessages()}
+				You will go first.
+				<div className="button" onClick={this.props.executeTurn}>{(this.props.numTurns === 0) ? "Start Game" : "Take Your Turn"}</div>
+			</div>;
 		}
 
 		return <div className="interactive">
 			{this.renderMessages()}
-			{this.renderCtaButton()}
+			{this.renderCtaButton(interactions)}
 		</div>;
 	}
 }
