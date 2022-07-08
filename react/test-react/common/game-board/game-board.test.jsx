@@ -1,4 +1,4 @@
-import GameBoard from "/javascripts/common/game-board.js";
+import GameBoard from "/javascripts/common/game-board/game-board.js";
 import assert from "/javascripts/test-react/assert.js";
 
 

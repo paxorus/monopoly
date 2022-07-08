@@ -160,7 +160,7 @@ class TradeEditorModal extends React.Component {
 				</div>
 				<div style={{gridRow: 1, gridColumn: 2}}>
 					<div className="label">Cash to send</div>
-					<input type="number" onChange={this.handleChangeCash.bind(this)} value={this.state.cash} />
+					<input type="number" onChange={this.handleChangeCash.bind(this)} value={this.state.cash} step={100} />
 				</div>
 				<div style={{gridRow: 2, gridColumn: 2}}>
 					<div className="label"># of jail cards to send</div>

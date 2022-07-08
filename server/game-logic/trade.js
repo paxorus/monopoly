@@ -59,6 +59,7 @@ function declineTradeOffer(toPlayer, tradeId) {
 }
 
 function executeTradeOffer(toPlayer, trade) {
+	const game = toPlayer.game;
 	const fromPlayer = toPlayer.game.players[trade.fromPlayerId];
 
 	// For each type of transfer, a unit test that we notify all players, _and_ update in-memory.
@@ -69,13 +70,15 @@ function executeTradeOffer(toPlayer, trade) {
 
 	// Transfer properties.
 	trade.fromProperties.forEach(placeIdx => {
+		game.places[placeIdx].ownerNum = toPlayer.num;
 		toPlayer.emitToEveryone("update-property-owner", {playerId: toPlayer.num, placeIdx});
 		toPlayer.notifyEveryoneElse(`${toPlayer.name} now owns ${LocationInfo[placeIdx].name}.`);
 		toPlayer.notify(`You now own ${LocationInfo[placeIdx].name}!`);
 	});
 	trade.toProperties.forEach(placeIdx => {
+		game.places[placeIdx].ownerNum = fromPlayer.num;
 		fromPlayer.emitToEveryone("update-property-owner", {playerId: fromPlayer.num, placeIdx});
-		fromPlayer.notifyEveryoneElse(`${toPlayer.name} now owns ${LocationInfo[placeIdx].name}.`);
+		fromPlayer.notifyEveryoneElse(`${fromPlayer.name} now owns ${LocationInfo[placeIdx].name}.`);
 		fromPlayer.notify(`You now own ${LocationInfo[placeIdx].name}!`);
 	});
 
