@@ -3,6 +3,7 @@ import Player from "/javascripts/common/models/player.js";
 import {Place} from "/javascripts/common/models/place.js";
 import TradeDetails from "/javascripts/gameplay/trade-details.js";
 import TradePropertyList from "/javascripts/gameplay/trade-property-list.js";
+import TradePropertyListSelector from "/javascripts/gameplay/trade-property-list-selector.js";
 import validate from "/javascripts/validate-props.js";
 
 
@@ -17,8 +18,8 @@ class TradeEditorModal extends React.Component {
 			message: "",
 			cash: 0,
 			numJailCards: 0,
-			fromProperties: [37, 39],
-			toProperties: [1]
+			fromProperties: [],
+			toProperties: []
 		};
 	}
 
@@ -92,6 +93,29 @@ class TradeEditorModal extends React.Component {
 		});
 	}
 
+	handleClickProperty(placeIdx, mineOrTheirs) {
+		console.log(placeIdx);
+		if (mineOrTheirs) {
+			this.setState(({fromProperties}) => {
+				// Remove or add.
+				if (fromProperties.includes(placeIdx)) {
+					return {fromProperties: fromProperties.filter(p => p !== placeIdx)};
+				} else {
+					return {fromProperties: [...fromProperties, placeIdx]};
+				}
+			});
+		} else {
+			this.setState(({toProperties}) => {
+				// Remove or add.
+				if (toProperties.includes(placeIdx)) {
+					return {toProperties: toProperties.filter(p => p !== placeIdx)};
+				} else {
+					return {toProperties: [...toProperties, placeIdx]};
+				}
+			});
+		}
+	}
+
 	render() {
 		const tradeOffer = this.props.tradeOffers.find(offer => offer.id === this.state.selectedOfferId);
 
@@ -149,11 +173,13 @@ class TradeEditorModal extends React.Component {
 			{tradeOffer === undefined && <div style={{gridRow: 3}} id="property-list-container">
 				<div className="property-list-header">You</div>
 				<div className="property-list-underbar"></div>
-				<TradePropertyList
+				<TradePropertyListSelector
 					cash={0}
 					numJailCards={0}
 					properties={this.props.places.filter(place => place.ownerNum === this.props.myPlayerId).map(place => place.placeIdx)}
-					places={this.props.places} />
+					selectedProperties={this.state.fromProperties}
+					places={this.props.places}
+					onClickProperty={placeIdx => this.handleClickProperty(placeIdx, true)} />
 				{this.props.players[this.state.toPlayerId] && <div className="property-list-header">
 					<select onChange={this.handleChangeToPlayer.bind(this)} value={this.state.toPlayerId}>
 					{this.props.players
@@ -161,11 +187,13 @@ class TradeEditorModal extends React.Component {
 						.map(player => <option value={player.num} key={player.num}>{player.name}</option>)}</select>
 				</div>}
 				<div className="property-list-underbar"></div>
-				<TradePropertyList
+				<TradePropertyListSelector
 					cash={0}
 					numJailCards={0}
 					properties={this.props.places.filter(place => place.ownerNum === this.state.toPlayerId).map(place => place.placeIdx)}
-					places={this.props.places} />
+					selectedProperties={this.state.toProperties}
+					places={this.props.places}
+					onClickProperty={placeIdx => this.handleClickProperty(placeIdx, false)} />
 			</div>}
 
 			{/* Display selected offer's details */}

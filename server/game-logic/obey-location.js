@@ -57,13 +57,13 @@ function determineRent(mover, owner, place) {
 function payRent(mover, owner, rent, placeName) {
 	if (rent === 0) {// Due to mortgaging.
 		mover.log(`You skipped rent since ${owner.name} mortgaged ${placeName}.`);
-		owner.log(`${mover.name} skips rent since you mortgaged ${placeName}.`);
+		owner.notify(`${mover.name} skips rent since you mortgaged ${placeName}.`);
 		return;
 	}
 	mover.updateBalance(-rent);
 	owner.updateBalance(rent);
 	mover.log(`You paid $${rent} in rent to ${owner.name}.`);
-	owner.log(`${mover.name} paid $${rent} in rent to you for ${placeName}.`);
+	owner.notify(`${mover.name} paid $${rent} in rent to you for ${placeName}.`);
 }
 
 function obeySpecialSquare(mover) {

@@ -14,7 +14,10 @@ class TradePropertyList extends React.Component {
 			{this.props.numJailCards > 0 && <div className="offer-property">Get Out of Jail Free cards: x{this.props.numJailCards}</div>}
 			{this.props.properties.map(placeIdx =>
 				<div className="offer-property" key={placeIdx}>
-					<div className="offer-property-color inline" style={{backgroundColor: PlaceConfigs[placeIdx].color}}></div>
+					<div className="offer-property-color inline" style={{
+						backgroundColor: PlaceConfigs[placeIdx].color,
+						borderColor: PlaceConfigs[placeIdx].color
+					}}></div>
 					<div className="inline">{PlaceConfigs[placeIdx].name}</div>
 					{this.props.places[placeIdx].isMortgaged
 						? <div className="trade-mortgage-status inline">Mortgaged</div>

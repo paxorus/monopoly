@@ -22,8 +22,8 @@ function sendTradeOffer(fromPlayer, trade) {
 
 	const toPlayer = fromPlayer.game.players[trade.toPlayerId];
 	toPlayer.emit("send-trade-offer", {trade});
-	toPlayer.log(`${fromPlayer.name} has sent you a trade offer!`);
-	fromPlayer.log(`You sent trade offer ${trade.name} to ${toPlayer.name}.`);
+	toPlayer.notify(`${fromPlayer.name} has sent you a trade offer!`);
+	fromPlayer.notify(`You sent trade offer ${trade.name} to ${toPlayer.name}.`);
 }
 
 function acceptTradeOffer(toPlayer, tradeId) {
@@ -37,7 +37,7 @@ function acceptTradeOffer(toPlayer, tradeId) {
 			toPlayerId: trade.toPlayerId
 		});
 	} else {
-		toPlayer.log(`Offer ${trade.name} is no longer valid.`);
+		toPlayer.notify(`Offer ${trade.name} is no longer valid.`);
 	}
 
 	Lookup.deleteTradeOffer(tradeId);
