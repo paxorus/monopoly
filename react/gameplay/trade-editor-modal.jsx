@@ -125,21 +125,47 @@ class TradeEditorModal extends React.Component {
 			</div>
 
 			{/* Serve offer editor */}
-			{tradeOffer === undefined && <div>
-				To: <select onChange={this.handleChangeToPlayer.bind(this)} value={this.state.toPlayerId}>
+			{tradeOffer === undefined && <div style={{gridRow: 2, display: "grid", marginLeft: "20px"}}>
+				<div style={{gridRow: 1, gridColumn: 1}}>
+					<div className="label">Offer name</div>
+					<input type="text" onChange={this.handleChangeOfferName.bind(this)} value={this.state.offerName} />
+				</div>
+				<div style={{gridRow: 2, gridColumn: 1}}>
+					<div className="label">Message</div>
+					<textarea onChange={this.handleChangeMessage.bind(this)} value={this.state.message} />
+				</div>
+				<div style={{gridRow: 1, gridColumn: 2}}>
+					<div className="label">Cash to send</div>
+					<input type="number" onChange={this.handleChangeCash.bind(this)} value={this.state.cash} />
+				</div>
+				<div style={{gridRow: 2, gridColumn: 2}}>
+					<div className="label"># of jail cards to send</div>
+					<input type="number" onChange={this.handleChangeJailCards.bind(this)} value={this.state.numJailCards} />
+				</div>
+				<div style={{gridRow: 1, gridColumn: 3}}>
+					<div className="button inline" onClick={this.handleClickSendOffer.bind(this)} style={{gridRow: 1, gridColumn: 3}}>Send Offer</div>
+				</div>
+			</div>}
+			{tradeOffer === undefined && <div style={{gridRow: 3}} id="property-list-container">
+				<div className="property-list-header">You</div>
+				<div className="property-list-underbar"></div>
+				<TradePropertyList
+					cash={0}
+					numJailCards={0}
+					properties={this.props.places.filter(place => place.ownerNum === this.props.myPlayerId).map(place => place.placeIdx)}
+					places={this.props.places} />
+				{this.props.players[this.state.toPlayerId] && <div className="property-list-header">
+					<select onChange={this.handleChangeToPlayer.bind(this)} value={this.state.toPlayerId}>
 					{this.props.players
 						.filter(player => player.num !== this.props.myPlayerId)
 						.map(player => <option value={player.num} key={player.num}>{player.name}</option>)}</select>
-				<br />
-				Offer name: <input type="text" onChange={this.handleChangeOfferName.bind(this)} value={this.state.offerName} />
-				<br />
-				Message: <textarea onChange={this.handleChangeMessage.bind(this)} value={this.state.message} />
-				<br />
-				Cash to send: <input type="number" onChange={this.handleChangeCash.bind(this)} value={this.state.cash} />
-				<br />
-				# of jail cards to send: <input type="number" onChange={this.handleChangeJailCards.bind(this)} value={this.state.numJailCards} />
-				<br />
-				<div className="button inline" onClick={this.handleClickSendOffer.bind(this)}>Send Offer</div>
+				</div>}
+				<div className="property-list-underbar"></div>
+				<TradePropertyList
+					cash={0}
+					numJailCards={0}
+					properties={this.props.places.filter(place => place.ownerNum === this.state.toPlayerId).map(place => place.placeIdx)}
+					places={this.props.places} />
 			</div>}
 
 			{/* Display selected offer's details */}

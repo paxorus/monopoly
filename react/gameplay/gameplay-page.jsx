@@ -433,6 +433,7 @@ GameplayPage.propTypes = {
 
 function render(props, domElement) {
 	ReactDOM.render(<GameplayPage {...props} />, domElement);
+	// createRoot(domElement).render(<GameplayPage {...props} />);
 }
 
 export {

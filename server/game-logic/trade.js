@@ -23,6 +23,7 @@ function sendTradeOffer(fromPlayer, trade) {
 	const toPlayer = fromPlayer.game.players[trade.toPlayerId];
 	toPlayer.emit("send-trade-offer", {trade});
 	toPlayer.log(`${fromPlayer.name} has sent you a trade offer!`);
+	fromPlayer.log(`You sent trade offer ${trade.name} to ${toPlayer.name}.`);
 }
 
 function acceptTradeOffer(toPlayer, tradeId) {
