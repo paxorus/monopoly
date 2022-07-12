@@ -1,5 +1,5 @@
 import {Place} from "/javascripts/common/models/place.js";
-import {PlaceConfigs} from "/javascripts/gameplay/location-configs.js";
+import {PlaceConfigs, propertyComparator} from "/javascripts/gameplay/location-configs.js";
 import validate from "/javascripts/validate-props.js";
 
 
@@ -23,7 +23,9 @@ class TradePropertyListSelector extends React.Component {
 		return <div className="property-list">
 			{/*this.props.cash > 0 && <div className="offer-property">Cash: ${this.props.cash}</div>*/}
 			{/*this.props.numJailCards > 0 && <div className="offer-property">Get Out of Jail Free cards: x{this.props.numJailCards}</div>*/}
-			{this.props.properties.map(placeIdx =>
+			{this.props.properties
+				.sort(propertyComparator)
+				.map(placeIdx =>
 				<div className="offer-property clickable" key={placeIdx} onClick={() => this.props.onClickProperty(placeIdx)}>
 					<div className="offer-property-color inline" style={this.getPropertyColor(placeIdx)}></div>
 					<div className={`inline ${this.getSelectedClass(placeIdx)}`}>{PlaceConfigs[placeIdx].name}</div>

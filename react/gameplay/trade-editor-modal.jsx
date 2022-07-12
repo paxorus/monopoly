@@ -94,7 +94,6 @@ class TradeEditorModal extends React.Component {
 	}
 
 	handleClickProperty(placeIdx, mineOrTheirs) {
-		console.log(placeIdx);
 		if (mineOrTheirs) {
 			this.setState(({fromProperties}) => {
 				// Remove or add.
