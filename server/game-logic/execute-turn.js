@@ -131,6 +131,7 @@ function purchaseProperty(mover, placeIdx) {
 	if (hasAchievedColoredMonopoly(monopoly, mover)) {
 		const propertyNames = monopoly.map(placeIdx => LocationInfo[placeIdx].name);
 		const propertyNamesString = concatenatePropertyNames(propertyNames);
+		mover.addMonopoly(monopoly);
 		mover.log(`Monopoly! You may now build houses on ${propertyNamesString}, and their rents have doubled.`);
 		mover.notifyEveryoneElse(`${mover.name} achieved a monopoly and may now build houses on ${propertyNamesString}.`);
 	}

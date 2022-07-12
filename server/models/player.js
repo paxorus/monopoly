@@ -148,7 +148,7 @@ class Player {
 	}
 
 	notifyEveryoneElse(message) {
-		this.emitToEveryoneElse("notify", message);		
+		this.emitToEveryoneElse("notify", message);
 	}
 
 	getSavedMessages() {
@@ -161,6 +161,10 @@ class Player {
 
 	addToSavedMessages(message) {
 		this.savedMessages.push(message);
+	}
+
+	addMonopoly(monopoly) {
+		this.emit("add-monopoly", {monopoly});
 	}
 
 	serialize() {

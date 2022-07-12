@@ -62,6 +62,12 @@ class GameplayPage extends React.Component {
 			this.updatePlace(placeIdx, place => ({houseCount: place.houseCount - 1}));
 		});
 
+		socket.on("add-monopoly", ({monopoly}) => {
+			this.setState(({monopolies}) => ({
+				monopolies: [...monopolies, monopoly]
+			}));
+		});
+
 		// Jail actions
 		socket.on("go-to-jail", ({playerId}) => {
 			this.updatePlayer(playerId, {jailDays: 3});
@@ -413,7 +419,7 @@ class GameplayPage extends React.Component {
 					isOpen={this.getIsDashboardOpen(player.num)}
 					isMe={player.num === this.state.myPlayerId}
 					player={player}
-					myMonopolies={new Set(this.state.monopolies.flatMap(monopoly => monopoly))}
+					myMonopolies={new Set(this.state.monopolies.flat())}
 					properties={this.getProperties(player.num)}
 					onClickHeader={this.openDashboard.bind(this)}
 					onClickProperty={this.handleClickLocation.bind(this)}
